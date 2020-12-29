@@ -70,7 +70,7 @@ loss, mae = model.evaluate(x_test, y_test)
 print("loss: ", loss)
 print("mae: ", mae)
 
-y_predict = model.predict(x_test)
+y_predict = model.predict(x)
 print("y_predict: ", "\n", y_predict)
 
 # Shuffle = True , 보통 Shuffle = True가 False보다 성능이 좋다
@@ -91,4 +91,3 @@ r2 = r2_score(y_test, y_predict)
 
 print("RMSE: ", RMSE(y_test, y_predict))
 print("R2: ", r2)
-'''
