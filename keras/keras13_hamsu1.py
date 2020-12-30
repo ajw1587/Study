@@ -37,7 +37,7 @@ model.summary()                                             # 모델 구성 확�
 
 # 컴파일
 model.compile(loss = "mse", optimizer = "adam", metrics = ["mae"])
-model.fit(x_train ,y_train, epochs = 100, batch_size = 1, validation_split = 0.2, verbose = 3)      # verbose = 0 -> 훈령과정을 생략해줌
+model.fit(x_train ,y_train, epochs = 5000, batch_size = 1, validation_split = 0.2, verbose = 3)      # verbose = 0 -> 훈령과정을 생략해줌
 
 # 평가, 예측
 loss, mae = model.evaluate(x_test, y_test)

@@ -1,9 +1,12 @@
-# 다:다 mlp
+# 1:다 mlp
+# keras10_mlp6.py를 함수형으로 바꾸시오
+
+# 1:다 mlp
 
 import numpy as np
 from sklearn.model_selection import train_test_split
 
-x = np.array([range(100), range(301,401), range(1, 101)])       #(3,100)
+x = np.array(range(100))       #(100,)
 y = np.array([range(711, 811), range(1, 101), range(201, 301)]) #(3,100)
 
 x = np.transpose(x)
@@ -16,14 +19,21 @@ print("y_train: ", y_train.shape)   #(80,3)
 x_train, x_val, y_train, y_val = train_test_split(x_train, y_train, train_size = 0.8, test_size = 0.2)
 
 # 모델구성
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Dense
+from tensorflow.keras.models import Sequential, Model
+from tensorflow.keras.layers import Dense, Input
 
-model = Sequential()
-model.add(Dense(10, input_dim = 3))     # input_dim = x의 열(컬럼) 갯수
-model.add(Dense(5))
-model.add(Dense(5))
-model.add(Dense(3))                     # y의 열 갯수
+# model = Sequential()
+# model.add(Dense(100, input_dim = 1))     # input_dim = x의 열(컬럼) 갯수
+# model.add(Dense(1000))
+# model.add(Dense(50))
+# model.add(Dense(3))                      # y의 열 갯수
+
+input1 = Input(shape = 1)
+dense1 = Dense(100)(input1)
+dense1 = Dense(1000)(dense1)
+dense1 = Dense(50)(dense1)
+output1 = Dense(3)(dense1)
+model = Model(inputs = input1, outputs = output1)
 
 # 컴파일
 model.compile(loss = "mse", optimizer = "adam", metrics = ["mae"])
@@ -47,3 +57,6 @@ r2 = r2_score(y_test, y_predict)
 
 print("RMSE: ", RMSE(y_test, y_predict))
 print("R2: ", r2)
+
+y_predict = model.predict([1000])
+print("y_predict: ", y_predict)

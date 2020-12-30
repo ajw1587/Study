@@ -1,33 +1,31 @@
 # 다:다 mlp
+# keras10_mlp3.py를 함수형으로 바꾸시오
 
 import numpy as np
+import tensorflow as tf
+from tensorflow.keras.models import Model
+from tensorflow.keras.layers import Dense, Input
 from sklearn.model_selection import train_test_split
 
+# 데이터
 x = np.array([range(100), range(301,401), range(1, 101)])       #(3,100)
 y = np.array([range(711, 811), range(1, 101), range(201, 301)]) #(3,100)
 
-x = np.transpose(x)
-y = np.transpose(y)
+x = np.transpose(x)                                             #(100,3)
+y = np.transpose(y)                                             #(100,3)
 
-x_train, x_test, y_train, y_test = train_test_split(x, y, train_size = 0.8, test_size = 0.2)
-print("x_train: ", x_train.shape)   #(80,3)
-print("y_train: ", y_train.shape)   #(80,3)
+x_train, x_test, y_train, y_test = train_test_split(x, y, train_size = 0.8)
 
-x_train, x_val, y_train, y_val = train_test_split(x_train, y_train, train_size = 0.8, test_size = 0.2)
-
-# 모델구성
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Dense
-
-model = Sequential()
-model.add(Dense(10, input_dim = 3))     # input_dim = x의 열(컬럼) 갯수
-model.add(Dense(5))
-model.add(Dense(5))
-model.add(Dense(3))                     # y의 열 갯수
+# 모델 구성
+input1 = Input(shape = 3)
+dense1 = Dense(10)(input1)
+dense1 = Dense(5)(dense1)
+output1 = Dense(3)(dense1)
+model = Model(inputs = input1, outputs = output1)
 
 # 컴파일
 model.compile(loss = "mse", optimizer = "adam", metrics = ["mae"])
-model.fit(x_train ,y_train, epochs = 100, batch_size = 1, validation_data = (x_val, y_val))
+model.fit(x_train ,y_train, epochs = 100, batch_size = 1, validation_split=0.2)
 
 # 평가, 예측
 loss, mae = model.evaluate(x_test, y_test)
