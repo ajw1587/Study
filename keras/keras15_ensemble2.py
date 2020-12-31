@@ -23,17 +23,16 @@ from tensorflow.keras.models import Model, Sequential
 from tensorflow.keras.layers import Dense, Input
 
 # 2-1. 모델 1
-input1 = Input(shape = (3,))
-dense1 = Dense(10, activation = "relu")(input1)
-dense1 = Dense(5, activation = "relu")(dense1)
+input1 = Input(shape = (3,), name = "model1")
+dense1 = Dense(10, activation = "relu", name = "model1-1")(input1)
+dense1 = Dense(5, activation = "relu", name = "model1-2")(dense1)
 # output1 = Dense(3)(dense1)
 
 # 2-2. 모델 2
-input2 = Input(shape = (3,))
-dense2 = Dense(10, activation = "relu")(input2)
-dense2 = Dense(5, activation = "relu")(dense2)
-dense2 = Dense(5, activation = "relu")(dense2)
-dense2 = Dense(5, activation = "relu")(dense2)
+input2 = Input(shape = (3,), name = "model2")
+dense2 = Dense(10, activation = "relu", name = "model2-1")(input2)
+dense2 = Dense(5, activation = "relu", name = "model2-2")(dense2)
+dense2 = Dense(5, activation = "relu", name = "model2-3")(dense2)
 # output2 = Dense(3)(dense1)
 
 # 모델 병합 / concatenate: 연쇄시키다
@@ -41,14 +40,12 @@ from tensorflow.keras.layers import Concatenate, concatenate
 # from keras.layers.merge import concatenate, Concatenate
 # from keras.layers import concatenatem Concatenate
 merge1 = concatenate([dense1, dense2])
-middle1 = Dense(30)(merge1)
-middle1 = Dense(10)(middle1)
-middle1 = Dense(10)(middle1)
+middle1 = Dense(30, name = "merge1")(merge1)
+middle1 = Dense(10, name = "merge2")(middle1)
 
 # 모델 분기 1
-output1 = Dense(30)(middle1)
-output1 = Dense(7)(output1)
-output1 = Dense(3)(output1)
+output1 = Dense(30, name = "output1")(middle1)
+output1 = Dense(3, name = "output2")(output1)
 # 모델 분기 2
 # output2 = Dense(15)(middle1)
 # output2 = Dense(7)(output2)

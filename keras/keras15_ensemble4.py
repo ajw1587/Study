@@ -23,15 +23,10 @@ from tensorflow.keras.models import Model, Sequential
 from tensorflow.keras.layers import Dense, Input
 
 # 2-1. 모델 1
-input1 = Input(shape = (3,))
-dense1 = Dense(1000, activation = "relu")(input1)
-dense1 = Dense(1000, activation = "relu")(dense1)
-dense1 = Dense(1000, activation = "relu")(dense1)
-dense1 = Dense(1000, activation = "relu")(dense1)
-dense1 = Dense(1000, activation = "relu")(dense1)
-dense1 = Dense(1000, activation = "relu")(dense1)
-dense1 = Dense(50, activation = "relu")(dense1)
-dense1 = Dense(5, activation = "relu")(dense1)
+input1 = Input(shape = (3,), name = "model1")
+dense1 = Dense(1000, activation = "relu", name = "model1-1")(input1)
+dense1 = Dense(50, activation = "relu", name = "model1-2")(dense1)
+dense1 = Dense(5, activation = "relu", name = "model1-3")(dense1)
 # output1 = Dense(3)(dense1)
 
 # # 2-2. 모델 2
@@ -52,21 +47,13 @@ dense1 = Dense(5, activation = "relu")(dense1)
 # middle1 = Dense(10)(middle1)
 
 # 모델 분기 1
-output1 = Dense(30)(dense1)
-output1 = Dense(1000, activation = "relu")(output1)
-output1 = Dense(1000, activation = "relu")(output1)
-output1 = Dense(1000, activation = "relu")(output1)
-output1 = Dense(1000, activation = "relu")(output1)
-output1 = Dense(1000, activation = "relu")(output1)
-output1 = Dense(3)(output1)
+output1 = Dense(30, name = "output1")(dense1)
+output1 = Dense(1000, activation = "relu", name = "output1-1")(output1)
+output1 = Dense(3, name = "output1-2")(output1)
 # 모델 분기 2
-output2 = Dense(15)(dense1)
-output2 = Dense(1000, activation = "relu")(output2)
-output2 = Dense(1000, activation = "relu")(output2)
-output2 = Dense(1000, activation = "relu")(output2)
-output2 = Dense(1000, activation = "relu")(output2)
-output2 = Dense(1000, activation = "relu")(output2)
-output2 = Dense(3)(output2)
+output2 = Dense(15, name = "output2")(dense1)
+output2 = Dense(1000, activation = "relu", name = "output2-1")(output2)
+output2 = Dense(3, name = "output2-2")(output2)
 
 # 모델 선언
 model = Model(inputs = input1, outputs = [output1, output2])

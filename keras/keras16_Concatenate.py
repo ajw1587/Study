@@ -18,7 +18,7 @@ print("\n")
 print(y)
 # [[[20 21 22 23 24]]
 #  [[25 26 27 28 29]]]
-z = Concatenate(axis=1)([x, y])
+z = Concatenate(axis=1)([x, y]) # Class
 print(z)
 # tf.Tensor(
 # [[[ 0  1  2  3  4]
@@ -30,5 +30,5 @@ print(z)
 #   [25 26 27 28 29]]], shape=(2, 3, 5), dtype=int32)
 print("\n")
 print("\n")
-b = concatenate([x, y], axis = 1)
+b = concatenate([x, y], axis = 1) # Function
 print(b)

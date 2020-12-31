@@ -25,21 +25,17 @@ from tensorflow.keras.models import Model, Sequential
 from tensorflow.keras.layers import Dense, Input
 
 # 2-1. 모델 1
-input1 = Input(shape = (3,))
-dense1 = Dense(10, activation = "relu")(input1)
-dense1 = Dense(100, activation = "relu")(dense1)
-dense1 = Dense(200, activation = "relu")(dense1)
-dense1 = Dense(50, activation = "relu")(dense1)
-dense1 = Dense(5, activation = "relu")(dense1)
+input1 = Input(shape = (3,), name = "model1")
+dense1 = Dense(10, activation = "relu", name = "model1-1")(input1)
+dense1 = Dense(5, activation = "relu", name = "model1-2")(dense1)
+dense1 = Dense(5, activation = "relu", name = "model1-3")(dense1)
 # output1 = Dense(3)(dense1)
 
 # 2-2. 모델 2
-input2 = Input(shape = (3,))
-dense2 = Dense(10, activation = "relu")(input2)
-dense2 = Dense(100, activation = "relu")(dense2)
-dense2 = Dense(200, activation = "relu")(dense2)
-dense2 = Dense(50, activation = "relu")(dense2)
-dense2 = Dense(5, activation = "relu")(dense2)
+input2 = Input(shape = (3,), name = "model2")
+dense2 = Dense(10, activation = "relu", name = "model2-1")(input2)
+dense2 = Dense(5, activation = "relu", name = "model2-2")(dense2)
+dense2 = Dense(5, activation = "relu", name = "model2-3")(dense2)
 # output2 = Dense(3)(dense1)
 
 # 모델 병합 / concatenate: 연쇄시키다
@@ -47,30 +43,18 @@ from tensorflow.keras.layers import Concatenate, concatenate
 # from keras.layers.merge import concatenate, Concatenate
 # from keras.layers import concatenatem Concatenate
 merge1 = concatenate([dense1, dense2])
-middle1 = Dense(30)(merge1)
-middle1 = Dense(50)(middle1)
-middle1 = Dense(50)(middle1)
-middle1 = Dense(50)(middle1)
-middle1 = Dense(10)(middle1)
+middle1 = Dense(3, name = "merge1")(merge1)
+middle1 = Dense(10, name = "merge2")(middle1)
 
 # 모델 분기 1
-output1 = Dense(30)(middle1)
-output1 = Dense(100)(output1)
-output1 = Dense(100)(output1)
-output1 = Dense(50)(output1)
-output1 = Dense(3)(output1)
+output1 = Dense(5, name = "output1-1")(middle1)
+output1 = Dense(3, name = "output1-2")(output1)
 # 모델 분기 2
-output2 = Dense(15)(middle1)
-output2 = Dense(100)(output2)
-output2 = Dense(100)(output2)
-output2 = Dense(50)(output2)
-output2 = Dense(3)(output2)
+output2 = Dense(15, name = "output2-1")(middle1)
+output2 = Dense(3, name = "output2-2")(output2)
 # 모델 분기 3
-output3 = Dense(20)(middle1)
-output3 = Dense(100)(output3)
-output3 = Dense(100)(output3)
-output3 = Dense(50)(output3)
-output3 = Dense(3)(output3)
+output3 = Dense(20, name = "output3-1")(middle1)
+output3 = Dense(3, name = "output3-2")(output3)
 
 # 모델 선언
 model = Model(inputs = [input1, input2], outputs = [output1, output2, output3])

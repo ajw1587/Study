@@ -14,7 +14,8 @@ print("y_train: ", y_train.shape)   #(80,2)
 x_train, x_val, y_train, y_val = train_test_split(x_train, y_train, train_size = 0.8, test_size = 0.2)
 
 
-# 모델구성 아래의 Sequential 모델과 Function 모델의 구성은 같다
+# 모델구성
+# 아래의 Sequential 모델과 Function 모델의 구성은 같다
 from tensorflow.keras.models import Sequential, Model      # Sequenrial은 순차적인 모델
 from tensorflow.keras.layers import Dense, Input
 

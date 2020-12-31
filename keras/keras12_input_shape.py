@@ -21,7 +21,7 @@ model = Sequential()
 # model.add(Dense(10, input_dim = 5))       # input_dim = x의 열(컬럼) 갯수
 model.add(Dense(10, input_shape = (5,)))
 # input_shape는 input_dim이 표현할 수 없는 데이터 표현이 가능하다.
-# ex) (500, 100, 3) -> input_shape(100, 3)
+# ex) (500, 100, 3) -> input_shape(500, 100, 3)
 #     (10000, 28, 28, 3) -> input_shape(28, 28, 3)
 
 model.add(Dense(5))

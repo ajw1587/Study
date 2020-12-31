@@ -34,3 +34,5 @@ model.summary()
 # Trainable params: 49
 # Non-trainable params: 0
 # _________________________________________________________________
+# 병합될때는 노드수가 합쳐지고, ex) model1 노드 10개, model2 노드 5개면 merge 노드수 15개
+# 분리될때는 나뉘지 않고 merge노드수를 똑같이 쓴다. ex) merge 노드수 10개면 output1 input 10개, output2 input 10개

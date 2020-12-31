@@ -1,4 +1,4 @@
-# 다:다(2:2) ensemble 만들기
+# metrics가 다를 경우
 
 import numpy as np
 
@@ -57,24 +57,24 @@ output2 = Dense(3, name = "output2-3")(output2)
 model = Model(inputs = [input1, input2], outputs = [output1, output2])
 model.summary()
 
-# 훈련
-model.compile(loss = "mse", optimizer = "adam", metrics = ["mae"])
+# compile
+model.compile(loss = "mse", optimizer = "adam", metrics = ["mae", "mse"])   # metrics에 2개의 값 사용 가능
 model.fit([x1_train, x2_train], [y1_train, y2_train], epochs = 10, batch_size = 1, validation_split = 0.2, verbose = 1)
 
 # 평가, 예측
 loss = model.evaluate([x1_test, x2_test], [y1_test, y2_test], batch_size = 1)
-print("loss: ", loss)                           # loss 5개의 값이 나온다. [분기모델1+분기모델2의 mse합, output1의 mse, output2의 mse, output1의 metrics값, output2의 metrics값]
+print("loss: ", loss)                           # loss 7개의 값이 나온다.
 
-print("metrics_name: ", model.metrics_names)    # loss 5개의 값이 나온다. [분기모델1+분기모델2의 mse합, output1의 mse, output2의 mse, output1의 metrics값, output2의 metrics값]
-                                                # loss:  [8131.48291015625, 4593.9697265625, 3537.51318359375, 65.62861633300781, 54.035789489746094]
-                                                # metrics_name:  ['loss', 'dense_11_loss', 'dense_15_loss', 'dense_11_mae', 'dense_15_mae']
+print("metrics_name: ", model.metrics_names)    # loss 7개의 값이 나온다. [분기모델1+분기모델2의 mse합, output1의 mse, output2의 mse, output1의 metrics값, output2의 metrics값]
+                                                # loss:  [4844.7060546875, 1856.223388671875, 2988.483154296875, 39.791404724121094, 1856.223388671875, 52.21002960205078, 2988.483154296875]
+                                                # metrics_name: ['loss', 'output1-3_loss', 'output2-3_loss', 'output1-3_mae', 'output1-3_mse', 'output2-3_mae', 'output2-3_mse']
 
 y1_predict, y2_predict = model.predict([x1_test, x2_test])
-print("=============================================")
-print("y1_predict\n", y1_predict)
-print("=============================================")
-print("y2_predict\n", y2_predict)
-print("=============================================")
+# print("=============================================")
+# print("y1_predict\n", y1_predict)
+# print("=============================================")
+# print("y2_predict\n", y2_predict)
+# print("=============================================")
 
 # RMSE
 from sklearn.metrics import mean_squared_error
