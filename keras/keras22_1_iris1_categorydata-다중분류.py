@@ -38,8 +38,7 @@ x_test = scaler.transform(x_test)
 
 # OneHotEncoding 
 from sklearn.preprocessing import OneHotEncoder
-
-# 전처리전에 y의 행렬을 바꿔줘야한다.
+# Endcoding 전에 y의 행렬을 바꿔줘야한다.
 y = y.reshape(-1,1)
 y_train = y_train.reshape(-1,1)
 y_test = y_test.reshape(-1,1)
