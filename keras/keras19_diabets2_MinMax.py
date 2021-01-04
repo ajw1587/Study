@@ -1,6 +1,7 @@
 import tensorflow as tf
 import numpy as np
 from sklearn.datasets import load_diabetes
+# nomalization, 정규화
 
 dataset = load_diabetes()
 x = dataset.data        #(442,10)
