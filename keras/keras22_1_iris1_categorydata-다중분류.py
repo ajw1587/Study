@@ -13,13 +13,13 @@ y = dataset.target
 # print(x.shape)      # (150,4)
 # print(y.shape)      # (150,)
 # print(x[:5])
-print(y)            # 0, 1, 2
+# print(y)            # 0, 1, 2
 
 # 2. 전처리
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler
-x_train, x_test, y_train, y_test = train_test_split(x, y, train_size = 0.8, shuffle = True, random_state = 50)
-x_train, x_val, y_train, y_val = train_test_split(x_train, y_train, train_size = 0.8, shuffle = True, random_state = 50)
+x_train, x_test, y_train, y_test = train_test_split(x, y, train_size = 0.8, shuffle = True)
+x_train, x_val, y_train, y_val = train_test_split(x_train, y_train, train_size = 0.8, shuffle = True)
 
 scaler = MinMaxScaler()
 scaler.fit(x_train)
@@ -28,12 +28,29 @@ x_val = scaler.transform(x_val)
 x_test = scaler.transform(x_test)
 
 ## 원핫인코딩 OneHotEncoding
-from tensorflow.keras.utils import to_categorical
-# from keras.utils.np_utils import to_categorical
-y = to_categorical(y)
-y_train = to_categorical(y_train)
-y_test = to_categorical(y_test)
-y_val = to_categorical(y_val)
+# to_categorical
+# from tensorflow.keras.utils import to_categorical
+# # from keras.utils.np_utils import to_categorical
+# y = to_categorical(y)
+# y_train = to_categorical(y_train)
+# y_test = to_categorical(y_test)
+# y_val = to_categorical(y_val)
+
+# OneHotEncoding 
+from sklearn.preprocessing import OneHotEncoder
+
+# 전처리전에 y의 행렬을 바꿔줘야한다.
+y = y.reshape(-1,1)
+y_train = y_train.reshape(-1,1)
+y_test = y_test.reshape(-1,1)
+y_val = y_val.reshape(-1,1)
+
+enc = OneHotEncoder()
+enc.fit(y)
+y = enc.transform(y).toarray()
+y_train = enc.transform(y_train).toarray()
+y_test = enc.transform(y_test).toarray()
+y_val = enc.transform(y_val).toarray()
 
 print(y)
 print(y.shape)
