@@ -36,7 +36,7 @@ x_test = scaler.transform(x_test)
 # y_test = to_categorical(y_test)
 # y_val = to_categorical(y_val)
 
-# OneHotEncoding 
+# OneHotEncoding
 from sklearn.preprocessing import OneHotEncoder
 # Endcoding 전에 y의 행렬을 바꿔줘야한다.
 y = y.reshape(-1,1)

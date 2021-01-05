@@ -13,8 +13,8 @@ y = dataset.target              # Binary Data
 
 # y 값 Encoding 해주기
 from sklearn.preprocessing import OneHotEncoder
-enc = OneHotEncoder()
 y = y.reshape(-1,1)
+enc = OneHotEncoder()
 enc.fit(y)
 y = enc.transform(y).toarray()
 print(y)

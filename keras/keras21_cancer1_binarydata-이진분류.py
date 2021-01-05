@@ -68,8 +68,13 @@ y_predict = np.transpose(y_predict)
 # 2. 두번째 방법
 y_pre = list(map(int, np.round(y_predict,0)))
 print(y_pre)
-
 print(y_test[-5:-1])
+
+# 3. 세번째 방법
+# numpy.where 사용하기
+# np.where(x<1, 0, 1) x가 1보다 작으면 0, 크면 1
+
+
 
 # loss:  0.05254744738340378
 # acc:  0.9912280440330505
