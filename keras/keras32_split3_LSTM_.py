@@ -14,7 +14,6 @@
 
 # 1. 데이터
 import numpy as np
-from sklearn.preprocessing import MinMaxScaler
 
 sample_data = np.array(range(1,101))
 
@@ -34,6 +33,7 @@ print("x.shape: ", x.shape)     # (95,5)
 print("y.shape: ", y.shape)     # (95,1)
 
 # 데이터 전처리
+from sklearn.preprocessing import MinMaxScaler
 from sklearn.model_selection import train_test_split
 x_train, x_test, y_train, y_test = train_test_split(x, y, train_size = 0.8, random_state = 70)
 x_train, x_val, y_train, y_val = train_test_split(x_train, y_train, train_size = 0.8, random_state = 70)
@@ -82,13 +82,13 @@ from tensorflow.keras.models import Model
 from tensorflow.keras.layers import Dense, Input, LSTM
 
 input1 = Input(shape = (5,1))
-dense1 = LSTM(20)(input1)
-dense1 = Dense(100)(dense1)
-dense1 = Dense(200)(dense1)
-dense1 = Dense(300)(dense1)
-dense1 = Dense(300)(dense1)
-dense1 = Dense(200)(dense1)
-dense1 = Dense(100)(dense1)
+dense1 =   LSTM(20, activation = "relu")(input1)
+dense1 = Dense(100, activation = "relu")(dense1)
+dense1 = Dense(200, activation = "relu")(dense1)
+dense1 = Dense(300, activation = "relu")(dense1)
+dense1 = Dense(300, activation = "relu")(dense1)
+dense1 = Dense(200, activation = "relu")(dense1)
+dense1 = Dense(100, activation = "relu")(dense1)
 output1 = Dense(1)(dense1)
 model = Model(inputs = input1, outputs = output1)
 
