@@ -44,8 +44,8 @@ model.fit(x, y, epochs = 150, batch_size = 1)
 loss = model.evaluate(x, y)
 print("loss: ", loss)
 
-x_predict = np.array([7, 8, 9, 10])
-x_predict = x_predict.reshape(1, 4, 1)
+x_predict = np.array([[7, 8, 9, 10], [8, 9, 10, 11]])
+x_predict = x_predict.reshape(2, 4, 1)
 
 result = model.predict(x_predict)
 print("result: ", result)
