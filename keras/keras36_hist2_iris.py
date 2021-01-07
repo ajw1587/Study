@@ -1,3 +1,6 @@
+# hist를 이용하여 그래프를 그리시오.
+# loss, val_loss, acc, val_acc
+
 import numpy as np
 import tensorflow as tf
 from sklearn.datasets import load_iris
@@ -72,12 +75,13 @@ model.add(Dense(3, activation = "softmax"))     # 다중분류의 경우 나누�
 
 # 4. Compile and Train
 from sklearn.metrics import r2_score, mean_squared_error
-
+from tensorflow.keras. callbacks import EarlyStopping
+es = EarlyStopping(monitor = 'loss', patience = 10, mode = 'auto')
 def RMSE(y_test, y_predict):
     return np.sqrt(mean_squared_error(y_test, y_predict))
     
 model.compile(loss = "categorical_crossentropy", optimizer = "adam", metrics = ['acc'])
-model.fit(x_train, y_train, epochs = 100, validation_data = (x_val, y_val), batch_size = 3)
+hist = model.fit(x_train, y_train, epochs = 100, validation_data = (x_val, y_val), batch_size = 3, callbacks = es)
 loss, acc = model.evaluate(x_test, y_test)
 y_test_predict = model.predict(x_test)
 rmse = RMSE(y_test, y_test_predict)
@@ -112,6 +116,21 @@ print(tf.argmax(y_predict, 1))                # 행방향
 # tf.Tensor([2 1 1 1], shape=(4,), dtype=int64)
 
 # 즉, axis = 1 = 행, axis = 0 = 열
+
+
+# 그래프
+import matplotlib.pyplot as plt
+# plt.plot(x, y) -> 여기서 x를 생략해도 된다.
+plt.plot(hist.history['loss'])
+plt.plot(hist.history['val_loss'])
+plt.plot(hist.history['acc'])
+plt.plot(hist.history['val_acc'])
+plt.title('loss & acc')
+plt.ylabel('loss, acc')
+plt.xlabel('epoch')
+plt.legend(['train loss', 'val loss', 'train acc', 'val acc'])
+plt.show()
+
 
 
 # loss:  0.10240378975868225

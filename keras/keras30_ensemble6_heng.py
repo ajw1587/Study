@@ -45,31 +45,33 @@ from tensorflow.keras.layers import Input, Dense, LSTM
 
 input1 = Input(shape = (3,1), name = "input1")
 lstm1 = LSTM(10, activation = "relu", name = "input1-1")(input1)
-dense1 = Dense(20, activation = "relu", name = "input1-2")(lstm1)
-dense1 = Dense(30, activation = "relu", name = "input1-3")(dense1)
-dense1 = Dense(30, activation = "relu", name = "input1-4")(dense1)
-dense1 = Dense(20, activation = "relu", name = "input1-5")(dense1)
+dense1 = Dense(200, activation = "relu", name = "input1-2")(lstm1)
+dense1 = Dense(300, activation = "relu", name = "input1-3")(dense1)
+dense1 = Dense(300, activation = "relu", name = "input1-4")(dense1)
+dense1 = Dense(200, activation = "relu", name = "input1-5")(dense1)
 
 input2 = Input(shape = (3,1), name = "input2")
 lstm2 = LSTM(10, activation = "relu", name = "input2-1")(input2)
-dense2 = Dense(20, activation = "relu", name = "input2-2")(lstm2)
-dense2 = Dense(30, activation = "relu", name = "input2-3")(dense2)
-dense2 = Dense(30, activation = "relu", name = "input2-4")(dense2)
-dense2 = Dense(20, activation = "relu", name = "input2-5")(dense2)
+dense2 = Dense(200, activation = "relu", name = "input2-2")(lstm2)
+dense2 = Dense(300, activation = "relu", name = "input2-3")(dense2)
+dense2 = Dense(300, activation = "relu", name = "input2-4")(dense2)
+dense2 = Dense(200, activation = "relu", name = "input2-5")(dense2)
 
-# 모델 병합
+# 모델 병0합
 from tensorflow.keras.layers import concatenate
 merge = concatenate([dense1, dense2])
-middle = Dense(20, activation = "relu", name = "middle1")(merge)
-middle = Dense(30, activation = "relu", name = "middle2")(middle)
+middle = Dense(200, activation = "relu", name = "middle1")(merge)
+middle = Dense(300, activation = "relu", name = "middle2")(middle)
+middle = Dense(300, activation = "relu", name = "middle3")(middle)
+middle = Dense(300, activation = "relu", name = "middle4")(middle)
 
-middle = Dense(50, activation = "relu", name = "output1")(middle)
-middle = Dense(30, activation = "relu", name = "output1-1")(middle)
-output1 = Dense(1, name = "output1-2")(middle)
+middle1 = Dense(50, activation = "relu", name = "output1")(middle)
+middle1 = Dense(30, activation = "relu", name = "output1-1")(middle1)
+output1 = Dense(1, name = "output1-2")(middle1)
 
-middle = Dense(50, activation = "relu", name = "output2")(middle)
-middle = Dense(30, activation = "relu", name = "output2-1")(middle)
-output2 = Dense(1, name = "output2-2")(middle)
+middle2 = Dense(50, activation = "relu", name = "output2")(middle)
+middle2 = Dense(30, activation = "relu", name = "output2-1")(middle2)
+output2 = Dense(1, name = "output2-2")(middle2)
 
 model = Model(inputs = [input1, input2], outputs = [output1, output2])
 
@@ -100,11 +102,3 @@ print("y1_predict: \n", y1_predict)
 print("y2_predict: \n", y2_predict)
 
 # predict는 85의 근사치
-# [[58.867985]]
-# [[53.393826]]
-# [[55.23129]]
-# [[17.213404]]
-# [[39.542355]]
-# [[41.95151]]
-# [[9.458206]]
-# [[81.467415]]

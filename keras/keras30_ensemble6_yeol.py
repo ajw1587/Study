@@ -22,6 +22,7 @@ print("x1.shape: ", x1.shape)       # (13, 2)
 print("x2.shape: ", x2.shape)       # (13, 3)
 print("y1.shape: ", y1.shape)         # (13, 3)
 print("y2.shape: ", y2.shape)         # (13,)
+
 x1 = x1.reshape(x1.shape[0], x1.shape[1], 1)
 x2 = x2.reshape(x2.shape[0], x2.shape[1], 1)
 
@@ -34,6 +35,28 @@ x1_train, x1_val, y1_train, y1_val = train_test_split(x1_train, y1_train, train_
 
 x2_train, x2_test, y2_train, y2_test = train_test_split(x2, y2, train_size = 0.8, random_state = 70)
 x2_train, x2_val, y2_train, y2_val = train_test_split(x2_train, y2_train, train_size = 0.8, random_state = 70)
+
+# 왜 안될까 이상하네===============================================================================
+# scaler1 = MinMaxScaler()
+# scaler1.fit(x1_train)
+# x1_train = scaler1.transform(x1_train)
+# x1_test = scaler1.transform(x1_test)
+# x1_val = scaler1.transform(x1_val)
+
+# scaler2 = MinMaxScaler()
+# scaler2.fit(x2_train)
+# x2_train = scaler2.transform(x2_train)
+# x2_test = scaler2.transform(x2_test)
+# x2_val = scaler2.transform(x2_val)
+
+# x1_train = x1_train.reshape(x1_train.shape[0], x1_train.shape[1], 1)
+# x1_test = x1_test.reshape(x1_test.shape[0], x1_test.shape[1], 1)
+# x1_val = x1_val.reshape(x1_val.shape[0], x1_val.shape[1], 1)
+
+# x2_train = x2_train.reshape(x2_train.shape[0], x2_train.shape[1], 1)
+# x2_test = x2_test.reshape(x2_test.shape[0], x2_test.shape[1], 1)
+# x2_val = x2_val.reshape(x2_val.shape[0], x2_val.shape[1], 1)
+# #================================================================================================
 
 # 3. 모델 구성
 from tensorflow.keras.models import Model
@@ -58,14 +81,21 @@ from tensorflow.keras.layers import concatenate
 merge = concatenate([dense1, dense2])
 middle = Dense(20, activation = "relu", name = "middle1")(merge)
 middle = Dense(30, activation = "relu", name = "middle2")(middle)
+middle = Dense(30, activation = "relu", name = "middle3")(middle)
+middle = Dense(30, activation = "relu", name = "middle4")(middle)
+middle = Dense(30, activation = "relu", name = "middle5")(middle)
 
 output1 = Dense(50, activation = "relu", name = "output1")(middle)
 output1 = Dense(30, activation = "relu", name = "output1-1")(output1)
-output1 = Dense(3, name = "output1-2")(middle)
+output1 = Dense(30, activation = "relu", name = "output1-2")(output1)
+output1 = Dense(30, activation = "relu", name = "output1-3")(output1)
+output1 = Dense(3, name = "output1-4")(middle)
 
 output2 = Dense(50, activation = "relu", name = "output2")(middle)
 output2 = Dense(30, activation = "relu", name = "output2-1")(output2)
-output2 = Dense(1, name = "output2-2")(middle)
+output2 = Dense(30, activation = "relu", name = "output2-2")(output2)
+output2 = Dense(30, activation = "relu", name = "output2-3")(output2)
+output2 = Dense(1, name = "output2-4")(middle)
 
 model = Model(inputs = [input1, input2], outputs = [output1, output2])
 
@@ -95,3 +125,13 @@ x2_predict = x2_predict.reshape(1, 3, 1)
 y1_predict, y2_predict = model.predict([x1_predict, x2_predict])
 print("y1_predict: \n", y1_predict)
 print("y2_predict: \n", y2_predict)
+
+# y1_predict: 
+#  [[65.70855 74.52001 65.26186]]
+# y2_predict:
+#  [[91.82954]]
+
+# y1_predict: 
+#  [[67.32108 74.78435 81.37112]]
+# y2_predict:
+#  [[80.392586]]
