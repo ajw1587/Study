@@ -32,7 +32,7 @@ es = EarlyStopping(monitor = 'loss', patience = 10, mode = 'auto')
 
 # 3. 컴파일, 훈련
 model.compile(loss = 'mse', optimizer = 'adam', metrics = ['acc'])
-hist = model.fit(x, y, epochs = 1000, batch_size = 32, verbose = 1, validation_split = 0.2, callbacks = [es])
+hist = model.fit(x, y, epochs = 100, batch_size = 32, verbose = 1, validation_split = 0.2, callbacks = [es])
 print(hist)
 print(hist.history.keys())  # loss, acc, val_loss, val_acc
 
@@ -54,3 +54,14 @@ plt.ylabel('loss, acc')
 plt.xlabel('epoch')
 plt.legend(['train loss', 'val loss', 'train acc', 'val acc'])
 plt.show()
+
+# # Graph 나누기
+# fig = plt.figure()
+# a = fig.add_subplot(2, 1, 1)
+# b = fig.add_subplot(2, 1, 2)
+# x = range(0, 101)
+# y = range(100, 201)
+# a.plot(x, y)
+# b.plot(x, y, 'r--')
+# plt.show()
+

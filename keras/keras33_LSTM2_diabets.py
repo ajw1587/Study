@@ -75,3 +75,8 @@ print("R2_SCORE: ", R2)
 
 result = model.predict(x_test)
 print("result: \n", result)
+
+
+# loss:  [3782.6376953125, 48.04692840576172]
+# RMSE:  61.50315192095911
+# R2_SCORE:  0.41716268872060336

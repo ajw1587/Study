@@ -1,5 +1,5 @@
-# hist를 이용하여 그래프를 그리시오.
-# loss, val_loss, acc, val_acc
+# 실습
+# 드랍아웃 적용
 
 import numpy as np
 from sklearn.datasets import load_wine
@@ -34,15 +34,20 @@ x_test = scaler.transform(x_test)
 
 # 3. 모델
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Dense
+from tensorflow.keras.layers import Dense, Dropout
 
 model = Sequential()
 model.add(Dense(10, activation = "relu", input_shape = (13,)))
 model.add(Dense(100, activation = "relu"))
+model.add(Dropout(0.2))
 model.add(Dense(200, activation = "relu"))
+model.add(Dropout(0.2))
 model.add(Dense(300, activation = "relu"))
+model.add(Dropout(0.2))
 model.add(Dense(200, activation = "relu"))
+model.add(Dropout(0.2))
 model.add(Dense(100, activation = "relu"))
+model.add(Dropout(0.2))
 model.add(Dense(10, activation = "relu"))
 model.add(Dense(3, activation = "softmax"))     # 다중분류의 경우 나누고자 하는 종류의 숫자를 기입하고 softmax를 사용한다.
                                                 # 원핫인코딩, to_categorical -> wikidocs.net/22647
@@ -50,14 +55,12 @@ model.add(Dense(3, activation = "softmax"))     # 다중분류의 경우 나누�
 
 # 4. Compile and Train
 from sklearn.metrics import r2_score, mean_squared_error
-from tensorflow.keras.callbacks import EarlyStopping
-es = EarlyStopping(monitor = "loss", patience = 10, mode = 'auto')
 
 def RMSE(y_test, y_predict):
     return np.sqrt(mean_squared_error(y_test, y_predict))
     
 model.compile(loss = "categorical_crossentropy", optimizer = "adam", metrics = ['acc'])
-hist = model.fit(x_train, y_train, epochs = 100, validation_data = (x_val, y_val), batch_size = 3, callbacks = es)
+model.fit(x_train, y_train, epochs = 100, validation_data = (x_val, y_val), batch_size = 3)
 loss, acc = model.evaluate(x_test, y_test)
 y_test_predict = model.predict(x_test)
 rmse = RMSE(y_test, y_test_predict)
@@ -70,17 +73,7 @@ y_predict = model.predict(x_test[-5:-1])
 print(y_predict)
 print(y_test[-5:-1])
 
-
-# 그래프
-import matplotlib.pyplot as plt
-
-plt.plot(hist.history['loss'])
-plt.plot(hist.history['val_loss'])
-plt.plot(hist.history['acc'])
-plt.plot(hist.history['val_acc'])
-plt.xlabel('epoch')
-plt.ylabel('loss & acc')
-plt.title('loss & acc')
-plt.legend(['train_loss', 'val_loss', 'acc_loss', 'val_acc'])
-plt.show()
-
+# Dropout 적용
+# loss:  2.847772293534945e-07
+# acc:  1.0
+# RMSE:  7.8633485e-07

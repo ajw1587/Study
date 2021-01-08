@@ -19,3 +19,4 @@ model.save("./model/save_keras35.h5")       # '.': 현재폴더: Study
 model.save(".//model//save_keras35.h5")     # '.': 현재폴더: Study
 model.save(".\model\save_keras35.h5")       # '.': 현재폴더: Study, 단 \n 이 있으면 오류가 발생할 수도 있다. 그떄는 \\n이라고 하면 된다.
 model.save(".\\model\\save_keras35.h5")     # '.': 현재폴더: Study
+    
