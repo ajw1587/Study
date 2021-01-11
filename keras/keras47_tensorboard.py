@@ -53,7 +53,7 @@ cp = ModelCheckpoint(filepath = modelpath, monitor = 'val_loss', save_best_only 
 tb = TensorBoard(log_dir = './graph', histogram_freq = 0, write_graph = True, write_images = True)             # 다음 시행할때는 graph 안에 있는 파일 다 비워줘야 한다.
                                                                                                                # cmd 창에서 graph 파일 위치에서 tensorboard --logdir=. 입력
 model.compile(loss = 'categorical_crossentropy', optimizer = 'adam', metrics = ['accuracy'])
-hist = model.fit(x_train, y_train, batch_size = 10, epochs = 30, validation_split = 0.2, callbacks = [es, cp, tb])
+hist = model.fit(x_train, y_train, batch_size = 100, epochs = 1, validation_split = 0.2, callbacks = [es])
 
 # 응용
 # y_test 10개와 y_test 10개를 출력하시오.
@@ -65,8 +65,14 @@ print("acc: ", result[1])
 # print("y_test[:10]: \n", y_test[:10])
 # print("y_predict[:10]: \n", y_predict[:10])
 
-# 시각화
+
+# 시각화, 한글 폰트 사용하기
+import matplotlib
 import matplotlib.pyplot as plt
+from matplotlib import font_manager, rc
+font_name = font_manager.FontProperties(fname = 'c:/Windows/Fonts/malgun.ttf').get_name()       # 기존 저장되어 있는 폰트 사용하기
+rc('font', family = font_name)
+matplotlib.rcParams['axes.unicode_minus'] = False                                               # 한글화시 마이너스 부분 깨짐 방지
 
 plt.figure(figsize = (10, 6))           # 면적 잡아주기
 
@@ -75,12 +81,12 @@ plt.plot(hist.history['loss'], marker = '.', c = 'red', label = 'loss')
 plt.plot(hist.history['val_loss'], marker = '.', c = 'blue', label = 'val_loss')
 plt.grid()
 
-# plt.title('손실비용')
-plt.title('Cost Loss')
+
+plt.title('손실비용')
+# plt.title('Cost Loss')
 plt.ylabel('loss')
 plt.xlabel('epoch')
 plt.legend(loc = 'upper right')
-
 
 
 plt.subplot(2, 1, 2)                    # 2행1열짜리 그래프중 2번째
@@ -88,8 +94,8 @@ plt.plot(hist.history['accuracy'], marker = '.', c = 'red', label = 'accuracy')
 plt.plot(hist.history['val_accuracy'], marker = '.', c = 'blue', label = 'val_accuracy')
 plt.grid()
 
-# plt.title('정확도')
-plt.title('Accuray')
+plt.title('정확도')
+# plt.title('Accuray')
 plt.ylabel('accuracy')
 plt.xlabel('epoch')
 plt.legend(loc = 'upper right')
