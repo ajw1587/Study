@@ -51,14 +51,14 @@ dense1 = Dense(300, activation = "relu")(dense1)
 dense1 = Dense(200, activation = "relu")(dense1)
 dense1 = Dense(100, activation = "relu")(dense1)
 dense1 = Dense(10, activation = "relu")(dense1)
-output1 = Dense(1,  activation = "relu")(dense1)
+output1 = Dense(1,  activation = "sigmoid")(dense1)
 model = Model(inputs = input1, outputs = output1)
 
 
 # Compile and Fit and Early_Stopping
 from tensorflow.keras.callbacks import EarlyStopping
 early_stopping = EarlyStopping(monitor = "loss", patience = 10, mode = "auto")
-model.compile(loss = "mse", optimizer = "adam", metrics = ["acc"])
+model.compile(loss = "binary_crossentropy", optimizer = "adam", metrics = ["acc"])
 model.fit(x_train, y_train, epochs = 200, batch_size = 6, validation_data = (x_val, y_val), callbacks = early_stopping)
 
 

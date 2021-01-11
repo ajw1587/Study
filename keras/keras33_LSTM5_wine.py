@@ -35,7 +35,7 @@ x_test = scaler.transform(x_test)
 x_train = x_train.reshape(x_train.shape[0], x_train.shape[1], 1)
 x_test = x_test.reshape(x_test.shape[0], x_test.shape[1], 1)
 x_val = x_val.reshape(x_val.shape[0], x_val.shape[1], 1)
-print(x_train)
+print(y_train[-1:-20])
 
 # 모델 구성
 from tensorflow.keras.models import Model
@@ -53,14 +53,14 @@ dense1 = Dense(300, activation = "relu")(dense1)
 dense1 = Dense(200, activation = "relu")(dense1)
 dense1 = Dense(100, activation = "relu")(dense1)
 dense1 = Dense(10, activation = "relu")(dense1)
-output1 = Dense(1,  activation = "relu")(dense1)
+output1 = Dense(3, activation = "softmax")(dense1)
 model = Model(inputs = input1, outputs = output1)
 
 
 # Compile and Fit and Early_Stopping
 from tensorflow.keras.callbacks import EarlyStopping
 early_stopping = EarlyStopping(monitor = "loss", patience = 30, mode = "acc")
-model.compile(loss = "mse", optimizer = "adam", metrics = ["mae"])
+model.compile(loss = "categorical_crossentropy", optimizer = "adam", metrics = ["mae"])
 model.fit(x_train, y_train, epochs = 200, batch_size = 6, validation_data = (x_val, y_val), callbacks = early_stopping)
 
 
