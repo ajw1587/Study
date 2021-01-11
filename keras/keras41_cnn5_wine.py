@@ -68,6 +68,12 @@ dense1 = Dense(100, activation = 'relu')(dense1)
 dense1 = Dropout(0.2)(dense1)
 dense1 = Dense(100, activation = 'relu')(dense1)
 dense1 = Dropout(0.2)(dense1)
+dense1 = Dense(100, activation = 'relu')(dense1)
+dense1 = Dropout(0.2)(dense1)
+dense1 = Dense(100, activation = 'relu')(dense1)
+dense1 = Dropout(0.2)(dense1)
+dense1 = Dense(100, activation = 'relu')(dense1)
+dense1 = Dropout(0.2)(dense1)
 dense1 = Flatten()(dense1)
 output1 = Dense(3, activation = 'softmax')(dense1)
 model = Model(inputs = input1, outputs = output1)
@@ -79,7 +85,7 @@ from tensorflow.keras.callbacks import EarlyStopping
 es = EarlyStopping(monitor = 'loss', patience = 10, mode = 'auto')
 
 model.compile(loss = 'categorical_crossentropy', optimizer = 'adam', metrics = ['accuracy'])
-model.fit(x_train, y_train, batch_size = 5, epochs = 200, validation_data = (x_val, y_val), callbacks = es)
+model.fit(x_train, y_train, batch_size = 3, epochs = 200, validation_data = (x_val, y_val), callbacks = es)
 
 # Evaluate and Predict
 from sklearn.metrics import r2_score, mean_squared_error
@@ -98,3 +104,7 @@ print(y_test_predict[:10])
 # R2:  0.9154246613480232
 # loss:  0.14352785050868988
 # acc:  0.9722222089767456
+
+# R2:  0.989877133660312
+# loss:  0.0177537240087986
+# acc:  1.0

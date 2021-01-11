@@ -32,7 +32,7 @@ from tensorflow.keras.layers import Conv2D, MaxPooling2D, Dense, Flatten, Dropou
 model = Sequential()
 model.add(Conv2D(filters = 100, kernel_size = (2,2), strides = 1, padding = 'same', input_shape = (28, 28, 1)))
 model.add(MaxPooling2D(pool_size = 2))
-model.add(Conv2D(10, 2, padding = 'valid'))
+model.add(Conv2D(100, 2, padding = 'same'))         # padding = valid: 패딩 사용 안함
 model.add(Dense(100))
 model.add(Dropout(0.2))
 model.add(Dense(100))
@@ -49,7 +49,7 @@ model.summary()
 from tensorflow.keras.callbacks import EarlyStopping
 es = EarlyStopping(monitor = 'loss', patience =3, mode = 'auto')
 model.compile(loss = 'categorical_crossentropy', optimizer = 'adam', metrics = ['acc'])
-model.fit(x_train, y_train, batch_size = 32, epochs = 5, validation_split = 0.2, callbacks = es)
+model.fit(x_train, y_train, batch_size = 10, epochs = 100, validation_split = 0.2, callbacks = es)
 
 # 응용
 # y_test 10개와 y_test 10개를 출력하시오.
@@ -58,8 +58,14 @@ y_predict = model.predict(x_test)
 
 print("loss: ", loss)
 print("acc: ", acc)
-print("y_test[:10]: \n", y_test[:10])
-print("y_predict[:10]: \n", y_predict[:10])
+# print("y_test[:10]: \n", y_test[:10])
+# print("y_predict[:10]: \n", y_predict[:10])
 
 # y_test[:10] = (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 # y_pred[:10] = (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+
+# loss:  0.11771859228610992
+# acc:  0.9699000120162964
+
+# loss:  0.11285488307476044
+# acc:  0.9689000248908997

@@ -40,6 +40,10 @@ model.add(Dense(100, activation = 'relu'))
 model.add(Dropout(0.2))
 model.add(Dense(100, activation = 'relu'))
 model.add(Dropout(0.2))
+model.add(Dense(100, activation = 'relu'))
+model.add(Dropout(0.2))
+model.add(Dense(100, activation = 'relu'))
+model.add(Dropout(0.2))
 model.add(Flatten())
 model.add(Dense(10, activation = 'softmax'))
 
@@ -47,7 +51,7 @@ model.add(Dense(10, activation = 'softmax'))
 from tensorflow.keras.callbacks import EarlyStopping
 es = EarlyStopping(monitor = 'loss', patience = 10, mode = 'auto')
 model.compile(loss = 'categorical_crossentropy', optimizer = 'adam', metrics = ['acc'])
-model.fit(x_train, y_train, epochs = 2, batch_size = 100, validation_data = (x_val, y_val), callbacks = es)
+model.fit(x_train, y_train, epochs = 100, batch_size = 100, validation_data = (x_val, y_val), callbacks = es)
 
 # Evaluate and Predict
 from sklearn.metrics import r2_score, mean_squared_error
@@ -58,3 +62,6 @@ y_test_predict = model.predict(x_test)
 print(y_test_predict[0])
 print('loss: ', loss)
 print('acc: ', acc)
+
+# loss:  0.14132362604141235
+# acc:  0.9690999984741211
