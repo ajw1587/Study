@@ -41,25 +41,27 @@ model.add(Dense(100))
 model.add(Dropout(0.2))
 model.add(Flatten())
 model.add(Dense(10, activation = 'softmax'))
-
 model.summary()
 
+#==================================================================================================
 # Model Save
 model.save('../data/h5/k51_1_model1.h5')
-
-
+#==================================================================================================
 
 # 실습!! 완성하시오!!!
 # 지표는 acc
 from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
 modelpath = '../data/modelcheckpoint/k51_1_mnist_{epoch:02d}-{val_loss:.4f}.hdf5'
 es = EarlyStopping(monitor = 'loss', patience =3, mode = 'auto')
-cp = ModelCheckpoint(filepath = modelpath, monitor = 'val_loss', save_best_only = True, mode = 'auto')         # 좋은 부분을 check!, filepaht = 좋은 부분을 파일로 생성
+cp = ModelCheckpoint(filepath = modelpath, monitor = 'val_loss', save_best_only = True, mode = 'auto')         # 좋은 부분을 check!, filepath = 좋은 부분을 파일로 생성
 
 model.compile(loss = 'categorical_crossentropy', optimizer = 'adam', metrics = ['accuracy'])
-hist = model.fit(x_train, y_train, batch_size = 10, epochs = 3, validation_split = 0.2, callbacks = [es])
+hist = model.fit(x_train, y_train, batch_size = 10, epochs = 3, validation_split = 0.2, callbacks = [es, cp])
 
+#==================================================================================================
+# Model Save
 model.save('./model/k51_1_model2.h5')           # 여기서 선언하면 가중치도 같이 저장된다.
+#==================================================================================================
 
 # 응용
 # y_test 10개와 y_test 10개를 출력하시오.
@@ -68,8 +70,6 @@ y_predict = model.predict(x_test)
 
 print("loss: ", result[0])
 print("acc: ", result[1])
-# print("y_test[:10]: \n", y_test[:10])
-# print("y_predict[:10]: \n", y_predict[:10])
 
 # 시각화
 import matplotlib.pyplot as plt

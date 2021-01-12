@@ -9,7 +9,6 @@ import numpy as np
 boston_dataset = load_boston()
 boston_x = boston_dataset.data
 boston_y = boston_dataset.target
-
 np.save('../data/npy/boston_x.npy', arr = boston_x)
 np.save('../data/npy/boston_y.npy', arr = boston_y)
 
@@ -17,7 +16,6 @@ np.save('../data/npy/boston_y.npy', arr = boston_y)
 diabetes_dataset = load_diabetes()
 diabetes_x = diabetes_dataset.data
 diabetes_y = diabetes_dataset.target
-
 np.save('../data/npy/diabetes_x.npy', arr = diabetes_x)
 np.save('../data/npy/diabetes_y.npy', arr = diabetes_y)
 
@@ -25,7 +23,6 @@ np.save('../data/npy/diabetes_y.npy', arr = diabetes_y)
 cancer_dataset = load_breast_cancer()
 cancer_x = cancer_dataset.data
 cancer_y = cancer_dataset.target
-
 np.save('../data/npy/cancer_x.npy', arr = cancer_x)
 np.save('../data/npy/cancer_y.npy', arr = cancer_y)
 
@@ -33,7 +30,6 @@ np.save('../data/npy/cancer_y.npy', arr = cancer_y)
 iris_dataset = load_iris()
 iris_x = iris_dataset.data
 iris_y = iris_dataset.target
-
 np.save('../data/npy/iris_x.npy', arr = iris_x)
 np.save('../data/npy/iris_y.npy', arr = iris_y)
 
@@ -41,7 +37,6 @@ np.save('../data/npy/iris_y.npy', arr = iris_y)
 wine_dataset = load_wine()
 wine_x = wine_dataset.data
 wine_y = wine_dataset.target
-
 np.save('../data/npy/wine_x.npy', arr = wine_x)
 np.save('../data/npy/wine_y.npy', arr = wine_y)
 

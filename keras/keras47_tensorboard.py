@@ -47,7 +47,7 @@ model.summary()
 # 실습!! 완성하시오!!!
 # 지표는 acc
 from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint, TensorBoard
-modelpath = '..//modelcheckpoint/k45_mnist_{epoch:02d}-{val_loss:.4f}.hdf5'
+modelpath = '../data/modelcheckpoint/k45_mnist_{epoch:02d}-{val_loss:.4f}.hdf5'
 es = EarlyStopping(monitor = 'loss', patience =3, mode = 'auto')
 cp = ModelCheckpoint(filepath = modelpath, monitor = 'val_loss', save_best_only = True, mode = 'auto')         # 좋은 부분을 check!, filepaht = 좋은 부분을 파일로 생성
 tb = TensorBoard(log_dir = '../data/graph', histogram_freq = 0, write_graph = True, write_images = True)             # 다음 시행할때는 graph 안에 있는 파일 다 비워줘야 한다.
