@@ -37,7 +37,7 @@ x_val = x_val.reshape(x_val.shape[0], x_val.shape[1], 1)
 from tensorflow.keras.models import load_model
 from tensorflow.keras.callbacks import EarlyStopping
 early_stopping = EarlyStopping(monitor = "loss", patience = 10, mode = "auto")
-model = load_model('./model/save_keras35.h5')
+model = load_model('../data/h5/save_keras35.h5')
 # model.summary()
 model.compile(loss = "mse", optimizer = "adam", metrics = ["mae"])
 model.fit(x_train, y_train, batch_size = 6, epochs = 200, validation_data = (x_val, y_val), callbacks = early_stopping)

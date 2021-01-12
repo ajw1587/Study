@@ -49,7 +49,7 @@ model.summary()
 
 # Compile and Fit and EarlyStopping
 from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
-file_path = './modelCheckpoint/k46_3_cifar100_{epoch:02d}_{val_loss:.4f}.hdf5'
+file_path = '../data/modelcheckpoint/k46_3_cifar100_{epoch:02d}_{val_loss:.4f}.hdf5'
 es = EarlyStopping(monitor = 'loss', patience = 3, mode = 'auto')
 cp = ModelCheckpoint(filepath = file_path, monitor = 'val_loss', save_best_only = True, mode = 'auto')
 

@@ -38,7 +38,7 @@ from tensorflow.keras.models import load_model
 from tensorflow.keras.callbacks import EarlyStopping
 early_stopping = EarlyStopping(monitor = "loss", patience = 10, mode = "auto")
 
-model = load_model('./model/save_keras35.h5')
+model = load_model('../data/h5/save_keras35.h5')
 from tensorflow.keras.layers import Dense
 model.add(Dense(5, name = "kingkeras1"))     # layer의 이름이 dense_1이 되므로 load된 model의 layer의 name과 겹쳐서 ERROR가 뜬다.
 model.add(Dense(1, name = "kingkeras2"))     # layer의 이름이 dense_2이 되므로 load된 model의 layer의 name과 겹쳐서 ERROR가 뜬다.

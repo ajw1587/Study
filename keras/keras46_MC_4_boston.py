@@ -53,7 +53,7 @@ model.add(Dense(1))
 
 # compile and fit
 from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
-file_path = './modelCheckpoint/k46_4_boston_{epoch:02d}_{val_loss:.4f}.hdf5'
+file_path = '../data/modelCheckpoint/k46_4_boston_{epoch:02d}_{val_loss:.4f}.hdf5'
 es = EarlyStopping(monitor = 'loss', patience = 10, mode = 'auto')
 cp = ModelCheckpoint(filepath = file_path, monitor = 'val_loss', save_best_only = True, mode = 'auto')
 

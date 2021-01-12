@@ -47,7 +47,7 @@ model.summary()
 # 실습!! 완성하시오!!!
 # 지표는 acc
 from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
-modelpath = './modelCheckpoint/k45_mnist_{epoch:02d}-{val_loss:.4f}.hdf5'
+modelpath = '../data/modelcheckpoint/k45_mnist_{epoch:02d}-{val_loss:.4f}.hdf5'
 es = EarlyStopping(monitor = 'loss', patience =3, mode = 'auto')
 cp = ModelCheckpoint(filepath = modelpath, monitor = 'val_loss', save_best_only = True, mode = 'auto')         # 좋은 부분을 check!, filepaht = 좋은 부분을 파일로 생성
 
@@ -83,14 +83,14 @@ plt.legend(loc = 'upper right')
 
 
 plt.subplot(2, 1, 2)                    # 2행1열짜리 그래프중 2번째
-plt.plot(hist.history['accuracy'], marker = '.', c = 'red', label = 'accuracy')
-plt.plot(hist.history['val_accuracy'], marker = '.', c = 'blue', label = 'val_accuracy')
+plt.plot(hist.history['accuracy'], marker = '.', c = 'red')
+plt.plot(hist.history['val_accuracy'], marker = '.', c = 'blue')
 plt.grid()
 
 # plt.title('정확도')
 plt.title('Accuray')
 plt.ylabel('accuracy')
 plt.xlabel('epoch')
-plt.legend(loc = 'upper right')
+plt.legend(['accuracy', 'val_accuracy'])        # 위치 명시 하지 않을시 자동으로 위치 선정
 
 plt.show()

@@ -57,7 +57,7 @@ model.add(Dense(3, activation = "softmax"))     # 다중분류의 경우 나누�
 # 4. Compile and Train
 from sklearn.metrics import r2_score, mean_squared_error
 from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
-file_path = './modelCheckpoint/k46_8_wine_{epoch:02d}_{val_loss:.4f}.hdf5'
+file_path = '../data/modelcheckpoint/k46_8_wine_{epoch:02d}_{val_loss:.4f}.hdf5'
 es = EarlyStopping(monitor = 'loss', patience = 10, mode = 'auto')
 cp = ModelCheckpoint(filepath = file_path, monitor = 'val_loss', save_best_only = True, mode = 'auto')
 

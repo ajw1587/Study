@@ -47,7 +47,7 @@ model = Model(inputs = input1, outputs = output1)
 
 # Compile and fit
 from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
-file_path = './modelCheckpoint/k46_5_diabets_{epoch:02d}_{val_loss:.4f}.hdf5'
+file_path = '../data/modelcheckpoint/k46_5_diabets_{epoch:02d}_{val_loss:.4f}.hdf5'
 es = EarlyStopping(monitor = 'loss', patience = 15, mode = 'auto')
 cp = ModelCheckpoint(filepath = file_path, monitor = 'val_loss', save_best_only = True, mode = 'auto')
 
