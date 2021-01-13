@@ -23,7 +23,7 @@ from tensorflow.keras.models import Model
 from tensorflow.keras.layers import Input, Dense, Conv2D, Dropout, MaxPooling2D, Flatten
 
 input1 = Input(shape = (32, 32, 3))
-conv2d = Conv2D(50, 2, strides = 1, padding = 'same', input_shape = (32, 32, 3))(input1)
+conv2d = Conv2D(50, 2, strides = 1, padding = 'same')(input1)
 dense1 = MaxPooling2D()(conv2d)
 dense1 = Dense(100)(dense1)
 dense1 = Dropout(0.2)(dense1)
@@ -50,7 +50,8 @@ cp = ModelCheckpoint(filepath = '../data/modelcheckpoint', monitor = 'val_loss',
 tb = TensorBoard(log_dir = '../data/graph', histogram_freq = 0, write_graph = True, write_images = True)
 
 model.compile(loss = 'categorical_crossentropy', optimizer = 'adam', metrics = ['acc'])
-model.fit(x_train, y_train, epochs = 5, batch_size = 32, validation_split = 0.2, callbacks = [es, cp, tb])
+model.fit(x_train, y_train, epochs = 5, batch_size = 32, validation_split = 0.2,
+          callbacks = [es])
 
 
 # Evaluate and Predict

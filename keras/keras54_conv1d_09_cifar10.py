@@ -1,7 +1,7 @@
 import numpy as np
-from tensorflow.keras.datasets import cifar100
+from tensorflow.keras.datasets import cifar10
 
-(x_train, y_train), (x_test, y_test) = cifar100.load_data()
+(x_train, y_train), (x_test, y_test) = cifar10.load_data()
 
 print("x_train.shape: ", x_train.shape)       # (50000, 32, 32, 3)
 print("y_train.shape: ", y_train.shape)       # (50000, 1)
@@ -11,6 +11,8 @@ print("y_test.shape: ", y_test.shape)         # (10000, 1)
 print("x_train[0].shape", x_train[0].shape)   # (32, 32, 3)
 print("y_train[0].shape", y_train[0].shape)   # (1,)
 
+x_train = x_train.reshape(50000, 1024, 3)
+x_test = x_test.reshape(10000, 1024, 3)
 x_train = x_train/255.
 x_test = x_test/255.
 
@@ -21,11 +23,12 @@ y_test = to_categorical(y_test)
 
 # 모델 구성
 from tensorflow.keras.models import Model
-from tensorflow.keras.layers import Input, Dense, Conv2D, Dropout, MaxPooling2D, Flatten
+from tensorflow.keras.layers import Input, Dense, Conv1D, Dropout, MaxPooling1D, Flatten
 
-input1 = Input(shape = (32, 32, 3))
-conv2d = Conv2D(50, 2, strides = 1, padding = 'same')(input1)
-dense1 = MaxPooling2D()(conv2d)
+input1 = Input(shape = (x_train.shape[1], x_train.shape[2]))
+conv1d = Conv1D(50, 2, strides = 1, padding = 'same')(input1)
+dense1 = MaxPooling1D()(conv1d)
+dense1 = Conv1D(100, 2, 1, padding = 'same')(dense1)
 dense1 = Dense(100, activation = 'relu')(dense1)
 dense1 = Dropout(0.2)(dense1)
 dense1 = Dense(100, activation = 'relu')(dense1)
@@ -41,7 +44,7 @@ dense1 = Dropout(0.2)(dense1)
 dense1 = Dense(100, activation = 'relu')(dense1)
 dense1 = Dropout(0.2)(dense1)
 dense1 = Flatten()(dense1)
-output1 = Dense(100, activation = 'softmax')(dense1)
+output1 = Dense(10, activation = 'softmax')(dense1)
 model = Model(inputs = input1, outputs = output1)
 
 model.summary()
@@ -49,17 +52,22 @@ model.summary()
 
 # Compile and Fit and EarlyStopping
 from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
-file_path = '../data/modelcheckpoint/k46_3_cifar100_{epoch:02d}_{val_loss:.4f}.hdf5'
+file_path = '../data/modelcheckpoint/k46_2_cifar10_{epoch:02d}_{val_loss:.4f}.hdf5'
+
 es = EarlyStopping(monitor = 'loss', patience = 3, mode = 'auto')
 cp = ModelCheckpoint(filepath = file_path, monitor = 'val_loss', save_best_only = True, mode = 'auto')
 
 model.compile(loss = 'categorical_crossentropy', optimizer = 'adam', metrics = ['acc'])
-model.fit(x_train, y_train, epochs = 50, batch_size = 100, validation_split = 0.2, callbacks = [es, cp])
+model.fit(x_train, y_train, epochs = 50, batch_size = 32, validation_split = 0.2, callbacks = [es])
 
 
 # Evaluate and Predict
-loss, acc = model.evaluate(x_test, y_test, batch_size = 100)
+loss, acc = model.evaluate(x_test, y_test, batch_size = 32)
 y_predict = model.predict(x_test)
 
 print("loss: ", loss)
 print("acc: ", acc)
+
+# Conv1D 적용
+# loss:  1.8179898262023926
+# acc:  0.5548999905586243

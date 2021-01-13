@@ -24,7 +24,7 @@ from tensorflow.keras.models import Model
 from tensorflow.keras.layers import Input, Dense, Conv2D, Dropout, MaxPooling2D, Flatten
 
 input1 = Input(shape = (32, 32, 3))
-conv2d = Conv2D(50, 2, strides = 1, padding = 'same', input_shape = (32, 32, 3))(input1)
+conv2d = Conv2D(50, 2, strides = 1, padding = 'same')(input1)
 dense1 = MaxPooling2D()(conv2d)
 dense1 = Dense(100)(dense1)
 dense1 = Dropout(0.2)(dense1)

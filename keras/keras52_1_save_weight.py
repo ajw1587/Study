@@ -38,7 +38,7 @@ model.save('../data/h5/k52_1_model1.h5')            # 모델만 저장
 from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
 modelpath = '../data/modelcheckpoint/k52_1_mnist_{epoch:02d}-{val_loss:.4f}.hdf5'
 es = EarlyStopping(monitor = 'loss', patience =3, mode = 'auto')
-cp = ModelCheckpoint(filepath = modelpath, monitor = 'val_loss',       # 좋은 부분을 check!, filepaht = 좋은 부분을 파일로 생성
+cp = ModelCheckpoint(filepath = modelpath, monitor = 'val_loss',       # 좋은 부분을 check!, filepath = 좋은 부분을 파일로 생성
                      save_best_only = True, mode = 'auto')
 
 model.compile(loss = 'categorical_crossentropy', optimizer = 'adam', metrics = ['accuracy'])
