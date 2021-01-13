@@ -66,7 +66,7 @@ print(df.describe())
 print(df['Target'].value_counts())
 
 # 상관계수 히트맵
-print(df.corr())
+print('df.corr(): \n', df.corr())
 import matplotlib.pyplot as plt
 import seaborn as sns
 # sns.set(font_scale=1.2)

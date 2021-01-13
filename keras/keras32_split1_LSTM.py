@@ -7,12 +7,12 @@ def split_x(a, size):
     for i in range(len(a) - size + 1):
         subset = a[i: (i+size)]
         aaa.append(subset)
-    print(aaa)
+        print(aaa)
     return np.array(aaa)
 
 dataset = split_x(a, 5)
 print(dataset)
-print(dataset.shape)
+print(dataset.shape)        # (6, 5)
 
 x = dataset[:, :4]
 y = dataset[:, 4:]
@@ -20,6 +20,7 @@ y = dataset[:, 4:]
 x = x.reshape(6,4,1)
 
 print(x.shape)
+print(y)
 print(y.shape)
 
 
