@@ -104,16 +104,15 @@ print(y[2392])
 print(y.shape)      # (2393,)
 
 
-# npy 저장
-np.savez('../data/npy/Samsung_xy.npz', x = x, y = y, x_predict = x_predict)
+
 #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 # 전처리
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler
-
-x_train, x_test, y_train, y_test = train_test_split(x, y, train_size = 0.8, shuffle = True, random_state = 100)
-x_train, x_val, y_train, y_val = train_test_split(x_train, y_train, train_size = 0.8, shuffle = True, random_state = 100)
+# , shuffle = True, random_state = 100
+x_train, x_test, y_train, y_test = train_test_split(x, y, train_size = 0.8)
+x_train, x_val, y_train, y_val = train_test_split(x_train, y_train, train_size = 0.8)
 print(x_train.shape)
 
 x_train = x_train.reshape(x_train.shape[0], 40)
@@ -138,6 +137,9 @@ x_test = x_test.reshape(x_test.shape[0], 5, 8)
 x_val = x_val.reshape(x_val.shape[0], 5, 8)
 x_predict = x_predict.reshape(x_predict.shape[0], 5, 8)
 
+# npy 저장
+np.savez('../data/npy/Samsung_xy.npz', x_train = x_train, x_test = x_test, x_val = x_val, 
+                                       y_train = y_train, y_test = y_test, y_val = y_val, x_predict = x_predict)
 # 2. 모델 구성+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 from tensorflow.keras.models import Model
 from tensorflow.keras.layers import Input, Dropout, LSTM, Dense
@@ -147,6 +149,7 @@ dense1 = LSTM(512, activation = 'relu')(input1)
 dense1 = Dropout(0.2)(dense1)
 dense1 = Dense(256, activation = 'relu')(dense1)
 dense1 = Dropout(0.2)(dense1)
+dense1 = Dense(64, activation = 'relu')(dense1)
 dense1 = Dense(64, activation = 'relu')(dense1)
 dense1 = Dense(32, activation = 'relu')(dense1)
 dense1 = Dense(16, activation = 'relu')(dense1)
@@ -194,3 +197,11 @@ print('result: ', result)
 # y_predict[-1]:  [24207.791]
 # y_test[-1]:  25660.0
 # result:  [[90029.24]]
+
+# loss:  6505567.5
+# mae:  2019.037353515625
+# RMSE:  2550.601147009399
+# R2_SCORE:  0.9642106995935816
+# y_predict[-1]:  [23850.684]
+# y_test[-1]:  25660.0
+# result:  [[89362.92]]
