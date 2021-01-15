@@ -71,7 +71,6 @@ np_dataset = dataset.to_numpy()
 print(np_dataset.shape)         # (2397, 8)
 print(np_dataset[-1, :])
 
-
 # x값 (???, 5, 8) 5일 단위로 끊기
 size = 5
 col = 8
@@ -86,7 +85,6 @@ for i in range(np_dataset.shape[0] - size): # 2393
 
 subset = np_dataset[np_dataset.shape[0] - size:,:]
 x_predict.append(subset)
-
 
 # x값
 x = np.array(x)
