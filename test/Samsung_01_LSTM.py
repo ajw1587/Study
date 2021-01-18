@@ -1,8 +1,8 @@
 import numpy as np
 import pandas as pd
 from sklearn.preprocessing import MinMaxScaler
-dataset = pd.read_csv('./test/삼성전자.csv', engine = 'python', encoding = 'CP949', thousands = ',')
-dataset_append = pd.read_csv('./test/삼성전자2.csv', engine = 'python', encoding = 'CP949', thousands = ',')
+dataset = pd.read_csv('../data/csv/삼성전자.csv', engine = 'python', encoding = 'CP949', thousands = ',')
+dataset_append = pd.read_csv('../data/csv/삼성전자2.csv', engine = 'python', encoding = 'CP949', thousands = ',')
 
 # 데이터 Merge
 # 삼성전자2 -> 필요없는 열 제거
