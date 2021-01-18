@@ -1,9 +1,7 @@
-from google.colab import drive
-drive.mount('/content/drive')
 import numpy as np
 from tensorflow.keras.models import Model
 from tensorflow.keras.layers import LSTM, concatenate, Dense, Dropout, Input
-from tensorflow.keras.callbacks import ModelCheckpoint, EarlyStopping
+from tensorflow.keras.callbacks import ModelCheckpoint, EarlyStopping, ReduceLROnPlateau
 from sklearn.metrics import mean_squared_error, r2_score
 
 filename1 = '../data/npy/Samsung_StockData.npz'
@@ -61,9 +59,11 @@ def RMSE(y_test, y_predict):
 model_path = '../data/modelcheckpoint/Samsung_Stock_{epoch:02d}_{val_loss:.4f}.hdf5'
 es = EarlyStopping(monitor = 'val_loss', patience =50, mode = 'auto')
 cp = ModelCheckpoint(filepath = model_path, monitor = 'val_loss', save_best_only = True, mode = 'auto')
+reduce_lr = ReduceLROnPlateau(monitor = 'val_loss', patience = 10, factor = 0.5)
 
 model.compile(loss = 'mse', optimizer = 'adam', metrics = ['mae'])
-model.fit([s_x_train, k_x_train], s_y_train, batch_size = 24, epochs = 1000, validation_data = ([s_x_val, k_x_val], s_y_val), callbacks = [es, cp])
+hist = model.fit([s_x_train, k_x_train], s_y_train, batch_size = 24, epochs = 1000, validation_data = ([s_x_val, k_x_val], s_y_val),
+                 callbacks = [es, cp, reduce_lr])
 loss, mae = model.evaluate([s_x_test, k_x_test], s_y_test, batch_size = 24)
 
 y_test_predict = model.predict([s_x_test, k_x_test])
@@ -78,8 +78,30 @@ print('R2_SCORE: ', r2)
 y_predict = model.predict([s_x_predict, k_x_predict])
 print('y_predict: ', y_predict)
 
+# 시각화
+import matplotlib.pyplot as plt
+
+plt.figure(figsize = (10, 6))           # 면적 잡아주기
+
+plt.subplot(2, 1, 1)                    # 2행1열짜리 그래프중 1번째
+plt.plot(hist.history['loss'], marker = '.', c = 'red', label = 'loss')
+plt.plot(hist.history['val_loss'], marker = '.', c = 'blue', label = 'val_loss')
+plt.grid()
+
+# plt.title('손실비용')
+plt.title('Cost Loss')
+plt.ylabel('loss')
+plt.xlabel('epoch')
+plt.legend(loc = 'upper right')
+
 # loss:  2126523.5
 # mae:  1140.1182861328125
 # RMSE:  1458.2604710162489
 # R2_SCORE:  0.97631215600906
 # y_predict:  [[91128.086 91202.21 ]]
+
+# loss:  2335740.25
+# mae:  1132.0643310546875
+# RMSE:  1528.3128592809408
+# R2_SCORE:  0.9739927964886373
+# y_predict:  [[93675.06  93697.336]]

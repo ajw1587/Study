@@ -13,17 +13,15 @@ def split_x(seq, size):
     return np.array(aaa)
 
 # 2차원 행열 -> 3차원 행열
-def split_xy1(dataset, x_col, y_col):
+def make_xy(dataset, idx, col):
     x = []
     y = []
-    for i in range(3):
-        x_subset = dataset[i : i +3, 0 : x_col]
-        y_subset = dataset[i : i +3, -y_col:]
-        x.append(x_subset)
-        y.append(y_subset)
-    x = np.array(x)
-    y = np.array(y)
-    return x, y
+    for i in range(dataset.shape[0] - idx - 1):
+      x_subset = dataset[i:i+idx, 0:col]
+      y_subset = dataset[i+idx : i+idx+2, col-1]
+      x.append(x_subset)
+      y.append(y_subset)
+    return np.array(x), np.array(y)
 
 dataset = split_x(a, size)
 x, y = split_xy1(dataset, 2, 3)

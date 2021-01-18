@@ -60,5 +60,5 @@ x_test = x_test.reshape(x_test.shape[0], idx, col)
 x_val = x_val.reshape(x_val.shape[0], idx, col)
 x_predict = x_predict.reshape(x_predict.shape[0], idx, col)
 
-filepath = '../data/npy/삼성주식데이터/Samsung_KODEX.npz'
+filepath = '../data/npy/Samsung_KODEX.npz'
 np.savez(filepath, x_train = x_train, x_test = x_test, x_val = x_val, x_predict = x_predict)
