@@ -22,14 +22,24 @@ def preprocess_data(data, is_train=True):
 test_file_path = '../data/csv/Sunlight_generation/test/0.csv'
 first_file_path = '../data/csv/Sunlight_generation/test/'
 last_file_path = '.csv'
-dataset = pd.read_csv(test_file_path, engine = 'python', encoding = 'CP949')
-dataset = preprocess_data(dataset, is_train = False)
+x_pred_test = pd.read_csv(test_file_path, engine = 'python', encoding = 'CP949')
+x_pred_test = preprocess_data(x_pred_test, is_train = False)
 for i in range(1, 81):
     file_path = first_file_path + str(i) + last_file_path
     subset = pd.read_csv(file_path, engine = 'python', encoding = 'CP949')
     subset = preprocess_data(subset, is_train = False)
-    dataset = pd.concat([dataset, subset])
-# print(type(dataset))      
-# print(dataset.shape)      # (3888, 7)
+    x_pred_test = pd.concat([x_pred_test, subset])
+# print(type(x_pred_test))      # DataFrame
+# print(x_pred_test.shape)      # (3888, 7)
 
-model = load_model(filepath)
+# quantile 예측
+from tensorflow.keras.backend import mean, maximum
+
+def quantile_loss(q, y, pred):
+    err = (y-pred)
+    return mean(maximum(q*err, (q-1)*err), axis=-1)
+
+file_path = '../data/modelcheckpoint/Sunlight_03_LSTM_0.1.hdf5'
+model = load_model(file_path)
+y_predict = model.predict(x_pred_test, batch_size = 7)
+print(y_predict[0])

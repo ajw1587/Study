@@ -48,6 +48,10 @@ x_train, x_val, y_train, y_val = train_test_split(x_train, y_train, train_size =
 input1 = Input(shape = (x_train.shape[1], x_train.shape[2]))
 dense1 = Dense(128, activation = 'relu')(input1)
 dense1 = Dropout(0.2)(dense1)
+dense1 = Dense(128, activation = 'relu')(input1)
+dense1 = Dropout(0.2)(dense1)
+dense1 = Dense(128, activation = 'relu')(input1)
+dense1 = Dropout(0.2)(dense1)
 dense1 = Dense(64, activation = 'relu')(dense1)
 dense1 = Dropout(0.2)(dense1)
 dense1 = Dense(32, activation = 'relu')(dense1)
@@ -58,24 +62,16 @@ model = Model(inputs = input1, outputs = output1)
 model.summary()
 
 # Compile, Fit
-# file_path = "../data/modelcheckpoint/Sunlight_03_{epoch:02d}_{val_loss:f}.hdf5" 
-# cp = ModelCheckpoint(filepath = file_path, monitor = 'val_loss', save_best_only = True, mode = 'auto')
-es = EarlyStopping(monitor = 'val_loss', patience = 30, mode = 'auto')
-reduce_lr = ReduceLROnPlateau(monitor = 'val_loss', factor = 0.5, patience = 15)
+es = EarlyStopping(monitor = 'val_loss', patience = 40, mode = 'auto')
+reduce_lr = ReduceLROnPlateau(monitor = 'val_loss', factor = 0.5, patience = 20)
 
 model.compile(loss = 'mse', optimizer = 'adam', metrics = ['mae'])
-model.fit(x_train, y_train, batch_size = 14, epochs = 1000, validation_data = (x_val, y_val), callbacks = [es, reduce_lr])
+model.fit(x_train, y_train, batch_size = 7, epochs = 1000, validation_data = (x_val, y_val), callbacks = [es, reduce_lr])
 
 # Evaluate, Predict
-loss, mae = model.evaluate(x_test, y_test, batch_size = 14)
+loss, mae = model.evaluate(x_test, y_test, batch_size = 7)
 y_predict = model.predict(x_test)
 
-print('loss: ', loss)
-print('mae: ', mae)
-print(y_predict.shape)
-print(y_test.shape)
-print(y_predict[0])
-print(y_test[0])
 
 #==========================================================================================================
 # y_test와 y_predict로 quantile_loss 모델 만들기
@@ -85,13 +81,49 @@ def quantile_loss(q, y, pred):
     err = (y-pred)
     return mean(maximum(q*err, (q-1)*err), axis=-1)
 
+# Test Data 가져오기
+test_file_path = '../data/csv/Sunlight_generation/test/0.csv'
+first_file_path = '../data/csv/Sunlight_generation/test/'
+last_file_path = '.csv'
+x_pred_test = pd.read_csv(test_file_path, engine = 'python', encoding = 'CP949')
+x_pred_test = preprocess_data(x_pred_test, is_train = False)
+for i in range(1, 81):
+    file_path = first_file_path + str(i) + last_file_path
+    subset = pd.read_csv(file_path, engine = 'python', encoding = 'CP949')
+    subset = preprocess_data(subset, is_train = False)
+    x_pred_test = pd.concat([x_pred_test, subset])
+# print(type(x_pred_test))      # DataFrame
+# print(x_pred_test.shape)      # (3888, 7)
+
+
+
 
 q_lst = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
+result = np.array(range(0, 7776))
+result = result.reshape(7776, 1)
 for q in q_lst:
-    file_path = "../data/modelcheckpoint/Sunlight_03_LSTM_{epoch:02d}.hdf5" 
-    cp = ModelCheckpoint(filepath = file_path, monitor = 'loss', save_best_only = True, mode = 'auto')
     model2 = Sequential()
     model2.add(Dense(10))
-    model2.add(Dense(1))
+    model2.add(Dense(2))
     model2.compile(loss=lambda y_test, y_predict: quantile_loss(q, y_test, y_predict), optimizer='adam')
-    model2.fit(x_train, y_train, epochs = 100, callbacks = ['cp'])
+    model2.fit(x_train, y_train, epochs = 100)
+    y_pred_test = model2.predict(x_pred_test, batch_size = 7)
+    # print(y_pred_test.shape)      # (3888, 2)
+    first_day = y_pred_test[:,0:1]
+    second_day = y_pred_test[:,1:2]
+    y_pred_test = np.vstack((first_day, second_day))
+    result = np.hstack((result, y_pred_test))
+
+print(result[0])
+print(result.shape)                 # (7666, 10)
+result = result[:,1:]
+result = pd.DataFrame(result)
+print(result.index)
+print(result.columns)
+print(type(result))
+result.to_csv('../Sunlight/Sunlight_result_01.csv')
+
+# submission.csv 가져오기
+df = pd.read_csv('../Sunlight/sample_submission.csv')
+df.loc[df.id.str.contains('.csv_'), 'q_0.1':] = result.values
+df.to_csv('../Sunlight/sample_submission_result_01.csv')
