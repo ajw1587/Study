@@ -16,8 +16,9 @@ print(dataset.feature_names)
 print(dataset.DESCR)
 
 # x기준으로 데이터 전처리 MinMax
-from sklearn.preprocessing import MinMaxScaler
-scaler = MinMaxScaler()
+from sklearn.preprocessing import MinMaxScaler, StandardScaler
+# scaler = MinMaxScaler()
+scaler = StandardScaler()
 scaler.fit(x)
 x = scaler.transform(x)
 
@@ -70,8 +71,14 @@ print("R2_SCORE: ", r2_score(y_test, y_predict))
 # R2_SCORE:  0.4328804440523756
 
 
-# scalar.fit(x)
+# MinMaxScaler
 # loss:  3211.023193359375
 # mae:  46.74753189086914
 # RMSE:  56.665891041005054
 # R2_SCORE:  0.49121120196113477
+
+# StandardSclaer
+# loss:  3810.92626953125
+# mae:  48.62732696533203
+# RMSE:  61.732699641738954
+# R2_SCORE:  0.3961561664286658

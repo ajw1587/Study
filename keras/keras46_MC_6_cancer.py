@@ -52,7 +52,7 @@ es = EarlyStopping(monitor = 'loss', patience = 3, mode = 'auto')
 cp = ModelCheckpoint(filepath = file_path, monitor = 'val_loss', save_best_only = True, mode = 'auto')
 
 model.compile(loss = "binary_crossentropy", optimizer = "adam", metrics = ['acc'])
-model.fit(x_train, y_train, epochs = 150, validation_data = (x_val, y_val), batch_size = 6, callbacks = [es, cp])
+model.fit(x_train, y_train, epochs = 150, validation_data = (x_val, y_val), batch_size = 6, callbacks = [es])
 loss, acc = model.evaluate(x_test, y_test, batch_size = 6)
 print("loss: ", loss)
 print("acc: ", acc)

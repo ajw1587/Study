@@ -20,8 +20,9 @@ from sklearn.model_selection import train_test_split
 x_train, x_test, y_train, y_test = train_test_split(x, y, train_size = 0.8, test_size = 0.2, random_state = 66)
 
 # 데이터 전처리
-from sklearn.preprocessing import MinMaxScaler
-scaler = MinMaxScaler()
+from sklearn.preprocessing import MinMaxScaler, StandardScaler
+# scaler = MinMaxScaler()
+scaler = StandardScaler()
 scaler.fit(x_train)
 x_train = scaler.transform(x_train)
 x_test = scaler.transform(x_test)
@@ -71,8 +72,14 @@ print("R2_SCORE: ", r2_score(y_test, y_predict))
 # R2_SCORE:  0.4328804440523756
 
 
-# scaler.fit(x)
+# MinMaxScaler
 # loss:  3211.023193359375
 # mae:  46.74753189086914
 # RMSE:  56.665891041005054
 # R2_SCORE:  0.49121120196113477
+
+# StandardScaler
+# loss:  5056.7509765625
+# mae:  55.09235763549805
+# RMSE:  71.11083652224956
+# R2_SCORE:  0.22084443854611824
