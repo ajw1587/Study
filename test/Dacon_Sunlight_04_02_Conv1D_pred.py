@@ -89,8 +89,8 @@ for q in q_list:
 result2 = pd.concat(result2, axis = 1)
 result2[result2 < 0] = 0
 
-# result
 result = pd.concat([result1, result2])
+result.to_csv('../Sunlight/Sunlight_result_04_02.csv')
 result = result.to_numpy()
 #==========================================================================================================
 

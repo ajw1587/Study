@@ -112,4 +112,4 @@ print(results_1.shape, results_2.shape)
 submission.loc[submission.id.str.contains("Day7"), "q_0.1":] = results_1.sort_index().values
 submission.loc[submission.id.str.contains("Day8"), "q_0.1":] = results_2.sort_index().values
 
-submission.to_csv('../data/sample_submission.csv', index=False)
+submission.to_csv('../data/Sunlight_BaseLine.csv', index=False)

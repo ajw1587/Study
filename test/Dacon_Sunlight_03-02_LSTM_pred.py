@@ -87,7 +87,7 @@ q_list = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
 result1 = []
 print(type(result1))
 for q in q_list:
-    file_path = "../data/modelcheckpoint/Sunlight/Sunlight_03/Sunlight_03_1_" + str(q) + ".hdf5"
+    file_path = "../data/modelcheckpoint/Sunlight/Sunlight_03/Sunlight_03_1_normal/Sunlight_03_1_" + str(q) + ".hdf5"
     model = load_model(file_path, compile = False)
     model.compile(loss=lambda y_test, y_predict: quantile_loss(q, y_test, y_predict), optimizer='adam')
     y_pred_test = pd.DataFrame(model.predict(x_pred_test))
@@ -100,7 +100,7 @@ result1[result1 < 0] = 0
 
 result2 = []
 for q in q_list:
-    file_path = "../data/modelcheckpoint/Sunlight/Sunlight_03/Sunlight_03_2_" + str(q) + ".hdf5"
+    file_path = "../data/modelcheckpoint/Sunlight/Sunlight_03/Sunlight_03_1_normal/Sunlight_03_2_" + str(q) + ".hdf5"
     model = load_model(file_path, compile = False)
     model.compile(loss=lambda y_test, y_predict: quantile_loss(q, y_test, y_predict), optimizer='adam')
     y_pred_test = pd.DataFrame(model.predict(x_pred_test))
@@ -109,12 +109,12 @@ result2 = pd.concat(result2, axis = 1)
 result2[result2 < 0] = 0
 
 result = pd.concat([result1, result2])
-result.to_csv('../Sunlight/Sunlight_result_01.csv')
+# result.to_csv('../Sunlight/Sunlight_result_03_02.csv')
 result = result.to_numpy()
 #==========================================================================================================
 
 print(type(result))
 # submission.csv 가져오기
-# df = pd.read_csv('../Sunlight/sample_submission.csv')
-# df.loc[df.id.str.contains('.csv_'), 'q_0.1':] = result
-# df.to_csv('../Sunlight/sample_submission_result_03.csv')
+df = pd.read_csv('../Sunlight/sample_submission.csv')
+df.loc[df.id.str.contains('.csv_'), 'q_0.1':] = result
+df.to_csv('../Sunlight/sample_submission_result_LSTM.csv')
