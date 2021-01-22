@@ -81,7 +81,8 @@ for q in q_list:
   file_path = "../data/modelcheckpoint/Sunlight/Sunlight_04/Sunlight_04_2_GHI/Sunlight_04_3_" + str(q) + ".hdf5"
   model = load_model(file_path, compile = False)
   cp = ModelCheckpoint(filepath = file_path, save_best_only = True, monitor = 'loss')
-  model.compile(loss = lambda y_test, y_predict: quantile_loss(q, y_test, y_predict), optimizer = 'adam', metrics = 'mae')
+  model.compile(loss = lambda y_test, y_predict: quantile_loss(q, y_test, y_predict), optimizer = 'adam',
+                metrics = [lambda y_test, y_predict: quantile_loss(q, y_test, y_predict)])
   y_predict1 = pd.DataFrame(model.predict(x_test, batch_size = 35))
   result1.append(y_predict1)
 result1 = pd.concat(result1, axis = 1)
@@ -91,17 +92,16 @@ result1[result1 < 0] = 0
 result2 = []
 for q in q_list:
   file_path = "../data/modelcheckpoint/Sunlight/Sunlight_04/Sunlight_04_2_GHI/Sunlight_04_4_" + str(q) + ".hdf5"
-  model = mymodel()
-  cp = ModelCheckpoint(filepath = file_path , save_best_only = True, monitor = 'loss')
-  model.compile(loss = lambda y_test, y_predict: quantile_loss(q, y_test, y_predict), optimizer = 'adam', metrics = 'mae')
-  model.fit(x_train, y_train2, epochs = 20, batch_size = 35, validation_data = (x_val, y_val1), callbacks = [es, reduce_lr, cp])
+  model = load_model(file_path, compile = False)
+  model.compile(loss = lambda y_test, y_predict: quantile_loss(q, y_test, y_predict), optimizer = 'adam',
+                metrics = [lambda y_test, y_predict: quantile_loss(q, y_test, y_predict)])
   y_predict2 = pd.DataFrame(model.predict(x_test, batch_size = 35))
   result2.append(y_predict2)
 result2 = pd.concat(result2, axis = 1)
 result2[result2 < 0] = 0
 
 result = pd.concat([result1, result2])
-result.to_csv('../Sunlight/Sunlight_result_01.csv')
+result.to_csv('../Sunlight/Sunlight_result_04_04.csv')
 result = result.to_numpy()
 #==========================================================================================================
 
