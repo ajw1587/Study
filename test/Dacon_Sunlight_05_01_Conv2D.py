@@ -22,6 +22,11 @@ def preprocess_x(dataset, is_train = True):
     else:
         return temp.iloc[-48:, :]
 
+q_list = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
+def quantile_loss(q, y, pred):
+    err = (y-pred)
+    return mean(maximum(q*err, (q-1)*err), axis = -1)
+
 def split_xy(dataset):
     temp = dataset.copy()
     x = temp.iloc[:, :-2]
@@ -95,9 +100,12 @@ dense1 = Dense(8, activation = 'relu')(dense1)
 output1 = Dense(2)
 model = Model(inputs = input1, outputs = output1)
 
+
 # Compile and Fit
 from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint, TensorBoard, ReduceLROnPlateau
 file_path = '../data/modelcheckpoint/Sunlight/Sunlight_05/Sunlight_05_1_normal'
 cp = ModelCheckpoint(file_path, monitor = 'val_loss', save_best_only = True, mode = 'auto')
 es = EarlyStopping(monitor = 'val_loss', patience = 8, mode = 'auto')
 reduce_lr = ReduceLROnPlateau(monitor = 'val_loss', factor = 0.5, patience = 4, mode = 'auto')
+
+model.compile(loss = lambda y_test, y_pred: quantile_loss(q, y_test, y_pred))

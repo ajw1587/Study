@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 from tensorflow.keras.backend import mean, maximum
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Dense, Dropout, Conv1D, Flatten
+from tensorflow.keras.layers import Dense, Dropout, Conv1D, Flatten, Reshape
 from tensorflow.keras.callbacks import EarlyStopping, ReduceLROnPlateau, ModelCheckpoint
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.model_selection import train_test_split
@@ -15,7 +15,7 @@ def Add_features(data):
   return data
 
 # 함수 정의
-def split_x(dataset, is_train = True):
+def preprocessing_df(dataset, is_train = True):
   dataset = Add_features(dataset)
   temp = dataset.copy()
   temp = temp[['Hour','TARGET','GHI','DHI','DNI','WS','RH','T']]
@@ -27,8 +27,18 @@ def split_x(dataset, is_train = True):
   elif is_train==False:     
     return temp.iloc[-48:, :]   # 0 ~ 6일 중 마지막 6일 데이터만 남긴다. (6일 데이터로 7, 8일을 예측하고자 함)
 
-q_list = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
+def split_xy(dataset, x_row, x_col, y_row, y_col):
+    x, y = list(), list()
+    for i in range(len(dataset)):
+        if i > len(dataset)-x_row:
+            break
+        tmp_x = dataset[i:i+x_row, :x_col]
+        tmp_y = dataset[i:i+x_row, x_col:x_col+y_col]
+        x.append(tmp_x)
+        y.append(tmp_y)
+    return np.array(x), np.array(y)
 
+q_list = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
 def quantile_loss(q, y, pred):
   err = (y-pred)
   return mean(maximum(q*err, (q-1)*err), axis = -1)
@@ -36,8 +46,7 @@ def quantile_loss(q, y, pred):
 # Train Data 불러오기
 file_path1 = '../data/csv/Sunlight_generation/train/train.csv'
 train_csv = pd.read_csv(file_path1, engine = 'python', encoding = 'CP949')
-t_dataset = split_x(train_csv)
-print(t_dataset.columns)
+t_dataset = preprocessing_df(train_csv)
 t_dataset = t_dataset.to_numpy()
 
 # Test Data 불러오기
@@ -47,23 +56,26 @@ x_test = []
 for i in range(81):
   file_path2 = str1 + str(i) + str2
   test_csv = pd.read_csv(file_path2, engine = 'python', encoding = 'CP949')
-  test_csv = split_x(test_csv, False)
+  test_csv = preprocessing_df(test_csv, False)
   x_test.append(test_csv)
-x_test = pd.concat(x_test)
-x_test = x_test.to_numpy()
+x_test = pd.concat(x_test).values
+x_test = x_test.reshape(81, 48, 8)
 
 # x, y 분리하기
-x_train = t_dataset[:, :8]
-y_train1 = t_dataset[:, -2:-1]
-y_train2 = t_dataset[:, -1:]
-y_train1 = y_train1.reshape(y_train1.shape[0], 1)
-y_train2 = y_train2.reshape(y_train2.shape[0], 1)
+x_train, y_train = split_xy(t_dataset, 48,8,48,2)
 
+print(x_train.shape)
+print(y_train.shape)
+print(x_test.shape)
 
 # Train, Val 분리하기
-x_train, x_val, y_train1, y_val1, y_train2, y_val2 = train_test_split(x_train, y_train1, y_train2, train_size = 0.8, shuffle = False)
+x_train, x_val, y_train, y_val = train_test_split(x_train, y_train, train_size = 0.8, shuffle = False)
 
 # MinMaxSclaer
+x_train = x_train.reshape(x_train.shape[0], 48*8)
+x_val = x_val.reshape(x_val.shape[0], 48*8)
+x_test = x_test.reshape(x_test.shape[0], 48*8)
+
 scaler = MinMaxScaler()
 scaler.fit(x_train)
 x_train = scaler.transform(x_train)
@@ -71,61 +83,61 @@ x_val = scaler.transform(x_val)
 x_test = scaler.transform(x_test)
 
 # reshape
-x_train = x_train.reshape(x_train.shape[0], 1, 8)
-x_val = x_val.reshape(x_val.shape[0], 1, 8)
-x_test = x_test.reshape(x_test.shape[0], 1, 8)
+x_train = x_train.reshape(x_train.shape[0], 48, 8)
+x_val = x_val.reshape(x_val.shape[0], 48, 8)
+x_test = x_test.reshape(x_test.shape[0], 48, 8)
 
 # Make Model
-def mymodel():
-  model = Sequential()
-  model.add(Conv1D(filters = 256, kernel_size = 2, strides = 1, padding = 'same', input_shape = (1, 8), activation = 'relu'))
-  model.add(Conv1D(filters = 128, kernel_size = 2, strides = 1, padding = 'same', activation = 'relu'))
-  model.add(Dense(128, activation = 'relu'))
-  model.add(Dense(64, activation = 'relu'))
-  model.add(Flatten())
-  model.add(Dense(32, activation = 'relu'))
-  model.add(Dense(16, activation = 'relu'))
-  model.add(Dense(8, activation = 'relu'))
-  model.add(Dense(1))
-  return model
+
+model = Sequential()
+model.add(Conv1D(128, 2, input_shape=(x_train.shape[1], x_train.shape[2]), padding='same', activation='relu'))
+model.add(Conv1D(96, 2, padding='same'))
+model.add(Conv1D(48, 2, padding='same'))
+model.add(Flatten())
+model.add(Dense(144))
+model.add(Dense(96))
+model.add(Dense(96))
+model.add(Reshape((48,2)))
+model.add(Dense(2))
+
+# model = Sequential()
+# model.add(Conv1D(filters = 256, kernel_size = 2, padding = 'same', input_shape = (48, 8), activation = 'relu'))
+# model.add(Conv1D(filters = 128, kernel_size = 2, padding = 'same', activation = 'relu'))
+# model.add(Conv1D(64, 2, activation = 'relu'))
+# model.add(Conv1D(32, 2, activation = 'relu'))
+# model.add(Conv1D(16, 2, activation = 'relu'))
+# model.add(Flatten())
+# model.add(Dense(128, activation = 'relu'))
+# model.add(Dense(96, activation = 'relu'))
+# model.add(Reshape((48, 2)))
+# model.add(Dense(2))
+# model.summary()
 
 # Compile, Fit
-es = EarlyStopping(monitor = 'loss', patience = 5, mode = 'auto')
-reduce_lr = ReduceLROnPlateau(monitor = 'loss', factor = 0.5, patience = 3)
+es = EarlyStopping(monitor = 'loss', patience = 15, mode = 'auto')
+reduce_lr = ReduceLROnPlateau(monitor = 'loss', factor = 0.5, patience = 8)
 
-# y_train1
-result1 = []
+# y_train
+result = []
 for q in q_list:
-  model = mymodel()
-  file_path = "../data/modelcheckpoint/Sunlight/Sunlight_04/Sunlight_04_03_" + str(q) + "_{epoch:02d}.hdf5"
+  file_path = "../data/modelcheckpoint/Sunlight/Sunlight_04/Sunlight_04_03_" + str(q) + "_{epoch:02d}_{val_loss:.4f}.hdf5"
   cp = ModelCheckpoint(filepath = file_path, save_best_only = True, monitor = 'loss')
-  model.compile(loss = lambda y_test, y_predict: quantile_loss(q, y_test, y_predict), optimizer = 'adam', metrics = 'mae')
-  model.fit(x_train, y_train1, epochs = 20, batch_size = 35, validation_data = (x_val, y_val1), callbacks = [es, reduce_lr, cp])
-  y_predict1 = pd.DataFrame(model.predict(x_test, batch_size = 35))
-  result1.append(y_predict1)
-result1 = pd.concat(result1, axis = 1)
-result1[result1 < 0] = 0
+  model.compile(loss = lambda y_test, y_predict: quantile_loss(q, y_test, y_predict), optimizer = 'adam', metrics = ['mae'])
+  model.fit(x_train, y_train, epochs = 300, batch_size = 40, validation_data = (x_val, y_val), callbacks = [es, reduce_lr, cp])
 
-# y_train2
-result2 = []
-for q in q_list:
-  model = mymodel()
-  file_path = "../data/modelcheckpoint/Sunlight/Sunlight_04/Sunlight_04_04_" + str(q) + "_{epoch:02d}.hdf5"
-  cp = ModelCheckpoint(filepath = file_path , save_best_only = True, monitor = 'loss')
-  model.compile(loss = lambda y_test, y_predict: quantile_loss(q, y_test, y_predict), optimizer = 'adam', metrics = 'mae')
-  model.fit(x_train, y_train2, epochs = 20, batch_size = 35, validation_data = (x_val, y_val1), callbacks = [es, reduce_lr, cp])
-  y_predict2 = pd.DataFrame(model.predict(x_test, batch_size = 35))
-  result2.append(y_predict2)
-result2 = pd.concat(result2, axis = 1)
-result2[result2 < 0] = 0
+y_predict = model.predict(x_test)
+y_predict = y_predict.reshape(y_predict.shape[0] * y_predict.shape[1], y_predict.shape[2])
 
-result = pd.concat([result1, result2])
-result.to_csv('../Sunlight/Sunlight_result_01.csv')
-result = result.to_numpy()
 #==========================================================================================================
-
-
 # submission.csv 가져오기
 df = pd.read_csv('../Sunlight/sample_submission.csv')
-df.loc[df.id.str.contains('.csv_'), 'q_0.1':] = result
-df.to_csv('../Sunlight/sample_submission_result_03.csv')
+
+for i in range(1,10):
+    column_name = 'q_0.' + str(i)
+    df.loc[df.id.str.contains('Day7'), column_name:] = y_predict[:,0].round(2)
+    
+for i in range(1,10):
+    column_name = 'q_0.' + str(i)
+    df.loc[df.id.str.contains('Day8'), column_name:] = y_predict[:,1].round(2)
+
+df.to_csv('../Sunlight/Sunlight_result_01.csv', index = False)
