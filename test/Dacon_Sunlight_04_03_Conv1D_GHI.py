@@ -139,6 +139,6 @@ df = pd.read_csv('../Sunlight/sample_submission.csv')
 
 for i in range(1,10):
     column_name = 'q_0.' + str(i)
-    df.loc[df.id.str.contains('.csv_Day'), column_name:] = y_predict[:,0].round(2)
+    df.loc[df.id.str.contains('.csv_Day'), column_name] = y_predict[:,i-1].round(2)
     
 df.to_csv('../Sunlight/Sunlight_result_01.csv', index = False)
