@@ -126,24 +126,19 @@ for q in q_list:
   model.compile(loss = lambda y_test, y_predict: quantile_loss(q, y_test, y_predict), optimizer = 'adam', metrics = ['mae'])
   model.fit(x_train, y_train, epochs = 1, batch_size = 40, validation_data = (x_val, y_val), callbacks = [es, reduce_lr])
   pred = model.predict(x_test)
-  pred = pred.reshape(7776, 1)
+  pred = pd.DataFrame(pred.reshape(7776, 1))
   result.append(pred)
-print(result)
 result = pd.concat(result, axis = 1)
 result[result < 0] = 0
 y_predict = result.to_numpy()
 
-print(y_predict.shape)      # (3888, 2)
+print(y_predict.shape)      # (7776, 9)
 #==========================================================================================================
 # submission.csv 가져오기
 df = pd.read_csv('../Sunlight/sample_submission.csv')
 
 for i in range(1,10):
     column_name = 'q_0.' + str(i)
-    df.loc[df.id.str.contains('Day7'), column_name:] = y_predict[:,0].round(2)
+    df.loc[df.id.str.contains('.csv_Day'), column_name:] = y_predict[:,0].round(2)
     
-for i in range(1,10):
-    column_name = 'q_0.' + str(i)
-    df.loc[df.id.str.contains('Day8'), column_name:] = y_predict[:,1].round(2)
-
 df.to_csv('../Sunlight/Sunlight_result_01.csv', index = False)
