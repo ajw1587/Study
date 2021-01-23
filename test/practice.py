@@ -1,125 +1,193 @@
 import numpy as np
 import pandas as pd
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import MinMaxScaler
-from tensorflow.keras.models import Model, Sequential
-from tensorflow.keras.layers import Input, Dense, LSTM, Dropout
-from tensorflow.keras.callbacks import EarlyStopping, TensorBoard, ModelCheckpoint, ReduceLROnPlateau
+from tensorflow.keras.models import Sequential, Model, load_model
+from tensorflow.keras.layers import Dense, LSTM, Conv1D, Input, Flatten, MaxPooling1D, Dropout, Reshape, SimpleRNN, LSTM, LeakyReLU, GRU
+from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint, ReduceLROnPlateau
 from tensorflow.keras.backend import mean, maximum
+import os
+import glob
+import random
+import tensorflow.keras.backend as K
+
+#===================================================================
+# train 데이터 불러옴
+
+# 원하는 열만 가져오기
+dataset = pd.read_csv('../data/csv/Sunlight_generation/train/train.csv', index_col=None, header=0)
+# print(dataset.shape)
+print(dataset.columns)
+x_train = dataset.iloc[:,[1,3,4,5,6,7,8]]
+print(x_train.shape)      #(52560, 7)
+#===================================================================
+# 81개의 all_test 데이터 48개(1일치) 불러와서 합치기
+def preprocess_data(data):
+    temp = data.copy()
+    return temp.iloc[-48:,[1,3,4,5,6,7,8]]
+
+df_test = []
+for i in range(81):
+    file_path = '../data/csv/Sunlight_generation/test/' + str(i) + '.csv'
+    temp = pd.read_csv(file_path)
+    temp = preprocess_data(temp)
+    df_test.append(temp)
+
+all_test = pd.concat(df_test)
+print(all_test.shape)   #(3888, 7)
+
+#===================================================================
+# # GHI라는 기준 추가
+def Add_features(data):
+    data['cos'] = np.cos(np.pi/2 - np.abs(data['Hour'] % 12 - 6)/6 * np.pi/2)
+    # pi = 원주율, abs = 절대값
+    data.insert(1, 'GHI', data['DNI'] * data['cos'] + data['DHI'])
+    # 데이터를 넣어줄건데 1열에(기존 열은 오른쪽으로 밀림), 'GHI'명으로, 마지막의 수식으로 나온 값을
+    data.drop(['cos'], axis=1, inplace = True)
+    #'cos' 열을 삭제를 할 것 이고. 이 삭제한 데이터프레임으로 기존 것을 대체하겠다.
+    return data
+
+x_train = Add_features(x_train)     # 트레인에 붙여줌
+all_test = Add_features(all_test).values    # 테스트에 붙여줌
+
+print(x_train.shape)      #(52560, 8)   #하나씩 붙은 모습
+print(all_test.shape)     #(3888, 8)
+
+#===================================================================
+# train에 다음날, 다다음날의 TARGET을 오른쪽 열으로 붙임
+day_7 = x_train['TARGET'].shift(-48)      #다음날
+day_8 = dataset['TARGET'].shift(-48*2)    #다다음날
+
+x_train = pd.concat([x_train, day_7, day_8], axis=1)
+# dataset2.columns = ['Hour', 'GHI', 'DHI', 'DNI', 'WS', 'RH','T','TARGET','TARGET+1','TARGET+2']
+x_train = x_train.iloc[:-96,:]  # 마지막 2일은 데이터가 비니까 빼준다
+
+print(x_train.shape)       #(52464, 10)       # 8개는 기준일 +GHI / +day7 + day8
+
+#===================================================================
+# x_train을 RNN식으로 데이터 자르기
+aaa = x_train.values
+
+def split_xy(aaa, x_row, x_col, y_row, y_col):
+    x, y = list(), list()
+    for i in range(len(aaa)):
+        if i > len(aaa)-x_row:
+            break
+        tmp_x = aaa[i:i+x_row, :x_col]
+        tmp_y = aaa[i:i+x_row, x_col:x_col+y_col]
+        x.append(tmp_x)
+        y.append(tmp_y)
+    return np.array(x), np.array(y)
+
+# print(x, '\n\n', y)
+x_train, y_train = split_xy(aaa, 48,8,48,2)     # 30분씩 RNN식으로 자름
+print(x_train.shape)                    #(52417, 48, 8)
+print(y_train.shape)                    #(52417, 48, 2)
+
+all_test = all_test.reshape(int(all_test.shape[0]/48), 48, all_test.shape[1])
+all_test = all_test.reshape(all_test.shape[0], all_test.shape[1]*all_test.shape[2])
+#===================================================================
+# 데이터 전처리 : 준비 된 데이터 x_train / y_train / all_test
+# 1) 트레인테스트분리 / 2) 민맥스or스탠다드 / 3) 모델에 넣을 쉐잎
+
+# 1) 2차원으로 만들어서 트레인테스트분리
+x_train = x_train.reshape(x_train.shape[0], x_train.shape[1]*x_train.shape[2])
+y_train = y_train.reshape(y_train.shape[0], y_train.shape[1]*y_train.shape[2])
+
+from sklearn.model_selection import train_test_split
+x_train, x_test, y_train, y_test = train_test_split(x_train, y_train, train_size=0.8, shuffle=True, random_state=311)
+from sklearn.model_selection import train_test_split
+x_train, x_val, y_train, y_val = train_test_split(x_train, y_train, train_size=0.8, shuffle=True, random_state=311)
+
+# 2) 스탠다드 스케일러
+from sklearn.preprocessing import MinMaxScaler, StandardScaler
+scaler = MinMaxScaler()
+scaler.fit(x_train)
+x_train = scaler.transform(x_train)
+x_val = scaler.transform(x_val)
+x_test = scaler.transform(x_test)
+all_test = scaler.transform(all_test)
+
+# 3) 모델에 넣을 쉐잎
+
+# for conv1D
+num1 = 8
+num2 = 2
+x_train = x_train.reshape(x_train.shape[0], int(x_train.shape[1]/num1), num1)
+x_val = x_val.reshape(x_val.shape[0], int(x_val.shape[1]/num1), num1)
+x_test = x_test.reshape(x_test.shape[0], int(x_test.shape[1]/num1), num1)
+all_test = all_test.reshape(all_test.shape[0], int(all_test.shape[1]/num1), num1)
+
+y_train = y_train.reshape(y_train.shape[0], int(y_train.shape[1]/num2), num2)
+y_val = y_val.reshape(y_val.shape[0], int(y_val.shape[1]/num2), num2)
+y_test = y_test.reshape(y_test.shape[0], int(y_test.shape[1]/num2), num2)
+
+# print(x_train.shape)
+# print(x_val.shape)
+# print(x_test.shape)
+# print(all_test.shape)
+# print(y_train.shape)
+# print(y_val.shape)
+# print(y_test.shape)
+# (33546, 48, 8)
+# (8387, 48, 8)
+# (10484, 48, 8)
+# (81, 48, 8)
+# (33546, 48, 2)
+# (8387, 48, 2)
+# (10484, 48, 2)
+
+#===================================================================
+#퀀타일 로스 적용된 모델 구성 + 컴파일, 훈련까지
+
+def quantile_loss(q, y_true, y_pred):
+    err = (y_true - y_pred)
+    return K.mean(K.maximum(q*err, (q-1)*err), axis=-1)
+# mean = 평균
+# K 를 tensorflow의 백앤드에서 불러왔는데 텐서형식의 mean을 쓰겠다는 것이다.
+
+qlist = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
+
+def mymodel():
+    model = Sequential()
+    model.add(Conv1D(96, 2, input_shape=(x_train.shape[1], x_train.shape[2]), padding='same', activation='relu'))
+    model.add(Conv1D(96,2))
+    model.add(Conv1D(48,2))
+    model.add(Flatten())
+    model.add(Dense(96))
+    model.add(Reshape((48,2)))
+    model.add(Dense(2))
+    return model
+
+# model.summary()
+
+for q in qlist:
+    patience = 8
+    model = mymodel()
+    model.compile(loss = lambda y_true, y_pred: quantile_loss(q, y_true, y_pred), optimizer='adam', metrics=['mse'])
+    stop = EarlyStopping(monitor ='val_loss', patience=patience, mode='min')
+    reduce_lr = ReduceLROnPlateau(monitor='val_loss', patience=patience/2, factor=0.5)
+    filepath = "../data/modelcheckpoint/Sunlight/Sunlight_04/Sunlight_04_03_" + str(q) + "_{epoch:02d}_{val_loss:.4f}.hdf5"
+    check = ModelCheckpoint(filepath = filepath, monitor = 'val_loss', save_best_only=True, mode='min') #앞에 f를 붙여준 이유: {}안에 변수를 넣어주겠다는 의미
+    hist = model.fit(x_train, y_train, epochs=1, batch_size=48, verbose=1, validation_split=0.2, callbacks=[stop, reduce_lr])
+    
+#평가,예측
+result = model.evaluate(x_test, y_test, batch_size=48)
+print('loss: ', result[0])
+print('mae: ', result[1])
+
+y_predict = model.predict(all_test)
+print(y_predict.shape)  #(81, 48, 2)
 
 
-# quantile 지표
-def quantile_loss(q, y, pred):
-    err = (y-pred)
-    return mean(maximum(q*err, (q-1)*err), axis=-1)
+#예측값을 submission에 넣기
+y_predict = y_predict.reshape(y_predict.shape[0]*y_predict.shape[1],y_predict.shape[2])
 
+subfile = pd.read_csv('../data/csv/dacon1/sample_submission.csv')
+for i in range(1,10):
+    column_name = 'q_0.' + str(i)
+    subfile.loc[subfile.id.str.contains('Day7'), column_name] = y_predict[:,0].round(2)
 
-# q_list
-q_list = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
+for i in range(1,10):
+    column_name = 'q_0.' + str(i)
+    subfile.loc[subfile.id.str.contains('Day8'), column_name] = y_predict[:,1].round(2)
 
-
-# Target1, Target2 컬럼 추가하기
-def preprocess_data(data, is_train = True):
-    temp = dataset.copy()
-    temp = temp[['Hour', 'Minute', 'DHI', 'DNI', 'WS', 'RH', 'T']]
-
-    if(is_train == True):
-        temp['Target1'] = dataset['TARGET'].shift(-48).fillna(method = 'ffill')
-        temp['Target2'] = dataset['TARGET'].shift(-96).fillna(method = 'ffill')
-        return temp.iloc[:-96]
-    else:
-        return temp.iloc[-48:]
-
-
-# train data 불러오기
-csv_file_path = '../data/csv/Sunlight_generation/train/train.csv'
-dataset = pd.read_csv(csv_file_path, engine = 'python', encoding = 'CP949')
-print(dataset.shape)                # (52560, 9)
-
-train = preprocess_data(dataset)    # ['Day', 'Hour', 'Minute', 'DHI', 'DNI', 'WS', 'RH', 'T', 'TARGET', 'Target1', 'Target2']
-
-x_train = train.iloc[:, :7]         # (52464, 7), ['Hour', 'Minute', 'DHI', 'DNI', 'WS', 'RH', 'T']
-y_train = train.iloc[:, -2:]        # (52464, 2), ['Target1', 'Target2']
-x_train = x_train.to_numpy()
-y_train = y_train.to_numpy()
-
-x_train = x_train.reshape(1093, 48, 7)
-y_train = y_train.reshape(1093, 48, 2)
-
-
-# 전처리
-x_train, x_test, y_train, y_test = train_test_split(x_train, y_train, train_size = 0.8, random_state = 77)
-x_train, x_val, y_train, y_val = train_test_split(x_train, y_train, train_size = 0.8, random_state = 77)
-
-# print(x_train.shape)                # (699, 48, 7)
-# print(y_train.shape)                # (699, 48, 2)
-# print(x_test.shape)                 # (219, 48, 7)
-# print(y_test.shape)                 # (219, 48, 2)
-# print(x_val.shape)                  # (175, 48, 7)
-# print(y_val.shape)                  # (175, 48, 2)
-
-
-# Test Data 가져오기
-test_file_path = '../data/csv/Sunlight_generation/test/0.csv'
-first_file_path = '../data/csv/Sunlight_generation/test/'
-last_file_path = '.csv'
-x_pred_test = pd.read_csv(test_file_path, engine = 'python', encoding = 'CP949')
-x_pred_test = preprocess_data(x_pred_test, is_train = False)
-for i in range(1, 81):
-    file_path = first_file_path + str(i) + last_file_path
-    subset = pd.read_csv(file_path, engine = 'python', encoding = 'CP949')
-    subset = preprocess_data(subset, is_train = False)
-    x_pred_test = pd.concat([x_pred_test, subset])
-# print(type(x_pred_test))      # DataFrame
-# print(x_pred_test.shape)      # (3888, 7)
-
-
-# 모델 구성
-input1 = Input(shape = (x_train.shape[1], x_train.shape[2]))
-dense1 = Dense(128, activation = 'relu')(input1)
-dense1 = Dropout(0.2)(dense1)
-dense1 = Dense(128, activation = 'relu')(input1)
-dense1 = Dropout(0.2)(dense1)
-dense1 = Dense(128, activation = 'relu')(input1)
-dense1 = Dropout(0.2)(dense1)
-dense1 = Dense(64, activation = 'relu')(dense1)
-dense1 = Dropout(0.2)(dense1)
-dense1 = Dense(32, activation = 'relu')(dense1)
-dense1 = Dense(16, activation = 'relu')(dense1)
-dense1 = Dense(8, activation=  'relu')(dense1)
-output1 = Dense(2)(dense1)
-model = Model(inputs = input1, outputs = output1)
-
-
-# Compile, Fit
-es = EarlyStopping(monitor = 'val_loss', patience = 40, mode = 'auto')
-reduce_lr = ReduceLROnPlateau(monitor = 'val_loss', factor = 0.5, patience = 20)
-
-result = np.array(range(0, 7776))
-result = result.reshape(7776, 1)
-for q in q_list:
-    model.compile(loss=lambda y_test, y_predict: quantile_loss(q, y_test, y_predict), optimizer='adam')
-    model.fit(x_train, y_train, epochs = 200)
-    y_pred_test = model.predict(x_pred_test, batch_size = 7)
-    # print(y_pred_test.shape)      # (3888, 2)
-    first_day = y_pred_test[:,0:1]
-    second_day = y_pred_test[:,1:2]
-    y_pred_test = np.vstack((first_day, second_day))
-    result = np.hstack((result, y_pred_test))
-
-#==========================================================================================================
-
-
-print(result[0])
-print(result.shape)                 # (7666, 10)
-result = result[:,1:]
-result = pd.DataFrame(result)
-print(result.index)
-print(result.columns)
-print(type(result))
-result.to_csv('../Sunlight/Sunlight_result_01.csv')
-
-# submission.csv 가져오기
-df = pd.read_csv('../Sunlight/sample_submission.csv')
-df.loc[df.id.str.contains('.csv_'), 'q_0.1':] = result.values
-df.to_csv('../Sunlight/sample_submission_result_01.csv')
+subfile.to_csv('../data/csv/dacon1/sub_1021_5.csv', index=False)
