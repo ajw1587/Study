@@ -90,9 +90,10 @@ x_test = x_test.reshape(x_test.shape[0], 48, 8)
 # Make Model
 
 model = Sequential()
-model.add(Conv1D(128, 2, input_shape=(x_train.shape[1], x_train.shape[2]), padding='same', activation='relu'))
-model.add(Conv1D(96, 2, padding='same'))
-model.add(Conv1D(48, 2, padding='same'))
+model.add(Conv1D(256, 2, input_shape=(x_train.shape[1], x_train.shape[2]), padding='same', activation='relu'))
+model.add(Conv1D(128, 2, padding='same'))
+model.add(Conv1D(64, 2, padding='same'))
+model.add(Conv1D(32, 2, padding='same'))
 model.add(Flatten())
 model.add(Dense(144))
 model.add(Dense(96))
@@ -123,11 +124,16 @@ for q in q_list:
   file_path = "../data/modelcheckpoint/Sunlight/Sunlight_04/Sunlight_04_03_" + str(q) + "_{epoch:02d}_{val_loss:.4f}.hdf5"
   cp = ModelCheckpoint(filepath = file_path, save_best_only = True, monitor = 'loss')
   model.compile(loss = lambda y_test, y_predict: quantile_loss(q, y_test, y_predict), optimizer = 'adam', metrics = ['mae'])
-  model.fit(x_train, y_train, epochs = 300, batch_size = 40, validation_data = (x_val, y_val), callbacks = [es, reduce_lr, cp])
+  model.fit(x_train, y_train, epochs = 1, batch_size = 40, validation_data = (x_val, y_val), callbacks = [es, reduce_lr])
+  pred = model.predict(x_test)
+  pred = pred.reshape(7776, 1)
+  result.append(pred)
+print(result)
+result = pd.concat(result, axis = 1)
+result[result < 0] = 0
+y_predict = result.to_numpy()
 
-y_predict = model.predict(x_test)
-y_predict = y_predict.reshape(y_predict.shape[0] * y_predict.shape[1], y_predict.shape[2])
-
+print(y_predict.shape)      # (3888, 2)
 #==========================================================================================================
 # submission.csv 가져오기
 df = pd.read_csv('../Sunlight/sample_submission.csv')

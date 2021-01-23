@@ -84,7 +84,7 @@ for q in q_list:
     model = load_model(file_path, compile = False)
     model.compile(loss = lambda y_test, y_predict: quantile_loss(q, y_test, y_predict), optimizer = 'adam',
                   metrics = [lambda y_test, y_predict: quantile_loss(q, y_test, y_predict)])
-    y_predict2 = pd.DataFrame(model.predict(x_test, batch_size = 35))
+    y_predict2 = pd.DataFrame(model.predict(x_test))
     result2.append(y_predict2)
 result2 = pd.concat(result2, axis = 1)
 result2[result2 < 0] = 0
