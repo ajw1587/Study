@@ -143,9 +143,9 @@ from lightgbm import LGBMRegressor
 import tensorflow.keras.backend as K
 
 # cp_save = "../data/modelcheckpoint/Sunlight/Sunlight_04/Sunlight_0124_" + str(q) + "_{epoch:02d}_{val_loss:.4f}.hdf5"
-es = EarlyStopping(monitor='val_loss', patience=30, mode='auto')
+es = EarlyStopping(monitor='val_loss', patience=50, mode='auto')
 # cp = ModelCheckpoint(filepath=cp_save, monitor='val_loss', save_best_only=True, verbose=1, mode='min')
-lr = ReduceLROnPlateau(monitor='val_loss', patience=15, factor=0.3, verbose=1)
+lr = ReduceLROnPlateau(monitor='val_loss', patience=25, factor=0.3, verbose=1) # factor = 0.3 -> 0.5
 
 # 함수 : Quantile loss definition
 def quantile_loss(q, y_true, y_pred):
@@ -160,14 +160,86 @@ def my_model() :
     model.add(Conv1D(filters=256, kernel_size=2, activation='relu', padding='same',\
          input_shape=(x_train.shape[1], x_train.shape[2])))
     model.add(Conv1D(filters=128, kernel_size=2, activation='relu', padding='same'))
-    model.add(Conv1D(filters=64, kernel_size=2, activation='relu', padding='same'))
-    model.add(Conv1D(filters=32, kernel_size=2, activation='relu', padding='same'))
     model.add(Flatten())
+    model.add(Dense(128, activation='relu'))
     model.add(Dense(128, activation='relu'))
     model.add(Dense(64, activation='relu'))
     model.add(Dense(32, activation='relu'))
     model.add(Dense(8, activation='relu'))
     model.add(Dense(1))
+
+    # model = Sequential()
+    # model.add(Conv1D(filters=256, kernel_size=2, activation='relu', padding='same',\
+    #      input_shape=(x_train.shape[1], x_train.shape[2])))
+    # model.add(Conv1D(filters=128, kernel_size=2, activation='relu', padding='same'))
+    # model.add(Dense(128, activation='relu'))
+    # model.add(Dropout(0.2))
+    # model.add(Dense(64, activation='relu'))
+    # model.add(Dropout(0.2))
+    # model.add(Dense(32, activation='relu'))
+    # model.add(Flatten())
+    # model.add(Dense(128, activation='relu'))
+    # model.add(Dense(128, activation='relu'))
+    # model.add(Dense(64, activation='relu'))
+    # model.add(Dense(32, activation='relu'))
+    # model.add(Dense(8, activation='relu'))
+    # model.add(Dense(1))
+    # # factor = 0.3
+    # 2.0447833802964954
+    # 2.1149843666288586
+
+    # model = Sequential()
+    # model.add(Conv1D(filters=256, kernel_size=2, activation='relu', padding='same',\
+    #      input_shape=(x_train.shape[1], x_train.shape[2])))
+    # model.add(Conv1D(filters=128, kernel_size=2, activation='relu', padding='same'))
+    # model.add(Conv1D(filters=64, kernel_size=2, activation='relu', padding='same'))
+    # model.add(Dense(64, activation='relu'))
+    # model.add(Dense(32, activation='relu'))
+    # model.add(Flatten())
+    # model.add(Dense(128, activation='relu'))
+    # model.add(Dense(128, activation='relu'))
+    # model.add(Dense(64, activation='relu'))
+    # model.add(Dense(32, activation='relu'))
+    # model.add(Dense(8, activation='relu'))
+    # model.add(Dense(1))
+    # factor = 0.3
+    # 2.0213917758729725
+    # 2.0704903403917947
+
+    # model = Sequential()
+    # model.add(Conv1D(filters=256, kernel_size=2, activation='relu', padding='same',\
+    #      input_shape=(x_train.shape[1], x_train.shape[2])))
+    # model.add(Conv1D(filters=128, kernel_size=2, activation='relu', padding='same'))
+    # model.add(Conv1D(filters=128, kernel_size=2, activation='relu', padding='same'))
+    # model.add(Conv1D(filters=64, kernel_size=2, activation='relu', padding='same'))
+    # model.add(Conv1D(filters=32, kernel_size=2, activation='relu', padding='same'))
+    # model.add(Flatten())
+    # model.add(Dense(128, activation='relu'))
+    # model.add(Dense(128, activation='relu'))
+    # model.add(Dense(64, activation='relu'))
+    # model.add(Dense(32, activation='relu'))
+    # model.add(Dense(8, activation='relu'))
+    # model.add(Dense(1))
+    # factor = 0.5
+    # 2.068478504816691
+    # 2.069583144452837
+
+    # model = Sequential()
+    # model.add(Conv1D(filters=256, kernel_size=2, activation='relu', padding='same',\
+    #      input_shape=(x_train.shape[1], x_train.shape[2])))
+    # model.add(Conv1D(filters=128, kernel_size=2, activation='relu', padding='same'))
+    # model.add(Conv1D(filters=64, kernel_size=2, activation='relu', padding='same'))
+    # model.add(Conv1D(filters=32, kernel_size=2, activation='relu', padding='same'))
+    # model.add(Flatten())
+    # model.add(Dense(128, activation='relu'))
+    # model.add(Dense(64, activation='relu'))
+    # model.add(Dense(32, activation='relu'))
+    # model.add(Dense(8, activation='relu'))
+    # model.add(Dense(1))
+    # # factor = 0.5
+    # 2.0333249039120145
+    # 2.0728426708115473
+
     return model
 
 #3. Compile, Train
@@ -184,10 +256,10 @@ def train_data(x_train, x_test, y_train, y_test, x_val, y_val, x_pred):
         cp_save = "../data/modelcheckpoint/Sunlight/Sunlight_0124_02_" + str(q) + "_{epoch:02d}_{val_loss:.4f}.hdf5"
         cp = ModelCheckpoint(filepath=cp_save, monitor='val_loss', save_best_only=True, verbose=1, mode='min')
         model.compile(loss = lambda y_true,y_pred: quantile_loss(q, y_true,y_pred), optimizer = 'adam')
-        model.fit(x_train, y_train, epochs=1000, batch_size=16, validation_data=(x_val, y_val), callbacks=[es, lr])
+        model.fit(x_train, y_train, epochs=1000, batch_size=64, validation_data=(x_val, y_val), callbacks=[es, lr])
 
         # 4. Evaluate, Predict
-        loss = model.evaluate(x_test, y_test,batch_size=16)
+        loss = model.evaluate(x_test, y_test,batch_size=64)
         print("(q_%.1f) loss : %.4f" % (q, loss))
         loss_list.append(loss)
 
@@ -213,13 +285,10 @@ results_2, loss_mean2 = train_data(x_train, x_test, y2_train, y2_test, x_val, y2
 print(loss_mean1)
 print(loss_mean2)
 
-# 1.9882435997327168
-# 2.030441893471612
-
 ##############################################################
 
 # submission 저장
 submission.loc[submission.id.str.contains("Day7"), "q_0.1":] = results_1    # Day7 (3888, 9)
 submission.loc[submission.id.str.contains("Day8"), "q_0.1":] = results_2    # Day8 (3888, 9)
 
-submission.to_csv('../Sunlight/Sunlight_0124_04.csv', index=False)  # score : 1.9855	
+submission.to_csv('../Sunlight/0125/Sunlight_0125_01.csv', index=False)

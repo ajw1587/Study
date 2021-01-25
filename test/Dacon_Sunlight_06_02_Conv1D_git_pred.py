@@ -206,4 +206,4 @@ print(loss_mean2)
 submission.loc[submission.id.str.contains("Day7"), "q_0.1":] = results_1    # Day7 (3888, 9)
 submission.loc[submission.id.str.contains("Day8"), "q_0.1":] = results_2    # Day8 (3888, 9)
 
-submission.to_csv('../Sunlight/Sunlight_0124_02.csv', index=False)  # score : 1.9855	
+submission.to_csv('../Sunlight/Sunlight_0124_02.csv', index=False)	
