@@ -6,6 +6,7 @@ from tensorflow.keras.layers import Dense, Dropout, Conv1D, Flatten, Reshape
 from tensorflow.keras.callbacks import EarlyStopping, ReduceLROnPlateau, ModelCheckpoint
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.model_selection import train_test_split
+import tensorflow.keras.backend as K
 
 # 함수 : GHI column 추가
 def Add_features(data):
@@ -18,7 +19,7 @@ def Add_features(data):
 def preprocessing_df(dataset, is_train = True):
   dataset = Add_features(dataset)
   temp = dataset.copy()
-  temp = temp[['TARGET','GHI','DHI','DNI','WS','RH','T']]
+  temp = temp[['HOUR','TARGET','GHI','DHI','DNI','WS','RH','T']]
   if is_train==True:          
     temp['Target1'] = temp['TARGET'].shift(-48).fillna(method='ffill')   # 다음날의 Target
     temp['Target2'] = temp['TARGET'].shift(-48*2).fillna(method='ffill') # 다다음날의 Target
@@ -41,7 +42,7 @@ def split_xy(dataset, x_row, x_col, y_row, y_col):
 q_list = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
 def quantile_loss(q, y, pred):
   err = (y-pred)
-  return mean(maximum(q*err, (q-1)*err), axis = -1)
+  return K.mean(K.maximum(q*err, (q-1)*err), axis = -1)
 
 # Train Data 불러오기
 file_path1 = '../data/csv/Sunlight_generation/train/train.csv'
