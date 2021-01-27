@@ -11,14 +11,6 @@ warnings.filterwarnings("ignore")
 
 ##############################################################
 
-# 파일 불러오기
-train = pd.read_csv('../data/csv/Sunlight_generation/train/train.csv')
-# print(train.shape)  # (52560, 9)
-submission = pd.read_csv('../Sunlight/sample_submission.csv')
-# print(submission.shape) # (7776, 10)
-
-##############################################################
-
 #1. DATA
 
 # 함수 : GHI column 추가
@@ -26,6 +18,14 @@ def Add_features(data):
     data['cos'] = np.cos(np.pi/2 - np.abs(data['Hour']%12 - 6)/6*np.pi/2)
     data.insert(1,'GHI',data['DNI']*data['cos']+data['DHI'])
     data.drop(['cos'], axis= 1, inplace = True)
+
+    c = 243.12
+    b = 17.62
+    gamma = (b * (data['T']) / (c + (data['T']))) + np.log(data['RH'] / 100)
+    dp = ( c * gamma) / (b - gamma)
+    data.insert(1,'Td',dp) 
+    data.insert(1,'T-Td',data['T']-data['Td'])
+    
     return data
 
 # 함수 : train data column 정리
@@ -33,7 +33,7 @@ def Add_features(data):
 def preprocess_data(data, is_train=True):
     data = Add_features(data)
     temp = data.copy()
-    temp = temp[['Hour','TARGET','GHI','DHI','DNI','WS','RH','T']]
+    temp = temp[['GHI', 'DHI', 'DNI', 'WS', 'RH', 'T','T-Td','TARGET']]
 
     if is_train==True:          
         temp['Target1'] = temp['TARGET'].shift(-48).fillna(method='ffill')   # 다음날의 Target
@@ -59,26 +59,28 @@ def split_xy(dataset, time_steps) :
         y1.append(tmp_y1)
         y2.append(tmp_y2)
     return np.array(x), np.array(y1), np.array(y2)
+##############################################################
+
+# 파일 불러오기
+train = pd.read_csv('../data/csv/Sunlight_generation/train/train.csv')
+# print(train.shape)  # (52560, 9)
+submission = pd.read_csv('../Sunlight/sample_submission.csv')
+# print(submission.shape) # (7776, 10)
 
 ##############################################################
 
 df_train = preprocess_data(train)
-# print(df_train.shape)   # (52464, 10)
-# print(df_train.columns) 
-# Index(['Hour', 'TARGET', 'GHI', 'DHI', 'DNI', 'WS', 'RH', 'T', 'Target1','Target2'], dtype='object')
+print(df_train.shape)   # (52464, 10)
+print(df_train.columns) 
+# Index(['GHI', 'DHI', 'DNI', 'WS', 'RH', 'T', 'T-Td', 'TARGET', 'Target1', 'Target2'], dtype='object')
 
-X = df_train.to_numpy()
-# print(X.shape)      # (52464, 10)
+X = df_train.to_numpy()             # (52464, 10)
 
 # x, y 데이터 분리
 x, y1, y2 = split_xy(X, 1)
-# print(x.shape)     # (52464, 1, 8)  # 한 행씩 자름
-# print(x[15:18])
-
-# print(y1.shape)     # (52464, 1)
-# print(y1[15:18])  
-# print(y2.shape)     # (52464, 1)
-# print(y2[15:18])  
+print(x.shape)      # (52464, 1, 8)  # 한 행씩 자름
+print(y1.shape)     # (52464, 1)
+print(y2.shape)     # (52464, 1)
 
 # test data : 81개의 0 ~ 7 Day 데이터 합치기
 df_test = []
@@ -86,7 +88,7 @@ for i in range(81):
     file_path = '../data/csv/Sunlight_generation/test/' + str(i) + '.csv'
     temp = pd.read_csv(file_path)
     temp = preprocess_data(temp, is_train=False)
-    # print(temp.columns) # Index(['Hour', 'TARGET', 'GHI', 'DHI', 'DNI', 'WS', 'RH', 'T'], dtype='object')
+    # print(temp.columns) # Index(['GHI', 'DHI', 'DNI', 'WS', 'RH', 'T','T-Td','TARGET'], dtype='object')
     df_test.append(temp)
 
 df_test = pd.concat(df_test)
@@ -101,10 +103,8 @@ x_pred = x_pred.reshape(3888, 1, 8)
 # x >> preprocessing
 from sklearn.model_selection import train_test_split
 
-x_train, x_test, y1_train, y1_test, y2_train, y2_test = \
-    train_test_split(x, y1, y2, train_size=0.8, shuffle=True, random_state=66)
-x_train, x_val, y1_train, y1_val, y2_train, y2_val = \
-    train_test_split(x_train, y1_train, y2_train, train_size=0.8, shuffle=True, random_state=66)
+x_train, x_test, y1_train, y1_test, y2_train, y2_test = train_test_split(x, y1, y2, train_size=0.8, shuffle=True, random_state=66)
+x_train, x_val, y1_train, y1_val, y2_train, y2_val = train_test_split(x_train, y1_train, y2_train, train_size=0.8, shuffle=True, random_state=66)
 
 # print(x_train.shape)    # (33576, 1, 8)
 # print(x_test.shape)     # (10493, 1, 8)
@@ -160,13 +160,52 @@ def my_model() :
     model.add(Conv1D(filters=256, kernel_size=2, activation='relu', padding='same',\
          input_shape=(x_train.shape[1], x_train.shape[2])))
     model.add(Conv1D(filters=128, kernel_size=2, activation='relu', padding='same'))
+    model.add(Conv1D(filters=64, kernel_size=2, activation='relu', padding='same'))
+    model.add(Conv1D(filters=64, kernel_size=2, activation='relu', padding='same'))
+    model.add(Conv1D(filters=32, kernel_size=2, activation='relu', padding='same'))
+    model.add(Conv1D(filters=16, kernel_size=2, activation='relu', padding='same'))
     model.add(Flatten())
-    model.add(Dense(128, activation='relu'))
-    model.add(Dense(128, activation='relu'))
     model.add(Dense(64, activation='relu'))
     model.add(Dense(32, activation='relu'))
     model.add(Dense(8, activation='relu'))
     model.add(Dense(1))
+    # print(x.shape)      # (52464, 1, 8)  # 한 행씩 자름
+    # print(y1.shape)     # (52464, 1)
+    # print(y2.shape)     # (52464, 1)
+    # 2.235631505648295
+    # 2.3574120733473034
+
+    # model = Sequential()
+    # model.add(Conv1D(filters=256, kernel_size=2, activation='relu', padding='same',\
+    #      input_shape=(x_train.shape[1], x_train.shape[2])))
+    # model.add(Conv1D(filters=128, kernel_size=2, activation='relu', padding='same'))
+    # model.add(Conv1D(filters=64, kernel_size=2, activation='relu', padding='same'))
+    # model.add(Conv1D(filters=32, kernel_size=2, activation='relu', padding='same'))
+    # model.add(Flatten())
+    # model.add(Dense(128, activation='relu'))
+    # model.add(Dense(64, activation='relu'))
+    # model.add(Dense(32, activation='relu'))
+    # model.add(Dense(8, activation='relu'))
+    # model.add(Dense(1))
+    # 'GHI', 'DHI', 'DNI', 'WS', 'RH', 'T','T-Td','TARGET'
+    # 2.2293909125857883
+    # 2.3408077557881675
+
+
+    # model = Sequential()
+    # model.add(Conv1D(filters=256, kernel_size=2, activation='relu', padding='same',\
+    #      input_shape=(x_train.shape[1], x_train.shape[2])))
+    # model.add(Conv1D(filters=128, kernel_size=2, activation='relu', padding='same'))
+    # model.add(Flatten())
+    # model.add(Dense(128, activation='relu'))
+    # model.add(Dense(128, activation='relu'))
+    # model.add(Dense(64, activation='relu'))
+    # model.add(Dense(32, activation='relu'))
+    # model.add(Dense(8, activation='relu'))
+    # model.add(Dense(1))
+    # 2.0348102119233875
+    # 2.064663873778449
+
 
     # model = Sequential()
     # model.add(Conv1D(filters=256, kernel_size=2, activation='relu', padding='same',\
@@ -243,6 +282,8 @@ def my_model() :
     return model
 
 #3. Compile, Train
+from tensorflow.keras.optimizers import Adam, Adadelta, Adamax, Adagrad
+opti = Adam(learning_rate = 0.002)
 def train_data(x_train, x_test, y_train, y_test, x_val, y_val, x_pred):
     pred_list = []
     loss_list = list()
@@ -255,7 +296,7 @@ def train_data(x_train, x_test, y_train, y_test, x_val, y_val, x_pred):
         #3. Compile, Train
         cp_save = "../data/modelcheckpoint/Sunlight/Sunlight_0124_02_" + str(q) + "_{epoch:02d}_{val_loss:.4f}.hdf5"
         cp = ModelCheckpoint(filepath=cp_save, monitor='val_loss', save_best_only=True, verbose=1, mode='min')
-        model.compile(loss = lambda y_true,y_pred: quantile_loss(q, y_true,y_pred), optimizer = 'adam')
+        model.compile(loss = lambda y_true,y_pred: quantile_loss(q, y_true,y_pred), optimizer = opti)
         model.fit(x_train, y_train, epochs=1000, batch_size=64, validation_data=(x_val, y_val), callbacks=[es, lr])
 
         # 4. Evaluate, Predict
@@ -291,4 +332,4 @@ print(loss_mean2)
 submission.loc[submission.id.str.contains("Day7"), "q_0.1":] = results_1    # Day7 (3888, 9)
 submission.loc[submission.id.str.contains("Day8"), "q_0.1":] = results_2    # Day8 (3888, 9)
 
-submission.to_csv('../Sunlight/0125/Sunlight_0125_01.csv', index=False)
+submission.to_csv('../Sunlight/0125/Sunlight_0126_.csv', index=False)

@@ -64,3 +64,5 @@ print("RMSE: ", rmse)
 y_predict = model.predict(x_test[-5:-1])
 print(y_predict)
 print(y_test[-5:-1])
+
+# acc: 1.0
