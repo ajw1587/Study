@@ -31,7 +31,7 @@ with tf.device('/gpu:0'):
     model.save("./model/time_check1.h5")
 
 end1 = datetime.datetime.now()
-time_delta1 = end1 = start1
+time_delta1 = end1 - start1
 
 print("GPU 시간 측정 끝 !!!")
 print("CPU 시간 측정 시작 !!!")
