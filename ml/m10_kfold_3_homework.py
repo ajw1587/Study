@@ -1,6 +1,6 @@
 # 실습 또는 과제
 # train, test 나눈후 train만 validation 하지 말고,
-# kfold 한 후에 train_test_split 사용
+# kfold 한 후에 train, test 나누기 (train_test_split 사용X)
 
 import numpy as np
 import tensorflow as tf
@@ -14,7 +14,8 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.linear_model import LogisticRegression # 이름만 회귀이고 분류모델이다
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier
-
+import warnings
+warnings.filterwarnings('ignore')
 # 분류에서는 score가 accuracy_score로 잡힌다.
 # 1. 데이터
 # x, y = load_iris(return_X_y= True)        x, y를 나눠주는 또다른 방법
@@ -25,9 +26,35 @@ y = dataset.target
 # print(y)            # 0, 1, 2
 
 # 2. k-fold 전처리
-x_train, x_test, y_train, y_test = train_test_split(x, y, random_state = 77, shuffle = True, train_size = 0.8)
 kfold = KFold(n_splits = 5, shuffle = True)     # n_splits: 몇도막으로 나누겠다.
 
+# 3. Model
+model = [LinearSVC(),
+         SVC(),
+         KNeighborsClassifier(),
+         LogisticRegression(),
+         DecisionTreeClassifier(),
+         RandomForestClassifier()]
+
+for i in range(6):
+    score = []
+    for train_index, test_index in kfold.split(x):
+        # print('train_index: ', train_index)
+        # print('test_index: ', test_index)
+
+        x_train, x_test = x[train_index], x[test_index]
+        y_train, y_test = y[train_index], y[test_index]
+        
+        md = model[i]
+        md.fit(x_train, y_train)
+        y_pred = md.predict(x_test)
+        result = accuracy_score(y_test, y_pred)
+        score.append(result)
+    score = list(map(float, score))
+    print(model[i], '의 Accuracy: ', np.round(score, 4))
+
+
+'''
 # 3. 모델
 model = LinearSVC()
 # model = SVC()
@@ -39,7 +66,7 @@ model = LinearSVC()
 scores = cross_val_score(model, x_train, y_train, cv=kfold)      # model과 Data를 엮어주는 역할
 print('scores: ', scores)                            # model이 5번 fit해서 값이 5개이다.
 
-'''
+
 # 4. Compile and Train
 model.fit(x_train, y_train)
 

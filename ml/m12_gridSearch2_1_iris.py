@@ -35,3 +35,33 @@ print('Accuracy: ', model.score(x_test, y_test))
 
 # Best Parameters:  RandomForestClassifier(max_depth=6, min_samples_leaf=10, min_samples_split=5, n_jobs=4)
 # Accuracy:  0.8666666666666667
+
+##################################################################################
+# GridSearchCV 매개변수
+
+# 1. n_estimators
+# - 결정트리의 갯수를 지정
+# - Default = 10
+# - 무작정 트리 갯수를 늘리면 성능 좋아지는 것 대비 시간이 걸릴 수 있음
+
+# 2. max_depth
+# - 트리의 최대 깊이
+# - default = None
+# → 완벽하게 클래스 값이 결정될 때 까지 분할
+# 또는 데이터 개수가 min_samples_split보다 작아질 때까지 분할
+# - 깊이가 깊어지면 과적합될 수 있으므로 적절히 제어 필요
+
+# 3. min_samples_leaf
+# - 리프노드가 되기 위해 필요한 최소한의 샘플 데이터수
+# - min_samples_split과 함께 과적합 제어 용도
+# - 불균형 데이터의 경우 특정 클래스의 데이터가 극도로 작을 수 있으므로 작게 설정 필요
+
+# 4. min_samples_split
+# - 노드를 분할하기 위한 최소한의 샘플 데이터수
+# → 과적합을 제어하는데 사용
+# - Default = 2 → 작게 설정할 수록 분할 노드가 많아져 과적합 가능성 증가
+
+# 5. n_jobs
+# - 사용할 코어 수
+
+# 출처: https://injo.tistory.com/30
