@@ -28,7 +28,7 @@ print('acc: ', acc)
 # 5. 표 그리기
 import matplotlib.pyplot as plt
 import numpy as np
-'''
+
 def plot_feature_importances_dataset(model):
     n_features = dataset.data.shape[1]
     plt.barh(np.arange(n_features), model.feature_importances_,
@@ -93,3 +93,4 @@ plt.show()
 # [0.04510457 0.08330191 0.00958658 0.03271744 0.00267224 0.01501254
 #  0.73729345 0.00714001 0.01881929 0.04835197]
 # acc:  0.9210526315789473
+'''
