@@ -3,7 +3,7 @@
 
 from sklearn.datasets import load_wine
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.model_selection import RandomizedSearchCV, GridSearchCV, KFold
+from sklearn.model_selection import RandomizedSearchCV, GridSearchCV, KFold, cross_val_score
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
 from sklearn.pipeline import Pipeline
 
@@ -23,13 +23,12 @@ parameters = [
 ]
 kfold = KFold(n_splits = 5, shuffle = True)
 
-model1 = RandomizedSearchCV(RandomForestClassifier(), parameters, cv = kfold)
-model2 = Pipeline([('scaler', StandardScaler()), ('forest', model1)])
-model3 = RandomizedSearchCV(model2, parameters, cv = kfold)
+model1 = Pipeline([('scaler', StandardScaler()), ('forest', RandomForestClassifier())])
+model2 = RandomizedSearchCV(model1, parameters, cv = kfold)
+score = cross_val_score(model2, x, y, cv = kfold)
+# model2에서 5번, score에서 5번 = 총 25번
 
-# 3. Fit
-model3.fit(x, y)
+# 3. Score
+print('중첩 교차 검증: ', score)
 
-# 4. Score
-acc_result = model3.score(x, y)
-print(acc_result)
+# 중첩 교차 검증:  [0.97222222 0.97222222 1.         1.         0.94285714]
