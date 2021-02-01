@@ -24,18 +24,12 @@ parameters = [
     {'forest__n_jobs': [-1, 2, 4]}
 ]
 kfold = KFold(n_splits = 5, shuffle = True)
-# pipe = make_pipe(MinMaxScaler(), RandomForestClassifier())
-# pipe = Pipeline([('scaler', StandardScaler()), ('forest', RandomForestClassifier())])
+pipe = make_pipe(MinMaxScaler(), RandomForestClassifier())
+pipe = Pipeline([('scaler', StandardScaler()), ('forest', RandomForestClassifier())])
 
-# model = RandomizedSearchCV(pipe, parameters, cv = kfold)
+model = RandomizedSearchCV(pipe, parameters, cv = kfold)
 
-# model.fit(x_train, y_train)
-
-
-model = RandomizedSearchCV(RandomForestClassifier(), parameters, cv = kfold)
-# pipe = Pipeline([('scaler', StandardScaler()), ('forest', model)])
-pipe = make_pipeline(StandardScaler(), model)
-pipe.fit(x_train, y_train)
+model.fit(x_train, y_train)
 
 
 result = model.score(x_test, y_test)

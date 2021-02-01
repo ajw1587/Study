@@ -39,7 +39,7 @@ parameters = [
 pipe = Pipeline([('scaler', MinMaxScaler()), ('mal', SVC())])
 #                   ㄴ 아무 이름을 써도 상관X     ㄴ parameters 인자들의 이름과 맞춰줘야 한다.
 # pipe = make_pipeline(MinMaxScaler(), SVC())
-#                       ㄴ 인자들의 이름이 없어 GridSearchCV에서 인지하지를 못한다.
+#                                       ㄴ 인자들의 이름이 없어 GridSearchCV에서 인지하지를 못한다.
 
 model = GridSearchCV(pipe, parameters, cv = 5) # pipe를 써주면 cv(5번) 할때마다 전처리를 새롭게 해준다. 과적합 방지
 
