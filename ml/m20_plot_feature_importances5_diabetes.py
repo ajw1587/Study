@@ -1,9 +1,9 @@
 from sklearn.tree import DecisionTreeClassifier
-from sklearn.datasets import load_wine
+from sklearn.datasets import load_diabetes
 from sklearn.model_selection import train_test_split
 
 # 1. 데이터
-dataset = load_wine()
+dataset = load_diabetes()
 x_train, x_test, y_train, y_test = train_test_split(
     dataset.data, dataset.target, test_size = 0.2, random_state = 77
 )

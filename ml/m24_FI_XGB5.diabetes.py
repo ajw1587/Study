@@ -1,43 +1,60 @@
-# 실습!!
-# 피처임포턴스가 전체 중요도에서 0인 컬럼들을 제거하여 데이터셋을 재 구성후
-# DecisionTree로 모델을 돌려서 acc 확인!!!
+# xgboost 설치하기!
+# 명령 프롬프트에 pip install xgboost -> enter!
 
 from sklearn.tree import DecisionTreeClassifier
-from sklearn.ensemble import GradientBoostingClassifier, RandomForestClassifier
-from sklearn.datasets import load_iris
+from sklearn.ensemble import GradientBoostingClassifier
+from sklearn.datasets import load_diabetes
 from sklearn.model_selection import train_test_split
 import pandas as pd
+from xgboost import XGBRegressor
 
-def get_column_index(model, num):
-    feature = model.feature_importances_
-    feature_list = []
-    for i in feature:
-        feature_list.append(i)
-    feature_list.sort(reverse = True)
+# def get_column_index(model, num):
+#     feature = model.feature_importances_
+#     feature_list = []
+#     for i in feature:
+#         feature_list.append(i)
+#     feature_list.sort(reverse = True)
 
-    result = []
-    for j in range(num):
-        result.append(feature.tolist().index(feature_list[j]))
-    return result
+#     result = []
+#     for j in range(num):
+#         result.append(feature.tolist().index(feature_list[j]))
+#     return result
 
 
 # 1. 데이터
-dataset = load_iris()
+dataset = load_diabetes()
 x_train, x_test, y_train, y_test = train_test_split(
     dataset.data, dataset.target, test_size = 0.2, random_state = 77
 )
 
+######################## 타임 거리 시작!
+# n_jobs = -1, 8, 4, 1 속도 비교
+import datetime
+start1 = datetime.datetime.now()
+##################################
+
 # 2. 모델
-model = GradientBoostingClassifier()
+model = XGBRegressor(n_jobs = 1, use_label_encoder = False)
+# n_jobs = -1 : cpu 자원을 다 사용하겠다.
 
 # 3. 훈련
-model.fit(x_train, y_train)
+model.fit(x_train, y_train, eval_metrics = 'logloss')
 
 # 4. 평가, 예측
 acc = model.score(x_test, y_test)
 
 print(model.feature_importances_)   # column 중요도
 print('acc: ', acc)
+
+######################## 타임 거리 끝!
+end1 = datetime.datetime.now()
+time_delta1 = end1 - start1
+print(time_delta1)
+##################################
+# 1. n_jobs = -1 -> 0:00:00.126737
+# 2. n_jobs =  8 -> 0:00:00.128649
+# 3. n_jobs =  4 -> 0:00:00.122875
+# 4. n_jobs =  1 -> 0:00:00.150644
 
 # 5. 표 그리기
 import matplotlib.pyplot as plt
@@ -58,8 +75,8 @@ def plot_feature_importances_dataset(model):
 
 plot_feature_importances_dataset(model)
 plt.show()
+'''
 result = get_column_index(model, 3)
-
 
 ###############################################################################
 
@@ -110,3 +127,4 @@ plt.show()
 # model.feature_importances 이용하여 column 축소
 # [0.5474078 0.4525922]
 # acc:  0.8333333333333334
+'''

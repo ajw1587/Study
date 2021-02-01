@@ -23,8 +23,8 @@ parameters = [
 ]
 kfold = KFold(n_splits = 5, shuffle = True)
 
-model1 = Pipeline([('scaler', StandardScaler()), ('forest', RandomForestClassifier())])
-model2 = RandomizedSearchCV(model1, parameters, cv = kfold)
+pipe = Pipeline([('scaler', StandardScaler()), ('forest', RandomForestClassifier())])
+model2 = RandomizedSearchCV(pipe, parameters, cv = kfold)
 score = cross_val_score(model2, x, y, cv = kfold)
 # model2에서 5번, score에서 5번 = 총 25번
 

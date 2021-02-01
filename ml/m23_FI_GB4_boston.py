@@ -61,7 +61,6 @@ plt.show()
 result = get_column_index(model, 5)
 print(result)
 
-
 ###############################################################################
 
 # model.feature_importances

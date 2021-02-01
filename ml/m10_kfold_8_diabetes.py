@@ -6,7 +6,7 @@ from sklearn.model_selection import train_test_split, KFold, cross_val_score
 from sklearn.metrics import accuracy_score
 
 from sklearn.neighbors import KNeighborsRegressor
-from sklearn.linear_model import LinearRegression # 이름만 회귀이고 분류모델이다
+from sklearn.linear_model import LinearRegression
 from sklearn.tree import DecisionTreeRegressor
 from sklearn.ensemble import RandomForestRegressor
 import warnings

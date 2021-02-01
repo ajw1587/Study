@@ -24,7 +24,7 @@ parameters = [
     {'forest__n_jobs': [-1, 2, 4]}
 ]
 kfold = KFold(n_splits = 5, shuffle = True)
-pipe = make_pipe(MinMaxScaler(), RandomForestClassifier())
+pipe = make_pipeline(MinMaxScaler(), RandomForestClassifier())
 pipe = Pipeline([('scaler', StandardScaler()), ('forest', RandomForestClassifier())])
 
 model = RandomizedSearchCV(pipe, parameters, cv = kfold)
