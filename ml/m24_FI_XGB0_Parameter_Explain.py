@@ -60,7 +60,7 @@ XGBClassifier.fit(
                 'mlogloss','auc'  
               # validation set (검증데이터)에 적용되는 모델 선택 기준.
               # 평가측정. 
-              # 회귀 경우 rmse ,  분류 -error   이외의 옵션은 함수정의
+              # 회귀 경우 rmse ,  다중분류 mlogloss = merror, 이중분류 logloss = error   이외의 옵션은 함수정의
     
     early_stopping_rounds=100,20
               # 100번,20번 반복동안 최대화 되지 않으면 stop

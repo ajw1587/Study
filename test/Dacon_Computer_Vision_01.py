@@ -14,12 +14,12 @@ dataset = pd.read_csv(file_path, engine = 'python', encoding = 'CP949', index_co
 
 x = dataset.iloc[:, 1:].values
 y = dataset.iloc[:, 0].values
-
 # print(type(x))              # <class 'numpy.ndarray'>
 # print(x.shape)              # (2048, 785)
 # print(type(y))              # <class 'numpy.ndarray'>
 # print(y.shape)              # (2048,)
 
-# 2. PCA
-pca = PCA()
-pca.fit(x)
+
+# 2. PCA 데이터가 문자열이라서 에러나 난다. ASCII로 바꿔줘야 하나
+# pca = PCA()
+# pca.fit(x)
