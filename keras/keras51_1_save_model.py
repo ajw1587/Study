@@ -72,32 +72,32 @@ print("loss: ", result[0])
 print("acc: ", result[1])
 
 # 시각화
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 
-plt.figure(figsize = (10, 6))           # 면적 잡아주기
+# plt.figure(figsize = (10, 6))           # 면적 잡아주기
 
-plt.subplot(2, 1, 1)                    # 2행1열짜리 그래프중 1번째
-plt.plot(hist.history['loss'], marker = '.', c = 'red', label = 'loss')
-plt.plot(hist.history['val_loss'], marker = '.', c = 'blue', label = 'val_loss')
-plt.grid()
+# plt.subplot(2, 1, 1)                    # 2행1열짜리 그래프중 1번째
+# plt.plot(hist.history['loss'], marker = '.', c = 'red', label = 'loss')
+# plt.plot(hist.history['val_loss'], marker = '.', c = 'blue', label = 'val_loss')
+# plt.grid()
 
-# plt.title('손실비용')
-plt.title('Cost Loss')
-plt.ylabel('loss')
-plt.xlabel('epoch')
-plt.legend(loc = 'upper right')
+# # plt.title('손실비용')
+# plt.title('Cost Loss')
+# plt.ylabel('loss')
+# plt.xlabel('epoch')
+# plt.legend(loc = 'upper right')
 
 
 
-plt.subplot(2, 1, 2)                    # 2행1열짜리 그래프중 2번째
-plt.plot(hist.history['accuracy'], marker = '.', c = 'red')
-plt.plot(hist.history['val_accuracy'], marker = '.', c = 'blue')
-plt.grid()
+# plt.subplot(2, 1, 2)                    # 2행1열짜리 그래프중 2번째
+# plt.plot(hist.history['accuracy'], marker = '.', c = 'red')
+# plt.plot(hist.history['val_accuracy'], marker = '.', c = 'blue')
+# plt.grid()
 
-# plt.title('정확도')
-plt.title('Accuray')
-plt.ylabel('accuracy')
-plt.xlabel('epoch')
-plt.legend(['accuracy', 'val_accuracy'])        # 위치 명시 하지 않을시 자동으로 위치 선정
+# # plt.title('정확도')
+# plt.title('Accuray')
+# plt.ylabel('accuracy')
+# plt.xlabel('epoch')
+# plt.legend(['accuracy', 'val_accuracy'])        # 위치 명시 하지 않을시 자동으로 위치 선정
 
-plt.show()
+# plt.show()

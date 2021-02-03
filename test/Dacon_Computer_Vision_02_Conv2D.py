@@ -9,7 +9,7 @@ from tensorflow.keras.utils import to_categorical
 from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint, ReduceLROnPlateau
 from tensorflow.keras.callbacks import ModelCheckpoint
 from tensorflow.keras.optimizers import Adam
-'''
+
 # 1. Train 데이터 y -> 0~9, 다중분류
 file_path = '../data/csv/Computer_Vision/data/train.csv'
 dataset = pd.read_csv(file_path, engine = 'python', encoding = 'CP949', index_col = 0)
@@ -116,3 +116,4 @@ submission_data['digit'] = np.argmax(model.predict(real_x_test), axis = 1)
 print(submission_data.head())
 
 submission_data.to_csv('../data/modelcheckpoint/Computer_Vision/submission_data3.csv', index = False)
+'''

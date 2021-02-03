@@ -2,117 +2,192 @@
 import numpy as np
 import pandas as pd
 from sklearn.decomposition import PCA
-from sklearn.model_selection import train_test_split
-from tensorflow.keras.models import Model, load_model
-from tensorflow.keras.layers import Conv2D, Input, Dense, Dropout, MaxPooling2D, Flatten
+from sklearn.model_selection import train_test_split, StratifiedKFold, KFold
+from tensorflow.keras.models import Model, load_model, Sequential
+from tensorflow.keras.layers import Conv2D, Input, Dense, Dropout, MaxPooling2D, Flatten, BatchNormalization
 from tensorflow.keras.utils import to_categorical
 from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint, ReduceLROnPlateau
 from tensorflow.keras.callbacks import ModelCheckpoint
 from tensorflow.keras.optimizers import Adam
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
+
 
 # 1. Train 데이터 y -> 0~9, 다중분류
 file_path = '../data/csv/Computer_Vision/data/train.csv'
-dataset = pd.read_csv(file_path, engine = 'python', encoding = 'CP949', index_col = 0)
-# print(type(dataset))        # <class 'numpy.ndarray'>
-# print(dataset.shape)        # (2048, 786)
-
-x = dataset.iloc[:, 1:].values
-y = dataset.iloc[:, 0].values
-# print(type(x))              # <class 'numpy.ndarray'>
-# print(x.shape)              # (2048, 785)
-# print(type(y))              # <class 'numpy.ndarray'>
-# print(y.shape)              # (2048,)
-
-
-# 2. PCA 데이터가 문자라서 에러나 난다. ASCII로 바꿔줘야 하나 아니면 그냥 버려야하나 모르겠네
-
-# 2-1. 문자 데이터 버리기
-x = x[:, 1:].astype(np.float)
-x = x/255.
-
-# 3. train_test_split
-x_train, x_test, y_train, y_test = train_test_split(x, y, train_size = 0.8, random_state = 77)
-x_train, x_val, y_train, y_val = train_test_split(x_train, y_train, train_size = 0.8, random_state = 77)
-print(x_train.shape)                              # (1310, 784)
-print(x_val.shape)                                # (328, 784)
-print(x_test.shape)                               # (410, 784)
-
-
-# # 784 =  28 * 28 * 1
-shape1 = 28
-shape2 = 28
-shape3 = 1
-x_train = x_train.reshape(x_train.shape[0], shape1, shape2, shape3)
-x_val = x_val.reshape(x_val.shape[0], shape1, shape2, shape3)
-x_test = x_test.reshape(x_test.shape[0], shape1, shape2, shape3)
-
-# 4. OneHotEncoding
-y_train = to_categorical(y_train)
-y_val = to_categorical(y_val)
-y_test = to_categorical(y_test)
-
-# 5. 모델
-input1 = Input(shape = (shape1, shape2, shape3))
-conv2d = Conv2D(256, kernel_size = 2, strides = 1, padding = 'same', activation = 'relu')(input1)
-dense1 = Conv2D(128, kernel_size = 2, strides = 1, padding = 'same', activation = 'relu')(conv2d)
-dense1 = MaxPooling2D(pool_size = (2, 2))(dense1)
-dense1 = Conv2D(256, kernel_size = 2, strides = 1, padding = 'same', activation = 'relu')(dense1)
-dense1 = Conv2D(128, kernel_size = 2, strides = 1, padding = 'same', activation = 'relu')(dense1)
-dense1 = Conv2D(64, kernel_size = 2, strides = 1, padding = 'same', activation = 'relu')(dense1)
-dense1 = MaxPooling2D(pool_size = (2, 2))(dense1)
-dense1 = Dense(64, activation = 'relu')(dense1)
-dense1 = Flatten()(dense1)
-dense1 = Dense(128, activation = 'relu')(dense1)
-dense1 = Dense(64, activation = 'relu')(dense1)
-dense1 = Dense(32, activation = 'relu')(dense1)
-dense1 = Dense(16, activation = 'relu')(dense1)
-output1 = Dense(10, activation = 'softmax')(dense1)
-model = Model(inputs = input1, outputs = output1)
-
-# 5. Fit
-cp_path = '../data/modelcheckpoint/Computer_Vision/Computer_Vision_{epoch: 03d}_{val_loss: .4f}.hdf5'
-cp = ModelCheckpoint(cp_path, monitor = 'val_loss', save_best_only = True, mode = 'auto')
-opti = Adam(learning_rate = 0.0001)
-es = EarlyStopping(monitor = 'val_loss', patience = 50, mode = 'auto')
-reduce_lr = ReduceLROnPlateau(monitor = 'val_loss', factor = 0.5, patience = 5, mode = 'auto')
-model.compile(loss = 'categorical_crossentropy', optimizer = opti, metrics = ['acc'])
-model.fit(x_train, y_train, epochs = 1000, batch_size = 32, validation_data = (x_val, y_val), 
-          callbacks = [es, reduce_lr, cp])
-
-# 6. Evaluate, Pred
-loss, acc = model.evaluate(x_test, y_test)
-y_pred = model.predict(x_test)
-print('loss: ', loss)
-print('acc: ', acc)
-# loss:  1.8897967338562012
-# acc:  0.7219512462615967
-'''
-
-# Predict ########################################################################
 test_file_path = '../data/csv/Computer_Vision/data/test.csv'
+dataset = pd.read_csv(file_path, engine = 'python', encoding = 'CP949')
+test_dataset = pd.read_csv(test_file_path, engine = 'python', encoding = 'CP949')
+
+x = dataset.drop(['id', 'letter', 'digit'], axis = 1).values
+y = dataset.iloc[:, 1].values
+test = test_dataset.drop(['id', 'letter'], axis = 1).values
+# print(x.shape)      (2048, 784)
+# print(y.shape)      (2048,)
+# print(test.shape)   (20480, 784)
+# print(type(x))      <class 'numpy.ndarray'>
+# print(type(y))      <class 'numpy.ndarray'>
+# print(type(test))   <class 'numpy.ndarray'>
+
+# 그래프로 살펴보기
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# plt.figure(figsize = (10, 6))
+# sns.set_theme(style = 'darkgrid')
+# ax = sns.countplot(x = 'digit', data = dataset)
+# ax.set(xlabel = 'Digit(Target)', ylabel = 'Count')
+# plt.show()
+
+# plt.figure(figsize = (10, 6))
+# sns.set_theme(style = 'darkgrid')
+# ax = sns.countplot(x = 'letter', data = dataset)
+# ax.set(xlabel = 'Letter(Target)', ylabel = 'Count')
+# plt.show()
+
+x = x.reshape(-1, 28, 28, 1)
+test = test.reshape(-1, 28, 28, 1)
+
+x = x/255.
+test = test/255.
+# ImageDataGenerator & data augmentation
+# idg = ImageDataGenerator(rescale=1./255,           # 리스케일링
+#                          rotation_range = 20,      # 이미지 회전
+#                          width_shift_range=0.3,    # 좌우 이동
+#                          height_shift_range=0.3,   # 상하 이동
+#                          shear_range=0.5,          # 밀림 강도
+#                          zoom_range=0.2,           # 확대
+#                          horizontal_flip=True,     # 좌우 반전
+#                          vertical_flip=True)       # 상하 반전
+# https://tykimos.github.io/2017/06/10/CNN_Data_Augmentation/
+idg = ImageDataGenerator(rotation_range = 20, height_shift_range=(-1,1), width_shift_range=(-1,1))
+idg2 = ImageDataGenerator()
+
+# # show augmented image data
+# sample_data = x[100].copy()
+# sample = sample_data.reshape(1, 28, 28, 1)
+# # sample = np.expand_dims(sample_data,0)
+# sample_datagen = ImageDataGenerator(height_shift_range=(-1,1), width_shift_range=(-1,1))
+# sample_generator = sample_datagen.flow(sample, batch_size=1)
+
+# plt.figure(figsize=(16,10))
+# for i in range(9) : 
+#     plt.subplot(3,3,i+1)
+#     # sample_batch = sample_generator.next()
+#     # sample_image=sample_batch[0]
+#     plt.imshow(sample_generator.next()[0].reshape(28,28))
+# plt.show()
+
+# cross validation
+kfold = StratifiedKFold(n_splits = 20, random_state = 77, shuffle = True)
+# kfold = KFold(n_splits = 2, random_state = 77, shuffle = True)
+es = EarlyStopping(patience = 100, mode = 'auto')
+reduce_lr = ReduceLROnPlateau(factor = 0.5, patience = 50, mode = 'auto')
+opti = Adam(learning_rate = 0.0001)     # , epsilon = None
 submission_path = '../data/csv/Computer_Vision/data/submission.csv'
-model_path = '../data/modelcheckpoint/Computer_Vision/Computer_Vision_20_0.9962.hdf5'
-test_dataset = pd.read_csv(test_file_path, engine = 'python', encoding = 'CP949', index_col = 0)
 
-# 1. 데이터
-print(test_dataset.shape)           # (20480, 784)
-real_x_test = test_dataset.values
-real_x_test = real_x_test[:, 1:].astype(np.float)
-real_x_test = real_x_test/255.
-real_x_test = real_x_test.reshape(real_x_test.shape[0], 28, 28, 1)
+ACC = [] # loss = []
+result = 0
+i = 1
+for train_index, valid_index in kfold.split(x, y):
 
-# 2. 모델
-model = load_model(model_path)
+    print(i, '번째 실행시작')
 
-# 3. Predict
-y_predict = model.predict(real_x_test)
-y_predict = np.argmax(y_predict)
+    # KFold: n_splits = 40, for문 40번 반복
+    # 즉, 이미지 Augmentation을 40번 반복, ex) (기존이미지 4장 -> 8장)을 40번 반복
+    x_train = x[train_index]
+    x_valid = x[valid_index]
+    y_train = y[train_index]
+    y_valid = y[valid_index]
 
-# 4. submission
-submission_data = pd.read_csv(submission_path, encoding = 'CP949', engine = 'python')
+    train_generator = idg.flow(x_train, y_train, batch_size = 8)
+    valid_generator = idg2.flow(x_valid, y_valid)
+    test_generator = idg2.flow(test, shuffle = False)
 
-submission_data['digit'] = np.argmax(model.predict(real_x_test), axis = 1)
-print(submission_data.head())
+    # model = Sequential()
+    
+    # model.add(Conv2D(16,(3,3),activation='relu',input_shape=(28,28,1),padding='same'))
+    # model.add(BatchNormalization())
+    # model.add(Dropout(0.3))
+    
+    # model.add(Conv2D(32,(3,3),activation='relu',padding='same'))
+    # model.add(BatchNormalization())
+    # model.add(Conv2D(32,(5,5),activation='relu',padding='same')) 
+    # model.add(BatchNormalization())
+    # model.add(Conv2D(32,(5,5),activation='relu',padding='same'))
+    # model.add(BatchNormalization())
+    # model.add(Conv2D(32,(5,5),activation='relu',padding='same'))
+    # model.add(BatchNormalization())
+    # model.add(MaxPooling2D((3,3)))
+    # model.add(Dropout(0.3))
+    
+    # model.add(Conv2D(64,(3,3),activation='relu',padding='same'))
+    # model.add(BatchNormalization())
+    # model.add(Conv2D(64,(5,5),activation='relu',padding='same')) 
+    # model.add(BatchNormalization())
+    # model.add(MaxPooling2D((3,3)))
+    # model.add(Dropout(0.3))
+    
+    # model.add(Flatten())
 
-submission_data.to_csv('../data/modelcheckpoint/Computer_Vision/submission_data.csv', index = False)
-'''
+    # model.add(Dense(128,activation='relu'))
+    # model.add(BatchNormalization())
+    # model.add(Dropout(0.3))
+    # model.add(Dense(64,activation='relu'))
+    # model.add(BatchNormalization())
+    # model.add(Dropout(0.3))
+
+    # model.add(Dense(10,activation='softmax'))
+    input1 = Input(shape = (28, 28, 1))
+    conv2d = Conv2D(64, kernel_size = 2, strides = 1, padding = 'same', activation = 'relu')(input1)
+    dense1 = Conv2D(64, kernel_size = 2, strides = 1, padding = 'same', activation = 'relu')(conv2d)
+    dense1 = MaxPooling2D(pool_size = (2, 2))(dense1)
+    dense1 = Dropout(0.3)(dense1)
+
+    dense1 = Conv2D(64, kernel_size = 2, strides = 1, padding = 'same', activation = 'relu')(dense1)
+    dense1 = Conv2D(64, kernel_size = 2, strides = 1, padding = 'same', activation = 'relu')(dense1)
+    dense1 = Conv2D(32, kernel_size = 2, strides = 1, padding = 'same', activation = 'relu')(dense1)
+    dense1 = MaxPooling2D(pool_size = (2, 2))(dense1)
+    dense1 = Dropout(0.3)(dense1)
+
+    dense1 = Conv2D(64, kernel_size = 2, strides = 1, padding = 'same', activation = 'relu')(dense1)
+    dense1 = Conv2D(64, kernel_size = 2, strides = 1, padding = 'same', activation = 'relu')(dense1)
+    dense1 = Conv2D(32, kernel_size = 2, strides = 1, padding = 'same', activation = 'relu')(dense1)
+    dense1 = MaxPooling2D(pool_size = (2, 2))(dense1)
+    dense1 = Dropout(0.3)(dense1)
+
+    dense1 = Flatten()(dense1)
+    dense1 = Dense(128, activation = 'relu')(dense1)
+    dense1 = Dropout(0.3)(dense1)
+    dense1 = Dense(64, activation = 'relu')(dense1)
+    dense1 = Dense(32, activation = 'relu')(dense1)
+    dense1 = Dense(16, activation = 'relu')(dense1)
+    output1 = Dense(10, activation = 'softmax')(dense1)
+    model = Model(inputs = input1, outputs = output1)
+
+    cp_path = '../data/modelcheckpoint/Computer_Vision/Computer_Vision_best_model.h5'
+    cp = ModelCheckpoint(cp_path, save_best_only = True, mode = 'auto')
+    model.compile(loss = 'sparse_categorical_crossentropy', optimizer = opti, metrics = ['acc'])
+    # sparse_categorical_crossentropy: onehotencoding 적용하지 않고 사용하는 loss
+    hist = model.fit_generator(train_generator, epochs = 2000, validation_data = valid_generator,
+                               callbacks = [es, reduce_lr, cp])
+    categori_loss, acc = model.evaluate_generator(test_generator)
+
+    hist = pd.DataFrame(hist.history)
+    ACC.append(hist['val_acc'].max())
+    # model.save(cp_path)         # weight 저장
+
+    # Predict
+    model.load_weights(filepath = cp_path)
+    result += model.predict_generator(test_generator)/40
+
+    submission_data = pd.read_csv(submission_path, encoding = 'CP949', engine = 'python')
+    submission_data['digit'] = result.argmax(1)
+    print(submission_data.head())
+    submission_data.to_csv('../data/modelcheckpoint/Computer_Vision/Dacon_submission_data.csv', index = False)
+
+    print(i, '번째 실행끝')
+    i += 1
+
+
+finally_loss = np.mean(ACC)
+print('finally_loss', finally_loss)

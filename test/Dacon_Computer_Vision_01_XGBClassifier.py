@@ -29,31 +29,13 @@ x = x/255.
 x = x.reshape(2048, 28, 28, 1)
 print(x.shape)                # (2048, 28, 28, 1)
 
-# train data Augmentation 데이터 증대
-from tensorflow.keras.preprocessing.image import ImageDataGenerator
-train_datagen = ImageDataGenerator(rescale=1./255,           # 
-                                   rotation_range = 30,      # 이미지 회전
-                                   width_shift_range=0.1,    # 좌우 이동
-                                   height_shift_range=0.1,   # 상하 이동
-                                   shear_range=0.2,          # 밀림 강도
-                                   zoom_range=0.2,           # 확대
-                                   horizontal_flip=True,     # 좌우 반전
-                                   vertical_flip=True)       # 상하 반전
-# https://tykimos.github.io/2017/06/10/CNN_Data_Augmentation/
-
-# x = train_datagen.fit(x)                                   # 
-train_datagen.flow(x, y)
-print(x.shape)
-print(y.shape)
-
-'''
 # 3. train_test_split
 x_train, x_test, y_train, y_test = train_test_split(x, y, train_size = 0.8, random_state = 77)
 x_train, x_val, y_train, y_val = train_test_split(x_train, y_train, train_size = 0.8, random_state = 77)
 
 # 4. 모델
-# model = Pipeline([('scaler', MinMaxScaler()), 
-#                   ('xgb', XGBClassifier(n_estimator = 1000, n_jobs = 8, learning_rate = 0.0001))])
+model = Pipeline([('scaler', MinMaxScaler()), 
+                  ('xgb', XGBClassifier(n_estimator = 1000, n_jobs = 8, learning_rate = 0.0001))])
 model = XGBClassifier(n_estimator = 1000, n_jobs = 8, learning_rate = 0.0001)
 
 # 5. Fit
@@ -67,4 +49,3 @@ model.fit(x_train, y_train,
 score = model.score(x_test, y_test)
 print('score: ', score)
 # score:  0.16829268292682928
-'''
