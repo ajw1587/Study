@@ -73,3 +73,12 @@ print('best_score: \n', search.best_score_)
 
 result = search.score(x_test, y_test)
 print('result: ', result)
+
+# best_parameter:
+#  {'validation_split': 0.2, 'node3': 128, 'node2': 64, 'node1': 32, 'epochs': 50, 'drop': 0.2, 'batch_size': 16, 'act': 'relu'}
+# best_estimator:
+#  <tensorflow.python.keras.wrappers.scikit_learn.KerasClassifier object at 0x0000029EEE978310>
+# best_score:
+#  0.9583333333333334
+# 2/2 [==============================] - 0s 1ms/step - loss: 0.1876 - acc: 0.8667
+# result:  0.8666666746139526
