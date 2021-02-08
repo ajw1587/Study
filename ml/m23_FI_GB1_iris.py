@@ -2,6 +2,11 @@
 # 피처임포턴스가 전체 중요도에서 0인 컬럼들을 제거하여 데이터셋을 재 구성후
 # DecisionTree로 모델을 돌려서 acc 확인!!!
 
+# feature importance: 지니 불순도를 이용하여 중요도 파악
+# 해당 노드에서 샘플들이 이질적으로 구성되어 있을수록, 
+# 다시 말해서 모든 Class에 골고루 분포되어 있을수록 지니 불순도(impurity)는 높아지게 됩니다.
+# 출처: https://soohee410.github.io/iml_tree_importance
+
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import GradientBoostingClassifier, RandomForestClassifier
 from sklearn.datasets import load_iris

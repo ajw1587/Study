@@ -19,7 +19,7 @@ parameters = [
     {'n_estimators': [90, 100, 110], 'learning_rate': [0.1, 0.001, 0.01], 'max_depth': [4, 5, 6], 'colsample_bytree':[0.6, 0.9, 1]},
     {'n_estimators': [90, 110], 'learning_rate': [0.1, 0.001, 0.5], 'max_depth': [4, 5, 6], 'colsample_bytree':[0.6, 0.7, 0.9]}
 ]
-model = GridSearchCV(XGBRegreesor(n_jobs = -1), parameters, cv = kfold)
+model = GridSearchCV(XGBRegressor(n_jobs = -1), parameters, cv = kfold)
 
 # 3. Fit
 model.fit(x_train, y_train)

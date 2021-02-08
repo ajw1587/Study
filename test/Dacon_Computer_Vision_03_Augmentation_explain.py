@@ -13,9 +13,9 @@ from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
 
 # 1. Train 데이터 y -> 0~9, 다중분류
-file_path = '../data/csv/Computer_Vision/data/train.csv'
+train_file_path = '../data/csv/Computer_Vision/data/train.csv'
 test_file_path = '../data/csv/Computer_Vision/data/test.csv'
-dataset = pd.read_csv(file_path, engine = 'python', encoding = 'CP949')
+dataset = pd.read_csv(train_file_path, engine = 'python', encoding = 'CP949')
 test_dataset = pd.read_csv(test_file_path, engine = 'python', encoding = 'CP949')
 
 x = dataset.drop(['id', 'letter', 'digit'], axis = 1).values
@@ -59,7 +59,7 @@ test = test/255.
 #                          horizontal_flip=True,     # 좌우 반전
 #                          vertical_flip=True)       # 상하 반전
 # https://tykimos.github.io/2017/06/10/CNN_Data_Augmentation/
-idg = ImageDataGenerator(rotation_range = 20, height_shift_range=(-1,1), width_shift_range=(-1,1))
+idg = ImageDataGenerator(height_shift_range=(-1,1), width_shift_range=(-1,1))       # rotation_range = 20, 
 idg2 = ImageDataGenerator()
 
 # # show augmented image data
@@ -78,11 +78,13 @@ idg2 = ImageDataGenerator()
 # plt.show()
 
 # cross validation
-kfold = StratifiedKFold(n_splits = 20, random_state = 77, shuffle = True)
+kfold = StratifiedKFold(n_splits = 30, random_state = 77, shuffle = True)
+# StratifiedKFold: label의 분포를 유지, 각 fold가 전체 데이터셋을 잘 대표한다.
 # kfold = KFold(n_splits = 2, random_state = 77, shuffle = True)
 es = EarlyStopping(patience = 100, mode = 'auto')
-reduce_lr = ReduceLROnPlateau(factor = 0.5, patience = 50, mode = 'auto')
-opti = Adam(learning_rate = 0.0001)     # , epsilon = None
+reduce_lr = ReduceLROnPlateau(factor = 0.5, patience = 60, mode = 'auto')
+opti = Adam(learning_rate = 0.002, epsilon = None)     # , epsilon = None
+# epsilon: 기울기가 0이 되는 것을 방지하기 위해 작은 숫자를 설정해주는것
 submission_path = '../data/csv/Computer_Vision/data/submission.csv'
 
 ACC = [] # loss = []
@@ -93,7 +95,7 @@ for train_index, valid_index in kfold.split(x, y):
     print(i, '번째 실행시작')
 
     # KFold: n_splits = 40, for문 40번 반복
-    # 즉, 이미지 Augmentation을 40번 반복, ex) (기존이미지 4장 -> 8장)을 40번 반복
+    # 즉, 이미지 Augmentation을 40번 반복, ex) (기존이미지 4장 -> 8장)을 40번 반복, 총 320장 train
     x_train = x[train_index]
     x_valid = x[valid_index]
     y_train = y[train_index]
@@ -103,66 +105,56 @@ for train_index, valid_index in kfold.split(x, y):
     valid_generator = idg2.flow(x_valid, y_valid)
     test_generator = idg2.flow(test, shuffle = False)
 
-    # model = Sequential()
+    ##########################################################################
+    model = Sequential()
     
-    # model.add(Conv2D(16,(3,3),activation='relu',input_shape=(28,28,1),padding='same'))
-    # model.add(BatchNormalization())
-    # model.add(Dropout(0.3))
+    model.add(Conv2D(16,(3,3),activation='relu',input_shape=(28,28,1),padding='same'))
+    model.add(BatchNormalization())
+    model.add(Dropout(0.3))
     
-    # model.add(Conv2D(32,(3,3),activation='relu',padding='same'))
-    # model.add(BatchNormalization())
-    # model.add(Conv2D(32,(5,5),activation='relu',padding='same')) 
-    # model.add(BatchNormalization())
-    # model.add(Conv2D(32,(5,5),activation='relu',padding='same'))
-    # model.add(BatchNormalization())
-    # model.add(Conv2D(32,(5,5),activation='relu',padding='same'))
-    # model.add(BatchNormalization())
-    # model.add(MaxPooling2D((3,3)))
-    # model.add(Dropout(0.3))
+    model.add(Conv2D(32,(3,3),activation='relu',padding='same'))
+    model.add(BatchNormalization())
+    model.add(Conv2D(32,(5,5),activation='relu',padding='same')) 
+    model.add(BatchNormalization())
+    model.add(Conv2D(32,(5,5),activation='relu',padding='same'))
+    model.add(BatchNormalization())
+    model.add(Conv2D(32,(5,5),activation='relu',padding='same'))
+    model.add(BatchNormalization())
+    model.add(MaxPooling2D((3,3)))
+    model.add(Dropout(0.3))
     
-    # model.add(Conv2D(64,(3,3),activation='relu',padding='same'))
-    # model.add(BatchNormalization())
-    # model.add(Conv2D(64,(5,5),activation='relu',padding='same')) 
-    # model.add(BatchNormalization())
-    # model.add(MaxPooling2D((3,3)))
-    # model.add(Dropout(0.3))
+    model.add(Conv2D(64,(3,3),activation='relu',padding='same'))
+    model.add(BatchNormalization())
+    model.add(Conv2D(64,(5,5),activation='relu',padding='same')) 
+    model.add(BatchNormalization())
+    model.add(MaxPooling2D((3,3)))
+    model.add(Dropout(0.3))
     
-    # model.add(Flatten())
+    model.add(Flatten())
 
-    # model.add(Dense(128,activation='relu'))
-    # model.add(BatchNormalization())
-    # model.add(Dropout(0.3))
-    # model.add(Dense(64,activation='relu'))
-    # model.add(BatchNormalization())
-    # model.add(Dropout(0.3))
+    model.add(Dense(128,activation='relu'))
+    model.add(BatchNormalization())
+    model.add(Dropout(0.3))
+    model.add(Dense(64,activation='relu'))
+    model.add(BatchNormalization())
+    model.add(Dropout(0.3))
 
-    # model.add(Dense(10,activation='softmax'))
-    input1 = Input(shape = (28, 28, 1))
-    conv2d = Conv2D(64, kernel_size = 2, strides = 1, padding = 'same', activation = 'relu')(input1)
-    dense1 = Conv2D(64, kernel_size = 2, strides = 1, padding = 'same', activation = 'relu')(conv2d)
-    dense1 = MaxPooling2D(pool_size = (2, 2))(dense1)
-    dense1 = Dropout(0.3)(dense1)
+    model.add(Dense(10,activation='softmax'))
 
-    dense1 = Conv2D(64, kernel_size = 2, strides = 1, padding = 'same', activation = 'relu')(dense1)
-    dense1 = Conv2D(64, kernel_size = 2, strides = 1, padding = 'same', activation = 'relu')(dense1)
-    dense1 = Conv2D(32, kernel_size = 2, strides = 1, padding = 'same', activation = 'relu')(dense1)
-    dense1 = MaxPooling2D(pool_size = (2, 2))(dense1)
-    dense1 = Dropout(0.3)(dense1)
+    # BatchNormalization:
+    # 기울기 소실(Vanishing Gradient problem) 문제의 본질적인 해결 방안
+    # layer 의 output 인 feature map 을 normalize 하여 ※Internal covariate shift 를 해결
 
-    dense1 = Conv2D(64, kernel_size = 2, strides = 1, padding = 'same', activation = 'relu')(dense1)
-    dense1 = Conv2D(64, kernel_size = 2, strides = 1, padding = 'same', activation = 'relu')(dense1)
-    dense1 = Conv2D(32, kernel_size = 2, strides = 1, padding = 'same', activation = 'relu')(dense1)
-    dense1 = MaxPooling2D(pool_size = (2, 2))(dense1)
-    dense1 = Dropout(0.3)(dense1)
+    # ※Internal Covariate shift:
+    # DNN 이 학습하기 어렵고 느리고 복잡한것은 DNN 이 학습중, 
+    # 각 layer 입력의 분포가 이전 layer 들의 parameter 가 변화하면서 함께 계속 변화하는 성질
 
-    dense1 = Flatten()(dense1)
-    dense1 = Dense(128, activation = 'relu')(dense1)
-    dense1 = Dropout(0.3)(dense1)
-    dense1 = Dense(64, activation = 'relu')(dense1)
-    dense1 = Dense(32, activation = 'relu')(dense1)
-    dense1 = Dense(16, activation = 'relu')(dense1)
-    output1 = Dense(10, activation = 'softmax')(dense1)
-    model = Model(inputs = input1, outputs = output1)
+    # ※공변량(covariance)이란 여러 변인들이 공통적으로 함께 공유하고 있는 변량을 뜻한다.
+
+    # 입력층의 입력 데이터는 쉽게 normalization 할 수 있지만, 
+    # 입력층을 지나서 만나게 되는 layer 들의 입력은 normalization 하기 쉽지 않다.
+    # Batch normalization 은 이런 문제를 해결하기 위한 알고리즘이다.
+    # 출처: https://light-tree.tistory.com/139 [All about]
 
     cp_path = '../data/modelcheckpoint/Computer_Vision/Computer_Vision_best_model.h5'
     cp = ModelCheckpoint(cp_path, save_best_only = True, mode = 'auto')
@@ -188,6 +180,5 @@ for train_index, valid_index in kfold.split(x, y):
     print(i, '번째 실행끝')
     i += 1
 
-
-finally_loss = np.mean(ACC)
-print('finally_loss', finally_loss)
+finally_acc = np.mean(ACC)
+print('finally_acc', finally_acc)
