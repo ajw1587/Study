@@ -1,6 +1,11 @@
 import numpy as np
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
+# 이미지 데이터의 수를 늘려주는게 아니라
+# 기존 이미지 데이터들을 우리가 설정한 epoch마다 변형을 가해서
+# train_data의 다양성을 늘려준다.
+# 단, 원본 이미지 데이터는 유지.
+
 # ImageDataGenerator & data augmentation
 # idg = ImageDataGenerator(rescale=1./255,           # 리스케일링
 #                          rotation_range = 20,      # 이미지 회전
