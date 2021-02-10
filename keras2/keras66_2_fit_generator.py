@@ -91,21 +91,21 @@ loss = history.history['loss']
 val_loss = history.history['val_loss']
 
 # 시각화 할것!!!
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 
-print('acc: ', acc[-1])
-print('val_acc: ', val_acc[:-1])
+# print('acc: ', acc[-1])
+# print('val_acc: ', val_acc[:-1])
 
-plt.figure(figsize = (10, 5))
+# plt.figure(figsize = (10, 5))
 
-plt.subplot(1, 2, 1)
-plt.plot(range(80), acc, color = 'red')
-plt.plot(range(80), val_acc, color = 'blue')
-plt.legend(['ACC', 'VAL_ACC'])
+# plt.subplot(1, 2, 1)
+# plt.plot(range(80), acc, color = 'red')
+# plt.plot(range(80), val_acc, color = 'blue')
+# plt.legend(['ACC', 'VAL_ACC'])
 
-plt.subplot(1, 2, 2)
-plt.plot(range(80), loss, color = 'red')
-plt.plot(range(80), val_loss, color = 'blue')
-plt.legend(['LOSS', 'VAL_LOSS'])
+# plt.subplot(1, 2, 2)
+# plt.plot(range(80), loss, color = 'red')
+# plt.plot(range(80), val_loss, color = 'blue')
+# plt.legend(['LOSS', 'VAL_LOSS'])
 
-plt.show()
+# plt.show()
