@@ -3,8 +3,10 @@ import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
 
+# 이미지가 너무 많아서 오래걸림...
+# 굳이 5만개를 다 할 필요가 있을까 모르겠네...
+# resize를 하자
 
-'''
 # 1. 데이터 노이즈 제거하여 가져오기
 # 1-1. train_dirty_image
 train_first_path = '../data/csv/Computer_Vision2/train_dirty_mnist_2nd/'
@@ -21,6 +23,9 @@ for i in range(50000):
     
     # Noise 제거
     subset = cv2.fastNlMeansDenoisingColored(subset,None,20,20,7,21)
+
+    # resize (50000,256,256) 너무 크다 줄이자!
+    subset = cv2.resize(subset, dsize = (64, 64), interpolation = cv2.INTER_LINEAR)
 
     # train_img 리스트에 추가
     train_img.append(subset)
@@ -41,7 +46,10 @@ for i in range(5000):
     # Noise 제거
     subset = cv2.fastNlMeansDenoisingColored(subset,None,20,20,7,21)
 
-    # train_img 리스트에 추가
+    # resize
+    subset = cv2.resize(subset, dsize = (64, 64), interpolation = cv2.INTER_LINEAR)
+
+    # test_img 리스트에 추가
     test_img.append(subset)
 
 # list -> numpy 변환
@@ -54,10 +62,8 @@ np.save('../data/csv/Computer_Vision2/numpy_file/Train_Computer_Vision2_02.npy',
 np.save('../data/csv/Computer_Vision2/numpy_file/Test_Computer_Vision2_02.npy',
         test_img)
 
-# 이미지가 너무 많아서 오래걸림...
-# 굳이 5만개를 다 할 필요가 있을까 모르겠네...
-'''
 
+'''
 # 2. 노이즈 제거 데이터 불러오기
 x_train = np.load('../data/csv/Computer_Vision2/numpy_file/Train_Computer_Vision2_02.npy')
 x_test = np.load('../data/csv/Computer_Vision2/numpy_file/Test_Computer_Vision2_02.npy')
@@ -76,6 +82,7 @@ y_submission = y_submission.values
 # x_test = x_test/255.
 # ERROR 발생
 # MemoryError: Unable to allocate 73.2 GiB for an array with shape (50000, 256, 256, 3) and data type float64
+
 
 # 4. 모델
 from tensorflow.keras.models import Model
@@ -118,24 +125,9 @@ def my_model(drop = 0.3, size = 256):
     model = Model(inputs = input1, outputs = output1)
     model.compile(optimizer = Adam(learning_rate = 0.01), loss = 'binary_crossentropy', metrics = ['acc'])
     return model
-# def my_hyper():
-#     drop = [0.3]
-#     size = [256]
-#     epochs = [1]
-#     return {'drop': drop,
-#             'size': size,
-#             'epochs': epochs}
-
-# model = KerasClassifier(build_fn = my_model, verbose = 1)
-# my_hyper = my_hyper()
-# kfold = KFold(n_splits = 5, random_state = 77)
-# kfold = StratifiedKFold(n_splits = 20, random_state = 77)
-# n_splits = 5, 10 ERROR 발생
-# ValueError: n_splits=10 cannot be greater than the number of members in each class.
-# search = RandomizedSearchCV(model, my_hyper, cv = kfold)
 
 model = my_model()
 es = EarlyStopping(monitor = 'val_loss', patience = 20, mode = 'auto')
 cp = ModelCheckpoint('../data/modelcheckpoint/Computer_Vision2/Dacon_Computer_Vision2.hdf5')
-for i in range(1): # 28
-    model.fit(x_train, y_train[:, i], batch_size = 64, callbacks = [es, cp])
+
+'''
