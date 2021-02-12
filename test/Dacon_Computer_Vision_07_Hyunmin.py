@@ -83,7 +83,7 @@ for train_index, test_index in skf.split(train2, train['digit']) : # >>> x, y
     #2. Modeling
     model = Sequential()
 
-    model.add(Conv2D(16, (3,3), activation='relu', input_shape=(28, 28,1), padding='same'))
+    model.add(Conv2D(16, (3,3), activation='relu', input_shape=(28, 28, 1), padding='same'))
     model.add(BatchNormalization()) 
     # BatchNormalization >> 학습하는 동안 모델이 추정한 입력 데이터 분포의 평균과 분산으로 normalization을 하고자 하는 것
     model.add(Dropout(0.3))
