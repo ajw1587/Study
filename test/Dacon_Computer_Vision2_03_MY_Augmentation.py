@@ -66,6 +66,8 @@ np.save('../data/csv/Computer_Vision2/numpy_file/Test_Computer_Vision2_02.npy',
 
 
 # 2. 노이즈 제거 데이터 불러오기
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
+
 x_train = np.load('../data/csv/Computer_Vision2/numpy_file/Train_Computer_Vision2_02.npy')
 x_test = np.load('../data/csv/Computer_Vision2/numpy_file/Test_Computer_Vision2_02.npy')
 y_train = pd.read_csv('../data/csv/Computer_Vision2/train_dirty_mnist_2nd_answer.csv')
@@ -82,28 +84,29 @@ y_submission = pd.read_csv('../data/csv/Computer_Vision2/sample_submission.csv')
 # print(np.max(x_train))    # 254
 # print(np.max(x_test))     # 254
 
-# 3. 전처리
-x_train = x_train/254.
-x_test = x_test/254.
-# (50000, 256, 256, 3) 상태에서 실행시 ERROR 발생
-# MemoryError: Unable to allocate 73.2 GiB for an array with shape (50000, 256, 256, 3) and data type float64
-
 x_train, x_val, y_train, y_val = train_test_split(x_train, y_train, train_size = 0.8, random_state = 77)
 
-# print(x_train.shape)
-# print(x_test.shape)
-# print(y_train.shape)
-# print(y_submission.shape)
-# print(y_train.loc[:, 'a'])
-# print(y_submission.columns)
-# Index(['index', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l',
-#        'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'],
-#       dtype='object')
+# 3. Augmentation
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
+
+train_datagen = ImageDataGenerator(
+    rescale = 1./254,
+    height_shift_range = 0.2,
+    width_shift_range = 0.2
+)
+
+val_datagen = ImagedataGenerator(
+    rescale = 1./254
+)
+
+test_datagen = ImageDataGenerator(
+    rescale = 1./255
+)
 
 # 4. 모델
 from tensorflow.keras.models import Model, load_model
 from tensorflow.keras.layers import Dense, Dropout, Conv2D, MaxPooling2D, BatchNormalization, Input, Flatten
-from tensorflow.keras.optimizers import Adam, Adadelta
+from tensorflow.keras.optimizers import Adam, Adadelta, SGD
 from sklearn.model_selection import StratifiedKFold, RandomizedSearchCV, KFold
 from tensorflow.keras.wrappers.scikit_learn import KerasClassifier
 from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint, ReduceLROnPlateau
@@ -162,12 +165,24 @@ reduce_lr = ReduceLROnPlateau(monitor = 'val_loss', factor = 0.5, patience = 25,
 alpha = ascii_lowercase     # 알파벳 리스트
 
 for i in alpha:
-    cp_path = '../data/modelcheckpoint/Computer_Vision2/model/Dacon_Computer_Vision2_' + str(i) + '.hdf5'
+    cp_path = '../data/modelcheckpoint/Computer_Vision2/model/Dacon_Computer_Vision2_Aug_' + str(i) + '.hdf5'
     cp = ModelCheckpoint(cp_path, save_best_only = True, mode = 'auto')
 
-    y_alpha = y_train.loc[:, i].values
-    model.fit(x_train, y_alpha, batch_size = 128, epochs = 300, callbacks = [es, cp, reduce_lr],
-              validation_data = (x_val, y_val.loc[:, i].values))
+    # y_train, y_val에서 필요한 alphabet 추출
+    y_train_alpha = y_train.loc[:, i].values
+    y_val_alpha = y_val.loc[:, i].values
+
+    # Generator 적용
+    train_flow = train_datagen.flow(x_train, y_train_alpha, batch_size = 128, seed = 77, class_mode = 'binary')
+    val_flow = val_datagen.flow(x_val, y_val_alpha)
+    test_flow = test_datagen.flow(x_test)
+
+    model.fit_generator(train_flow,
+                        steps_per_epoch = 40000//128,
+                        epochs = 100,
+                        callbacks = [es, cp, reduce_lr],
+                        validation_data = val_flow,
+                        validation_steps = 10000//128)
 
     # 6. Predict
     model2 = load_model(cp_path)
@@ -176,4 +191,4 @@ for i in alpha:
     print(y_pred)
     print(y_pred.shape)
     y_submission.loc[:, i] = y_pred
-y_submission.to_csv('../data/modelcheckpoint/Computer_Vision2/submission/submission.csv', index = False)
+y_submission.to_csv('../data/modelcheckpoint/Computer_Vision2/submission/submission_Aug.csv', index = False)
