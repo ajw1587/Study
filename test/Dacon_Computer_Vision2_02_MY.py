@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 import pandas as pd
+import tensorflow as tf
 from sklearn.model_selection import train_test_split
 
 # 이미지가 너무 많아서 오래걸림...
@@ -94,11 +95,15 @@ x_train, x_val, y_train, y_val = train_test_split(x_train, y_train, train_size =
 # print(y_train.shape)
 # print(y_submission.shape)
 # print(y_train.loc[:, 'a'])
+# print(y_submission.columns)
+# Index(['index', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l',
+#        'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'],
+#       dtype='object')
 
 # 4. 모델
-from tensorflow.keras.models import Model
+from tensorflow.keras.models import Model, load_model
 from tensorflow.keras.layers import Dense, Dropout, Conv2D, MaxPooling2D, BatchNormalization, Input, Flatten
-from tensorflow.keras.optimizers import Adam
+from tensorflow.keras.optimizers import Adam, Adadelta
 from sklearn.model_selection import StratifiedKFold, RandomizedSearchCV, KFold
 from tensorflow.keras.wrappers.scikit_learn import KerasClassifier
 from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint, ReduceLROnPlateau
@@ -111,13 +116,13 @@ def my_model(drop = 0.5, size = 64):
     dense1 = Conv2D(32, 2, 1, padding = 'same', activation = 'relu')(dense1)
     dense1 = BatchNormalization()(dense1)
     dense1 = Dropout(drop)(dense1)
-    dense1 = Conv2D(16, 2, 1, padding = 'same', activation = 'relu')(dense1)
-    dense1 = BatchNormalization()(dense1)
-    dense1 = Dropout(drop)(dense1)
-    dense1 = Conv2D(8, 2, 1, padding = 'same', activation = 'relu')(dense1)
-    dense1 = MaxPooling2D((2, 2))(dense1)
-    dense1 = BatchNormalization()(dense1)
-    dense1 = Dropout(drop)(dense1)
+    # dense1 = Conv2D(16, 2, 1, padding = 'same', activation = 'relu')(dense1)
+    # dense1 = BatchNormalization()(dense1)
+    # dense1 = Dropout(drop)(dense1)
+    # dense1 = Conv2D(8, 2, 1, padding = 'same', activation = 'relu')(dense1)
+    # dense1 = MaxPooling2D((2, 2))(dense1)
+    # dense1 = BatchNormalization()(dense1)
+    # dense1 = Dropout(drop)(dense1)
 
     # dense1 = Conv2D(64, 2, 1, padding = 'same', activation = 'relu')(dense1)
     # dense1 = BatchNormalization()(dense1)
@@ -143,8 +148,9 @@ def my_model(drop = 0.5, size = 64):
     dense1 = Dense(16, activation = 'relu')(dense1)
     dense1 = BatchNormalization()(dense1)
     output1 = Dense(1, activation = 'sigmoid')(dense1)
+
     model = Model(inputs = input1, outputs = output1)
-    model.compile(optimizer = Adam(learning_rate = 0.00001), loss = 'binary_crossentropy', metrics = ['acc'])
+    model.compile(optimizer = Adam(learning_rate = 0.001), loss = 'binary_crossentropy', metrics = ['acc'])
     return model
 model = my_model()
 
@@ -154,15 +160,20 @@ from string import ascii_lowercase
 es = EarlyStopping(monitor = 'val_loss', patience = 20, mode = 'auto')
 reduce_lr = ReduceLROnPlateau(monitor = 'val_loss', factor = 0.5, patience = 10, mode = 'auto')
 alpha = ascii_lowercase     # 알파벳 리스트
+
 for i in alpha:
-    cp = ModelCheckpoint('../data/modelcheckpoint/Computer_Vision2/Dacon_Computer_Vision2_' + str(i) + '.hdf5',
-                         save_best_only = True, mode = 'auto')
+    cp_path = '../data/modelcheckpoint/Computer_Vision2/model/Dacon_Computer_Vision2_' + str(i) + '.hdf5'
+    cp = ModelCheckpoint(cp_path, save_best_only = True, mode = 'auto')
 
     y_alpha = y_train.loc[:, i].values
-    model.fit(x_train, y_alpha, batch_size = 64, epochs = 100, callbacks = [es, cp, reduce_lr],
+    model.fit(x_train, y_alpha, batch_size = 128, epochs = 300, callbacks = [es, cp, reduce_lr],
               validation_data = (x_val, y_val.loc[:, i].values))
 
-# 6. Predict
-for i in alpha:
-    y_pred = model.predict(x_test)
+    # 6. Predict
+    model2 = load_model(cp_path)
+    y_pred = model2.predict(x_test)
+    y_pred = np.where(y_pred < 0.5, 0, 1)
+    print(y_pred)
     print(y_pred.shape)
+    y_submission.loc[:, i] = y_pred
+    y_submission.to_csv('../data/modelcheckpoint/Computer_Vision2/submission/submission.csv', index = False)
