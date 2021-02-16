@@ -95,7 +95,7 @@ train_datagen = ImageDataGenerator(
     width_shift_range = 0.2
 )
 
-val_datagen = ImagedataGenerator(
+val_datagen = ImageDataGenerator(
     rescale = 1./254
 )
 
@@ -173,13 +173,13 @@ for i in alpha:
     y_val_alpha = y_val.loc[:, i].values
 
     # Generator 적용
-    train_flow = train_datagen.flow(x_train, y_train_alpha, batch_size = 128, seed = 77, class_mode = 'binary')
+    train_flow = train_datagen.flow(x_train, y_train_alpha, batch_size = 128, seed = 77)
     val_flow = val_datagen.flow(x_val, y_val_alpha)
     test_flow = test_datagen.flow(x_test)
 
     model.fit_generator(train_flow,
                         steps_per_epoch = 40000//128,
-                        epochs = 100,
+                        epochs = 200,
                         callbacks = [es, cp, reduce_lr],
                         validation_data = val_flow,
                         validation_steps = 10000//128)
@@ -191,4 +191,6 @@ for i in alpha:
     print(y_pred)
     print(y_pred.shape)
     y_submission.loc[:, i] = y_pred
-y_submission.to_csv('../data/modelcheckpoint/Computer_Vision2/submission/submission_Aug.csv', index = False)
+    y_submission.to_csv('../data/modelcheckpoint/Computer_Vision2/submission/submission_Aug.csv', index = False)
+
+    # 0.4629076923

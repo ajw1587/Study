@@ -7,7 +7,7 @@ from sklearn.model_selection import train_test_split
 # 이미지가 너무 많아서 오래걸림...
 # 굳이 5만개를 다 할 필요가 있을까 모르겠네...
 # resize를 하자
-'''
+
 # 1. 데이터 노이즈 제거하여 가져오기
 # 1-1. train_dirty_image
 train_first_path = '../data/csv/Computer_Vision2/train_dirty_mnist_2nd/'
@@ -62,9 +62,9 @@ np.save('../data/csv/Computer_Vision2/numpy_file/Train_Computer_Vision2_02.npy',
         train_img)
 np.save('../data/csv/Computer_Vision2/numpy_file/Test_Computer_Vision2_02.npy',
         test_img)
+
+
 '''
-
-
 # 2. 노이즈 제거 데이터 불러오기
 x_train = np.load('../data/csv/Computer_Vision2/numpy_file/Train_Computer_Vision2_02.npy')
 x_test = np.load('../data/csv/Computer_Vision2/numpy_file/Test_Computer_Vision2_02.npy')
@@ -116,32 +116,12 @@ def my_model(drop = 0.5, size = 64):
     dense1 = Conv2D(32, 2, 1, padding = 'same', activation = 'relu')(dense1)
     dense1 = BatchNormalization()(dense1)
     dense1 = Dropout(drop)(dense1)
-    # dense1 = Conv2D(16, 2, 1, padding = 'same', activation = 'relu')(dense1)
-    # dense1 = BatchNormalization()(dense1)
-    # dense1 = Dropout(drop)(dense1)
-    # dense1 = Conv2D(8, 2, 1, padding = 'same', activation = 'relu')(dense1)
-    # dense1 = MaxPooling2D((2, 2))(dense1)
-    # dense1 = BatchNormalization()(dense1)
-    # dense1 = Dropout(drop)(dense1)
 
     dense1 = Conv2D(64, 2, 1, padding = 'same', activation = 'relu')(dense1)
     dense1 = BatchNormalization()(dense1)
     dense1 = Dropout(drop)(dense1)
-    # dense1 = Conv2D(32, 2, 1, padding = 'same', activation = 'relu')(dense1)
-    # dense1 = BatchNormalization()(dense1)
-    # dense1 = Dropout(drop)(dense1)
-    # dense1 = Conv2D(16, 2, 1, padding = 'same', activation = 'relu')(dense1)
-    # dense1 = BatchNormalization()(dense1)
-    # dense1 = Dropout(drop)(dense1)
-    # dense1 = Conv2D(8, 2, 1, padding = 'same', activation = 'relu')(dense1)
-    # dense1 = MaxPooling2D((2, 2))(dense1)
-    # dense1 = BatchNormalization()(dense1)
-    # dense1 = Dropout(drop)(dense1)
 
     dense1 = Flatten()(dense1)
-    # dense1 = Dense(64, activation = 'relu')(dense1)
-    # dense1 = BatchNormalization()(dense1)
-    # dense1 = Dropout(drop)(dense1)
     dense1 = Dense(32, activation = 'relu')(dense1)
     dense1 = BatchNormalization()(dense1)
     dense1 = Dropout(drop)(dense1)
@@ -162,7 +142,7 @@ reduce_lr = ReduceLROnPlateau(monitor = 'val_loss', factor = 0.5, patience = 25,
 alpha = ascii_lowercase     # 알파벳 리스트
 
 for i in alpha:
-    cp_path = '../data/modelcheckpoint/Computer_Vision2/model/Dacon_Computer_Vision2_' + str(i) + '.hdf5'
+    cp_path = '../data/modelcheckpoint/Computer_Vision2/model/Dacon_Computer_Vision2_2_' + str(i) + '.hdf5'
     cp = ModelCheckpoint(cp_path, save_best_only = True, mode = 'auto')
 
     y_alpha = y_train.loc[:, i].values
@@ -176,7 +156,5 @@ for i in alpha:
     print(y_pred)
     print(y_pred.shape)
     y_submission.loc[:, i] = y_pred
-y_submission.to_csv('../data/modelcheckpoint/Computer_Vision2/submission/submission.csv', index = False)
-
-# OverFitting 발생!
-# 0.5365076923
+y_submission.to_csv('../data/modelcheckpoint/Computer_Vision2/submission/submission2.csv', index = False)
+'''
