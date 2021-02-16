@@ -59,7 +59,7 @@ test_flow = except_datagen.flow_from_directory(
 # 2. 모델
 opti = Adam(learning_rate = 0.005)
 es = EarlyStopping(monitor = 'val_loss', patience = 20, mode = 'auto')
-cp = ModelCheckpoint('../data/modelcheckpoint/sign_language/sign_language_model.hdf5')
+cp = ModelCheckpoint('../data/modelcheckpoint/sign_language/sign_language_model_04.hdf5')
 reduce_lr = ReduceLROnPlateau(monitor = 'val_loss', factor = 0.5, patience = 10, mode = 'auto')
 def my_model():
     input1 = Input(shape = (64, 64, 3))
@@ -78,12 +78,9 @@ def my_model():
     x = MaxPooling2D(pool_size = (3, 3))(x)
     x = Dropout(0.3)(x)
 
-    x = Conv2D(32, (5, 5), 1, padding = 'same', activation = 'relu')(x)
-    x = BatchNormalization()(x)
-    x = MaxPooling2D(pool_size = (3, 3))(x)
-    x = Dropout(0.3)(x)
-    
     x = Flatten()(x)
+    x = Dense(64, activation = 'relu')(x)
+    x = Dropout(0.3)(x)
     x = Dense(32, activation = 'relu')(x)
     x = Dropout(0.3)(x)
     x = Dense(16, activation = 'relu')(x)
@@ -111,3 +108,7 @@ print('loss: ', loss[-1])
 print('val_acc: ', val_acc[-1])
 print('val_loss: ', val_loss[-1])
 
+# acc:  0.8718889951705933
+# loss:  0.31307002902030945
+# val_acc:  0.934374988079071
+# val_loss:  0.15655991435050964
