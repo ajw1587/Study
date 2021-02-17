@@ -161,9 +161,9 @@ while True:
     frame_gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     th, frame_bin = cv2.threshold(frame_gray, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
 
-    cv2.imshow('framebin', frame_bin)
+    # cv2.imshow('framebin', frame_bin)
     # cv2.imshow('frame_gray', frame_gray)
-    # cv2.imshow('frame', frame)
+    cv2.imshow('frame', frame)
 
     if cv2.waitKey(30) == 27:                          # waitKey(대기시간ms): 0입력시 무한대기
                                                       # 동영상마다 frame이 달라 동영상마다 알맞은 값을 지정해줘야한다.
