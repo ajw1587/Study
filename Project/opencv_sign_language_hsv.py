@@ -1,8 +1,12 @@
 import cv2
 import numpy as np
+from tensorflow.keras.models import load_model
 
 def empty(a):
     pass
+
+# 모델 laod
+model = load_model('../data/modelcheckpoint/sign_language/sign_language_model_02.hdf5')
 
 # 영상 및 이미지에서 손 검출하기
 path = '../data/sign_image/my_hand2.mp4' # _image.png
@@ -71,19 +75,23 @@ while True:     # 원본 -> HSV -> Mor -> contour
     # # mask: 적용 영역 지정
     # cv2.imshow('imgBGR', imgBGR)
 
-    # contour를 imgBGR 이미지에 적용
-    # cv2.drawContours(imgBGR, [max_contour], 0, (255, 0, 0), 3)
-
     # contour 경계 사각형 imgBGR에 적용시키기
     x, y, w, h = cv2.boundingRect(max_contour)
     rect = cv2.rectangle(imgBGR, (x, y), (x+w, y+h), (0, 255, 0), 1)
-    cv2.imshow('Contour-Rectangle', imgBGR)
-
+    
     # contour 경계 사각형 이미지 잘라주기
-    slice_image = rect[y+1:y+h-1, x+1:x+w-1]
+    slice_image = rect[y + 1: y+h - 1, x + 1: x+w - 1]
     cv2.imshow('Slice Image', slice_image)
+    print(slice_image.shape)
 
-    # contour 경계 사각형에 문자 출력
+    # 경계사각형에 글자 넣어주기
+    cv2.putText(imgBGR, 'Inwoo', (x, y+h+50), 
+                fontFace = cv2.FONT_HERSHEY_COMPLEX, 
+                fontScale = 2, 
+                color = (255, 0, 0),
+                thickness = 5)
+
+    cv2.imshow('Contour-Rectangle', imgBGR)
 
     if cv2.waitKey(30) == 27:
         break
