@@ -82,6 +82,8 @@ y_submission = pd.read_csv('../data/csv/Computer_Vision2/sample_submission.csv')
 # print(np.max(x_train))    # 254
 # print(np.max(x_test))     # 254
 
+y_train = y_train.iloc[:, 1:].values
+
 # 3. 전처리
 x_train = x_train/254.
 x_test = x_test/254.
@@ -108,7 +110,7 @@ from sklearn.model_selection import StratifiedKFold, RandomizedSearchCV, KFold
 from tensorflow.keras.wrappers.scikit_learn import KerasClassifier
 from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint, ReduceLROnPlateau
 
-def my_model(drop = 0.3, size = 64):
+def my_model(drop = 0.5, size = 64):
     input1 = Input(shape = (size, size, 3))
     dense1 = Conv2D(128, 3, 1, padding = 'same', activation = 'relu')(input1)
     dense1 = BatchNormalization()(dense1)
@@ -139,7 +141,7 @@ def my_model(drop = 0.3, size = 64):
     dense1 = Dropout(drop)(dense1)
     dense1 = Dense(16, activation = 'relu')(dense1)
     dense1 = BatchNormalization()(dense1)
-    output1 = Dense(27, activation = 'softmax')(dense1)
+    output1 = Dense(26, activation = 'softmax')(dense1)
 
     model = Model(inputs = input1, outputs = output1)
     model.compile(optimizer = Adam(learning_rate = 0.0001), loss = 'categorical_crossentropy', metrics = ['acc'])
@@ -147,12 +149,12 @@ def my_model(drop = 0.3, size = 64):
 model = my_model()
 
 # 5. Fit
-es = EarlyStopping(monitor = 'val_loss', patience = 60, mode = 'auto')
-reduce_lr = ReduceLROnPlateau(monitor = 'val_loss', factor = 0.5, patience = 30, mode = 'auto')
+es = EarlyStopping(monitor = 'val_loss', patience = 100, mode = 'auto')
+reduce_lr = ReduceLROnPlateau(monitor = 'val_loss', factor = 0.5, patience = 50, mode = 'auto')
 cp_path = '../data/modelcheckpoint/Computer_Vision2/model/Dacon_Computer_Vision2_04.hdf5'
 cp = ModelCheckpoint(cp_path, save_best_only = True, mode = 'auto')
 
-model.fit(x_train, y_train, batch_size = 128, epochs = 300, callbacks = [es, cp, reduce_lr],
+model.fit(x_train, y_train, batch_size = 128, epochs = 1000, callbacks = [es, cp, reduce_lr],
           validation_data = (x_val, y_val))
 
 # 6. Predict
@@ -161,7 +163,7 @@ y_pred = model2.predict(x_test)
 y_pred = np.where(y_pred < 0.5, 0, 1)
 print(y_pred)
 print(y_pred.shape)
-y_submission.loc[:, :] = y_pred
+y_submission.iloc[:, 1:] = y_pred
 y_submission.to_csv('../data/modelcheckpoint/Computer_Vision2/submission/submission_04.csv', index = False)
 
 # val_acc가 acc보다 잘나온다면 Dropout을 건드려보자!(낮추거나 없애거나)

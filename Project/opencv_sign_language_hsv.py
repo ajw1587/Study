@@ -68,11 +68,12 @@ while True:     # 원본 -> HSV -> Mor -> contour
             max_contour = cnt
             max_area = area
 
-    # # 비트 이미지 연산으로 원본 손 추출하기   참고: https://copycoding.tistory.com/156
+    # 비트 이미지 연산으로 원본 손 추출하기   참고: https://copycoding.tistory.com/156
+    # 검정색 필터값은 0이다. 즉, 하얀 부분을 영역으로 인식한다.
     imgBGR = cv2.bitwise_and(img, img, mask = imgMOR)
-    # # src1: 비교할 이미지
-    # # src2: 비교할 이미지
-    # # mask: 적용 영역 지정
+    # src1: 비교할 이미지
+    # src2: 비교할 이미지
+    # mask: 적용 영역 지정
     # cv2.imshow('imgBGR', imgBGR)
 
     # contour 경계 사각형 imgBGR에 적용시키기
@@ -82,10 +83,15 @@ while True:     # 원본 -> HSV -> Mor -> contour
     # contour 경계 사각형 이미지 잘라주기
     slice_image = rect[y + 1: y+h - 1, x + 1: x+w - 1]
     cv2.imshow('Slice Image', slice_image)
-    print(slice_image.shape)
+    slice_image = cv2.resize(slice_image, dsize = (64, 64), interpolation = cv2.INTER_LINEAR)
+    # print(type(slice_image))
+    # slice_image = slice_image.reshape(1, 64, 64, 3)
+    # print(slice_image.shape)
+    # pred = model.predict(slice_image)
+    # print(type(pred))
 
     # 경계사각형에 글자 넣어주기
-    cv2.putText(imgBGR, 'Inwoo', (x, y+h+50), 
+    cv2.putText(imgBGR, 'inwoo', (x, y+h+50), 
                 fontFace = cv2.FONT_HERSHEY_COMPLEX, 
                 fontScale = 2, 
                 color = (255, 0, 0),

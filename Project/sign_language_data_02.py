@@ -3,11 +3,11 @@ import pandas as pd
 import cv2
 import matplotlib.pyplot as plt
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
-from tensorflow.keras.models import Model
+from tensorflow.keras.models import Model, load_model
 from tensorflow.keras.layers import Conv2D, MaxPooling2D, Input, Dropout, Flatten, Dense, BatchNormalization
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.callbacks import ReduceLROnPlateau, EarlyStopping, ModelCheckpoint
-
+'''
 # 1. 데이터
 
 # file name: 'hand(1. 숫자)_(2. 숫자)_bot_seg_(3. 숫자)_cropped.jpeg'
@@ -47,14 +47,22 @@ test_flow = except_datagen.flow_from_directory(
     file_path, target_size = (targetsize, targetsize), class_mode = 'categorical',
     batch_size = batchsize, seed = 65)
 
-# print(train_dataset[0][0].shape)
-# print(train_dataset[0][1].shape)
-# print(type(train_dataset))
-# print(train_dataset.class_indices)
+print(train_flow[0][0].shape)
+print(train_flow[0][1].shape)
+print(type(train_flow))
+print(train_flow.class_indices)
+print(type(train_flow[0][0][0]))
+print(type(train_flow[0][0]))
+print(type(train_flow[0]))
+
 # '0': 0, '1': 1, '2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8, '9': 9, 
 # 'a': 10, 'b': 11, 'c': 12, 'd': 13, 'e': 14, 'f': 15, 'g': 16, 'h': 17, 'i': 18, 
 # 'j': 19, 'k': 20, 'l': 21, 'm': 22, 'n': 23, 'o': 24, 'p': 25, 'q': 26, 'r': 27, 
 # 's': 28, 't': 29, 'u': 30, 'v': 31, 'w': 32, 'x': 33, 'y': 34, 'z': 35
+
+plt.imshow(train_flow[0][0][0])
+plt.show()
+
 
 # 2. 모델
 opti = Adam(learning_rate = 0.001)
@@ -110,3 +118,31 @@ print('val_loss: ', val_loss[-1])
 # loss:  0.17483144998550415
 # val_acc:  0.9828125238418579
 # val_loss:  0.04662995785474777
+'''
+
+# x_pred01 = Image.open('../data/sign_image/one.png')
+# x_pred02 = Image.open('../data/sign_image/five.png')
+
+x_pred01 = cv2.imread('../data/sign_image/one.png')
+x_pred02 = cv2.imread('../data/sign_image/five.png')
+
+# print(x_pred01.shape)       # (250, 265, 3)
+# print(x_pred02.shape)       # (264, 394, 3)
+# print(type(x_pred01))       # <class 'numpy.ndarray'>
+# print(type(x_pred02))       # <class 'numpy.ndarray'>
+
+x_pred01 = cv2.resize(x_pred01, dsize = (64, 64), interpolation = cv2.INTER_LINEAR)
+x_pred02 = cv2.resize(x_pred02, dsize = (64, 64), interpolation = cv2.INTER_LINEAR)
+
+# x_pred01 = np.array(x_pred01)
+# x_pred02 = np.array(x_pred02)
+
+x_pred01 = x_pred01.reshape(1, 64, 64, 3)
+x_pred02 = x_pred02.reshape(1, 64, 64, 3)
+
+model2 = load_model('../data/modelcheckpoint/sign_language/sign_language_model_02.hdf5')
+pred01 = model2.predict(x_pred01)
+pred02 = model2.predict(x_pred02)
+
+print(pred01)
+print(pred02)
