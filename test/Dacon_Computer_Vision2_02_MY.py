@@ -176,7 +176,7 @@ for i in alpha:
     print(y_pred)
     print(y_pred.shape)
     y_submission.loc[:, i] = y_pred
-y_submission.to_csv('../data/modelcheckpoint/Computer_Vision2/submission/submission.csv', index = False)
+    y_submission.to_csv('../data/modelcheckpoint/Computer_Vision2/submission/submission_02.csv', index = False)
 
 # OverFitting 발생!
 # 0.5365076923

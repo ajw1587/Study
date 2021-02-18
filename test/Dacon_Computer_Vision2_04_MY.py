@@ -7,7 +7,7 @@ from sklearn.model_selection import train_test_split
 # 이미지가 너무 많아서 오래걸림...
 # 굳이 5만개를 다 할 필요가 있을까 모르겠네...
 # resize를 하자
-
+'''
 # 1. 데이터 노이즈 제거하여 가져오기
 # 1-1. train_dirty_image
 train_first_path = '../data/csv/Computer_Vision2/train_dirty_mnist_2nd/'
@@ -62,9 +62,9 @@ np.save('../data/csv/Computer_Vision2/numpy_file/Train_Computer_Vision2_02.npy',
         train_img)
 np.save('../data/csv/Computer_Vision2/numpy_file/Test_Computer_Vision2_02.npy',
         test_img)
-
-
 '''
+
+
 # 2. 노이즈 제거 데이터 불러오기
 x_train = np.load('../data/csv/Computer_Vision2/numpy_file/Train_Computer_Vision2_02.npy')
 x_test = np.load('../data/csv/Computer_Vision2/numpy_file/Test_Computer_Vision2_02.npy')
@@ -108,16 +108,28 @@ from sklearn.model_selection import StratifiedKFold, RandomizedSearchCV, KFold
 from tensorflow.keras.wrappers.scikit_learn import KerasClassifier
 from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint, ReduceLROnPlateau
 
-def my_model(drop = 0.5, size = 64):
+def my_model(drop = 0.3, size = 64):
     input1 = Input(shape = (size, size, 3))
-    dense1 = Conv2D(64, 2, 1, padding = 'same', activation = 'relu')(input1)
+    dense1 = Conv2D(128, 3, 1, padding = 'same', activation = 'relu')(input1)
     dense1 = BatchNormalization()(dense1)
     dense1 = Dropout(drop)(dense1)
-    dense1 = Conv2D(32, 2, 1, padding = 'same', activation = 'relu')(dense1)
+    dense1 = Conv2D(64, 3, 1, padding = 'same', activation = 'relu')(dense1)
+    dense1 = BatchNormalization()(dense1)
+    dense1 = Dropout(drop)(dense1)
+    dense1 = Conv2D(32, 3, 1, padding = 'same', activation = 'relu')(dense1)
+    dense1 = BatchNormalization()(dense1)
+    dense1 = Dropout(drop)(dense1)
+    dense1 = Conv2D(16, 3, 1, padding = 'same', activation = 'relu')(dense1)
     dense1 = BatchNormalization()(dense1)
     dense1 = Dropout(drop)(dense1)
 
-    dense1 = Conv2D(64, 2, 1, padding = 'same', activation = 'relu')(dense1)
+    dense1 = Conv2D(128, 3, 1, padding = 'same', activation = 'relu')(dense1)
+    dense1 = BatchNormalization()(dense1)
+    dense1 = Dropout(drop)(dense1)
+    dense1 = Conv2D(64, 3, 1, padding = 'same', activation = 'relu')(dense1)
+    dense1 = BatchNormalization()(dense1)
+    dense1 = Dropout(drop)(dense1)
+    dense1 = Conv2D(32, 3, 1, padding = 'same', activation = 'relu')(dense1)
     dense1 = BatchNormalization()(dense1)
     dense1 = Dropout(drop)(dense1)
 
@@ -127,34 +139,30 @@ def my_model(drop = 0.5, size = 64):
     dense1 = Dropout(drop)(dense1)
     dense1 = Dense(16, activation = 'relu')(dense1)
     dense1 = BatchNormalization()(dense1)
-    output1 = Dense(1, activation = 'sigmoid')(dense1)
+    output1 = Dense(27, activation = 'softmax')(dense1)
 
     model = Model(inputs = input1, outputs = output1)
-    model.compile(optimizer = Adam(learning_rate = 0.001), loss = 'binary_crossentropy', metrics = ['acc'])
+    model.compile(optimizer = Adam(learning_rate = 0.0001), loss = 'categorical_crossentropy', metrics = ['acc'])
     return model
 model = my_model()
 
 # 5. Fit
-from string import ascii_lowercase
+es = EarlyStopping(monitor = 'val_loss', patience = 60, mode = 'auto')
+reduce_lr = ReduceLROnPlateau(monitor = 'val_loss', factor = 0.5, patience = 30, mode = 'auto')
+cp_path = '../data/modelcheckpoint/Computer_Vision2/model/Dacon_Computer_Vision2_04.hdf5'
+cp = ModelCheckpoint(cp_path, save_best_only = True, mode = 'auto')
 
-es = EarlyStopping(monitor = 'val_loss', patience = 50, mode = 'auto')
-reduce_lr = ReduceLROnPlateau(monitor = 'val_loss', factor = 0.5, patience = 25, mode = 'auto')
-alpha = ascii_lowercase     # 알파벳 리스트
+model.fit(x_train, y_train, batch_size = 128, epochs = 300, callbacks = [es, cp, reduce_lr],
+          validation_data = (x_val, y_val))
 
-for i in alpha:
-    cp_path = '../data/modelcheckpoint/Computer_Vision2/model/Dacon_Computer_Vision2_2_' + str(i) + '.hdf5'
-    cp = ModelCheckpoint(cp_path, save_best_only = True, mode = 'auto')
+# 6. Predict
+model2 = load_model(cp_path)
+y_pred = model2.predict(x_test)
+y_pred = np.where(y_pred < 0.5, 0, 1)
+print(y_pred)
+print(y_pred.shape)
+y_submission.loc[:, :] = y_pred
+y_submission.to_csv('../data/modelcheckpoint/Computer_Vision2/submission/submission_04.csv', index = False)
 
-    y_alpha = y_train.loc[:, i].values
-    model.fit(x_train, y_alpha, batch_size = 128, epochs = 300, callbacks = [es, cp, reduce_lr],
-              validation_data = (x_val, y_val.loc[:, i].values))
-
-    # 6. Predict
-    model2 = load_model(cp_path)
-    y_pred = model2.predict(x_test)
-    y_pred = np.where(y_pred < 0.5, 0, 1)
-    print(y_pred)
-    print(y_pred.shape)
-    y_submission.loc[:, i] = y_pred
-y_submission.to_csv('../data/modelcheckpoint/Computer_Vision2/submission/submission2.csv', index = False)
-'''
+# val_acc가 acc보다 잘나온다면 Dropout을 건드려보자!(낮추거나 없애거나)
+# Dropout은 train에만 적용이 되어 val_acc가 acc보다 높을 수 있다!
