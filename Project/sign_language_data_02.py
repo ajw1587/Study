@@ -144,5 +144,8 @@ model2 = load_model('../data/modelcheckpoint/sign_language/sign_language_model_0
 pred01 = model2.predict(x_pred01)
 pred02 = model2.predict(x_pred02)
 
+pred01 = np.argmax(pred01, axis = 1)
+pred02 = np.argmax(pred02, axis = 1)
+
 print(pred01)
 print(pred02)

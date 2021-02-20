@@ -144,7 +144,7 @@ def my_model(drop = 0.5, size = 64):
     output1 = Dense(26, activation = 'softmax')(dense1)
 
     model = Model(inputs = input1, outputs = output1)
-    model.compile(optimizer = Adam(learning_rate = 0.0001), loss = 'categorical_crossentropy', metrics = ['acc'])
+    model.compile(optimizer = SGD(lr=0.001, momentum=0.90, decay=1, nesterov=False), loss = 'categorical_crossentropy', metrics = ['acc'])
     return model
 model = my_model()
 
