@@ -216,7 +216,7 @@ for fold in range(5):
             valid_accuracy.append(np.mean(valid_batch_accuracy))
             
         if np.mean(valid_batch_accuracy)>valid_best_accuracy:
-            torch.save(model.state_dict(), '../data/modelcheckpoint/Computer_Vision2/EfficientNetB5-fold{}.pt'.format(fold))
+            torch.save(model.state_dict(), '../data/modelcheckpoint/Computer_Vision2/EfficientNetB10-fold{}.pt'.format(fold))
             valid_best_accuracy = np.mean(valid_batch_accuracy)
         print('fold : {}\tepoch : {:02d}\ttrain_accuracy / loss : {:.5f} / {:.5f}\tvalid_accuracy / loss : {:.5f} / {:.5f}\ttime : {:.0f}'.format(fold+1, epoch+1,
                                                                                                                                               np.mean(batch_accuracy_list),
@@ -243,7 +243,7 @@ submission = pd.read_csv('../data/csv/Computer_Vision2/sample_submission.csv')
 with torch.no_grad():
     for fold in range(5):
         model = EfficientNet_MultiLabel(in_channels=3).to(device)
-        model.load_state_dict(torch.load('../data/modelcheckpoint/Computer_Vision2/EfficientNetB5-fold{}.pt'.format(fold)))
+        model.load_state_dict(torch.load('../data/modelcheckpoint/Computer_Vision2/EfficientNetB10-fold{}.pt'.format(fold)))
         model.eval()
 
         test_dataset = MnistDataset_v2(imgs = test_imgs, transform=test_transform, train=False)
@@ -258,4 +258,4 @@ with torch.no_grad():
 
 # 제출물 생성
 submission.iloc[:,1:] = np.where(submission.values[:,1:]>=0.5, 1,0)
-submission.to_csv('../data/modelcheckpoint/Computer_Vision2/EfficientNetB0-fold5.csv', index=False)
+submission.to_csv('../data/modelcheckpoint/Computer_Vision2/EfficientNetB0-fold10.csv', index=False)
