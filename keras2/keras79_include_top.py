@@ -7,6 +7,7 @@ model.trainable = False
 model.summary()
 print(len(model.weights))
 print(len(model.trainable_weights))
+# print(model.weights)
 
 #vgg16(include_top = False)
 # Total params: 14,714,688
