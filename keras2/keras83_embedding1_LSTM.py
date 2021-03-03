@@ -26,7 +26,7 @@ print(pad_x.shape)      # (13, 5)
 
 print(np.unique(pad_x))
 print(len(np.unique(pad_x)))
-# [ 0  1  2  3  4  5  6  7  8  9 10 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27] 11이 maxlen으로 인해 잘렸다.
+# [ 0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27]
 # 28
 
 from tensorflow.keras.models import Sequential
