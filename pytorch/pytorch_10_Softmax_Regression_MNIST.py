@@ -24,5 +24,5 @@ if device == 'cuda':
 # hyperparameters
 training_epochs = 15
 batch_size = 100
-
+ 
 # https://wikidocs.net/60324
