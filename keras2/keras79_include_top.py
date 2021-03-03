@@ -9,7 +9,7 @@ print(len(model.weights))
 print(len(model.trainable_weights))
 # print(model.weights)
 
-#vgg16(include_top = False)
+# vgg16(include_top = False)
 # Total params: 14,714,688
 # Trainable params: 0
 # Non-trainable params: 14,714,688
