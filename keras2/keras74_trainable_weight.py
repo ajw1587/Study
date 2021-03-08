@@ -20,5 +20,5 @@ model.summary()
 # print('\n\n')
 # print(model.trainable_weights)
 
-print(len(model.weights))
-print(len(model.trainable_weights))
+# print(len(model.weights))
+# print(len(model.trainable_weights))
