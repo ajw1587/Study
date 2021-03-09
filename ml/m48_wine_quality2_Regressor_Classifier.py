@@ -9,6 +9,8 @@ x = wine.iloc[:, :-1].values
 y = wine.iloc[:, -1].values
 
 # 방법 1
+# https://ponyozzang.tistory.com/291
+
 count_data = wine.groupby('quality')['quality'].count()
 print(count_data)
 # quality

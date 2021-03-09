@@ -10,6 +10,11 @@ import torchvision.transforms as transforms
 import random
 import matplotlib.pyplot as plt
 
+from six.moves import urllib    
+opener = urllib.request.build_opener()
+opener.addheaders = [('User-agent', 'Mozilla/5.0')]
+urllib.request.install_opener(opener)
+
 # GPU 연산
 USE_CUDA = torch.cuda.is_available()
 device = torch.device('cuda' if USE_CUDA else 'cpu')
@@ -32,7 +37,7 @@ mnist_train = dsets.MNIST(root = 'MNIST_data/',
                           download = True)
 # root: 데이터의 경로
 # train: 테스트용 데이터를 가져올지 학습용데이터를 가져올지 표시, True: Train용
-# transform: 에디터의 형태, pytorch의 0~1, (C, H, W)형태로 변경
+# transform: 에디터의 형태, transforms.ToTensor() -> Tensor형태
 # download: True일시 MNIST 데이터가 없으면 다운을 받는다.
 
 mnist_test = dsets.MNIST(root = 'MNIST_data/',
@@ -40,7 +45,7 @@ mnist_test = dsets.MNIST(root = 'MNIST_data/',
                          transform = transforms.ToTensor(),
                          download = True)
 
-data_loader = DataLoader(dataset = minst_train,
+data_loader = DataLoader(dataset = mnist_train,
                          batch_size = batch_size,
                          shuffle = True,
                          drop_last = True)
@@ -48,6 +53,27 @@ data_loader = DataLoader(dataset = minst_train,
 # Model
 linear = nn.Linear(784, 10, bias = True).to(device)     # to()는 어디서 연산을 수행할지
 
-# for i , (images, labels) in enumerate(data_loader):
-#     print(type(images))
-#     print(labels)
+# Cost Function
+criterion = nn.CrossEntropyLoss().to(device)
+optimizer = torch.optim.SGD(linear.parameters(), lr = 0.1)
+
+for epoch in range(training_epochs):
+    avg_cost = 0
+    total_batch = len(data_loader)
+
+    for X, Y in data_loader:
+        # 배치 크기가 100이므로 X의 shape는 (100, 784)
+        x = X.view(-1, 28*28).to(device)
+        y = Y.to(device)
+
+        optimizer.zero_grad()
+        hypothesis = linear(x)
+        cost = criterion(hypothesis, y)
+        cost.backward()
+        optimizer.step()
+
+        avg_cost += cost / total_batch
+    
+    print('Epoch: ', '%04d' % (epoch + 1), 'Cost = ', '{:.9f}'.format(avg_cost))
+
+print('Learning finished')
