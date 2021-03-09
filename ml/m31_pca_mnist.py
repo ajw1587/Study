@@ -25,13 +25,13 @@ cumsum = np.cumsum(pca.explained_variance_ratio_)
 # print('cumsum: ', cumsum)
 
 #########################################cumsum > 0.95
-# d = np.argmax(cumsum >= 0.95) +1
-# print('cumsum >= 0.95: ', cumsum >= 0.95)
-# print('d: ', d)
+d = np.argmax(cumsum >= 0.95) +1
+print('cumsum >= 0.95: ', cumsum >= 0.95)
+print('d: ', d)
 # cumsum >= 0.95 d:  154
 
 #########################################cumsum > 1.0
-d = np.argmax(cumsum >= 1.0) +1
-print('cumsum >= 1.0: ', cumsum >= 1.0)
-print('d: ', d)
+# d = np.argmax(cumsum >= 1.0) +1
+# print('cumsum >= 1.0: ', cumsum >= 1.0)
+# print('d: ', d)
 # cumsum >= 1.0  d:  713
