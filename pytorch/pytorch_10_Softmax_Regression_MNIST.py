@@ -29,7 +29,7 @@ if device == 'cuda':
 # hyperparameters
 training_epochs = 15
 batch_size = 100
- 
+
 # MNIST Dataset
 mnist_train = dsets.MNIST(root = 'MNIST_data/',
                           train = True,
