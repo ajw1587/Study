@@ -10,11 +10,6 @@ from tensorflow.keras.optimizers import Adam
 from sklearn.model_selection import train_test_split
 from tensorflow.keras. callbacks import EarlyStopping, ReduceLROnPlateau
 
-# ResNet50 설정
-resnet50 = ResNet50(weights = 'imagenet', include_top = False, input_shape = (32, 32, 3))
-resnet50.trainable = False
-
-
 # Data
 (x_train, y_train), (x_test, y_test) = cifar10.load_data()
 
@@ -24,6 +19,10 @@ print(x_train.shape)        # (50000, 32, 32, 3)
 print(y_train.shape)        # (50000, 10)
 
 x_train, x_val, y_train, y_val = train_test_split(x_train, y_train, train_size = 0.8, random_state = 77)
+
+# ResNet50 설정
+resnet50 = ResNet50(weights = 'imagenet', include_top = False, input_shape = (32, 32, 3))
+resnet50.trainable = False
 
 model = Sequential()
 model.add(resnet50)

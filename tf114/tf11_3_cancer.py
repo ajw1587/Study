@@ -32,7 +32,7 @@ w = tf.Variable(tf.random_normal([30, 1]), name = 'weight')
 b = tf.Variable(tf.random_normal([1]), name = 'bias')
 
 # 3. Hypothesis, Cost, Optimizer
-hypothesis = tf.sigmoid(tf.matmul(x, w) + b)
+hypothesis = tf.nn.sigmoid(tf.matmul(x, w) + b)
 cost = -tf.reduce_mean(y*tf.log(hypothesis) + (1-y)*tf.log(1-hypothesis))
 
 train = tf.train.AdamOptimizer(learning_rate = 0.001).minimize(cost)

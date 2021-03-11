@@ -51,11 +51,11 @@ data_loader = DataLoader(dataset = mnist_train,
                          drop_last = True)
 
 # Model
-linear = nn.Linear(784, 10, bias = True).to(device)     # to()는 어디서 연산을 수행할지
+hypothesis = nn.Linear(784, 10, bias = True).to(device)     # to()는 어디서 연산을 수행할지
 
 # Cost Function
 criterion = nn.CrossEntropyLoss().to(device)
-optimizer = torch.optim.SGD(linear.parameters(), lr = 0.1)
+optimizer = torch.optim.SGD(hypothesis.parameters(), lr = 0.1)
 
 for epoch in range(training_epochs):
     avg_cost = 0
@@ -67,8 +67,7 @@ for epoch in range(training_epochs):
         y = Y.to(device)
 
         optimizer.zero_grad()
-        hypothesis = linear(x)
-        cost = criterion(hypothesis, y)
+        cost = criterion(hypothesis(x), y)
         cost.backward()
         optimizer.step()
 

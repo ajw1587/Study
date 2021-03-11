@@ -25,7 +25,6 @@ model = nn.Sequential(
 # Cost, Optimizer
 criterion = torch.nn.BCELoss().to(device)
 optimizer = torch.optim.SGD(model.parameters(), lr = 1)
-# from 0.1 to 1
 
 for epoch in range(10001):
     optimizer.zero_grad()
