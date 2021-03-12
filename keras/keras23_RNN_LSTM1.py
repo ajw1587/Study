@@ -15,7 +15,7 @@ from tensorflow.keras.layers import Dense, LSTM
 model = Sequential()
 model.add(LSTM(10, activation = "relu", input_shape = (3, 1)))      # LSTM의 Activation Default값은 tanh
 # Ramda값: 4*(m+n+1)*n
-# -> n = 10, m = 1, 4: Gate 개수, 1: bias
+# -> 4: Gate 개수, n = 10, m = 1, 1: bias
 model.add(Dense(20))
 model.add(Dense(20))
 model.add(Dense(20))

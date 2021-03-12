@@ -1,5 +1,5 @@
 # tensorflow 1버전
-# 즉시 실행 모드
+# 즉시 실행 모드: Session 정의 후 run 유무
 import tensorflow as tf
 # from tensorflow.python.framework.ops import disable_eager_execution
 

@@ -71,5 +71,10 @@ for epoch in range(training_epochs):
     print('Epoch: ', '%04d' %(epoch + 1),
           'cost = {:.9f}'.format(avg_cost))
 prediction = tf.equal(tf.arg_max(hypothesis, 1), tf.argmax(y, 1))
+print('Prediction: ', sess.run(prediction, feed_dict = {x:x_test, y:y_test}))
+
 accuracy = tf.reduce_mean(tf.cast(prediction, tf.float32))
 print('Acc: ', sess.run(accuracy, feed_dict={x:x_test, y:y_test}))
+
+# Prediction:  [False False False ... False False False]
+# Acc:  0.1179
