@@ -24,3 +24,6 @@ print(y_test.shape)         # (10000, 10)
 
 # x, y, w, b
 x = tf.compat.v1.placeholder('float32', [None, 32*32*3])
+y = tf.compat.v1.placeholder('float32', [None, 32*32*3])
+
+w = tf.compat.v1.get_variable('w1', shape = )
