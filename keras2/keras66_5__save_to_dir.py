@@ -32,8 +32,8 @@ xy_train = train_datagen.flow_from_directory(
     '../data/image/brain/train',
     target_size = (150, 150),
     batch_size = 2,                 # 가져올 이미지의 수
-    class_mode = 'binary'            # 파일단위로 y값을 나뉜다.
-    # , save_to_dir = '../data/image/brain_generator/train'
+    class_mode = 'binary'           # 파일단위로 y값을 나뉜다.
+    , save_to_dir = '../data/image/brain_generator/train'
 )
 
 ''' 생성된 이미지 확인하기
