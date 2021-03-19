@@ -2,6 +2,10 @@ import numpy as np
 import cv2 as cv
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
+x_train = np.load('../data/lotte/train_x(256,256).npy')
+y_train = np.load('../data/lotte/train_y(256,256).npy')
+
+
 image_gen = ImageDataGenerator(
     rescale = 1./255,
     width_shift_range = 0.1,
@@ -9,23 +13,15 @@ image_gen = ImageDataGenerator(
     zoom_range = 0.1
 )
 
-train_dataset = image_gen.flow_from_directory(
-    '../data/lotte/train',
-    target_size = (150, 150),
-    batch_size = 48000,
-    class_mode = 'categorical',
-    shuffle = True,
-    seed = 77
-    # save_to_dir = '../data/lotte/0'
-)
+train_dataset = image_gen.flow(x_train,
+                               y_train,
+                               batch_size = 48000,
+                               shuffle = True,
+                               seed = 77)
 
-print(train_dataset[0][0].shape)
-print(type(train_dataset[0][0]))
-print(train_dataset[0][1].shape)
-print(type(train_dataset[0][1]))
 
-np.save('../data/lotte/train_aug_x.npy', arr = train_dataset[0][0])
-np.save('../data/lotte/train_aug_y.npy', arr = train_dataset[0][1])
+np.save('../data/lotte/train_aug_x(256,256).npy', arr = train_dataset[0][0])
+np.save('../data/lotte/train_aug_y(256,256).npy', arr = train_dataset[0][1])
 
 # 이미지 자체를 저장하는 방법, categorical은 for문을 돌린다.
 # i = 0
@@ -40,4 +36,3 @@ np.save('../data/lotte/train_aug_y.npy', arr = train_dataset[0][1])
 #     print(i)
 #     if i > 999:
 #         break
-
