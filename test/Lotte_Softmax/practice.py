@@ -28,10 +28,9 @@ import numpy as np
 
 # plt.show()
 
-x_train = np.load('../data/lotte/train_x(256,256).npy')
-y_train = np.load('../data/lotte/train_y(256,256).npy')
-x_predict = np.load('../data/lotte/predict_x(256,256).npy')
+x_train = np.load('../data/lotte/lotte_data/train_x(128,128)_aug.npy')
+y_train = np.load('../data/lotte/lotte_data/train_y(128,128)_aug.npy')
+# x_predict = np.load('../data/lotte/predict_x(256,256).npy')
 
-print(x_train.shape)
-print(y_train.shape)
-print(x_predict.shape)
+# print(x_train[:10, :])
+print(np.argmax(y_train, axis = 1))

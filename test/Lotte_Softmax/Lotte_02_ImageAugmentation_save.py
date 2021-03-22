@@ -2,8 +2,8 @@ import numpy as np
 import cv2 as cv
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
-x_train = np.load('../data/lotte/train_x(256,256).npy')
-y_train = np.load('../data/lotte/train_y(256,256).npy')
+x_train = np.load('../data/lotte/lotte_data/train_x(256,256).npy')
+y_train = np.load('../data/lotte/lotte_data/train_y(256,256).npy')
 
 
 image_gen = ImageDataGenerator(
@@ -20,8 +20,8 @@ train_dataset = image_gen.flow(x_train,
                                seed = 77)
 
 
-np.save('../data/lotte/train_aug_x(256,256).npy', arr = train_dataset[0][0])
-np.save('../data/lotte/train_aug_y(256,256).npy', arr = train_dataset[0][1])
+np.save('../data/lotte/lotte_data/train_x(256,256)_aug.npy', arr = train_dataset[0][0])
+np.save('../data/lotte/lotte_data/train_y(256,256)_aug.npy', arr = train_dataset[0][1])
 
 # 이미지 자체를 저장하는 방법, categorical은 for문을 돌린다.
 # i = 0
