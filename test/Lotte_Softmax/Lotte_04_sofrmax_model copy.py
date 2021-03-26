@@ -14,7 +14,7 @@ from keras.callbacks import EarlyStopping, ModelCheckpoint
 from keras.optimizers import Adam
 from sklearn.model_selection import train_test_split
 from keras.callbacks import ReduceLROnPlateau
-
+from keras.preprocessing.image import ImageDataGenerator
 
 #########데이터 로드
 x = np.load("../data/lotte/lotte_data/train_x(192,192).npy")
@@ -24,8 +24,28 @@ print(x.shape)
 print(y.shape)
 
 
-from sklearn.model_selection import train_test_split
-x_train, x_val, y_train, y_val = train_test_split(x, y, train_size= 0.8, shuffle=True, random_state=66)
+
+
+idg = ImageDataGenerator(
+    # rotation_range=10, acc 하락
+    width_shift_range=(-1,1),  
+    height_shift_range=(-1,1), 
+    rotation_range=40, 
+    # shear_range=0.2)    # 현상유지
+    zoom_range=0.2,
+    horizontal_flip=True,
+    fill_mode='nearest')
+
+idg2 = ImageDataGenerator()
+
+x_train, x_val, y_train, y_val = train_test_split(x,y, train_size = 0.8, shuffle = True, random_state=66)
+
+train_generator = idg.flow(x_train,y_train,batch_size=32, seed = 2048)
+# seed => random_state
+valid_generator = idg2.flow(x_val,y_val)
+# test_generator = idg2.flow(x_pred)
+
+
 
 inputs = Input(shape = (192, 192, 3))
 x = Conv2D(256, 4, padding="SAME", activation='relu')(inputs)
@@ -64,7 +84,7 @@ optimizer = Adam(lr=0.001)
 model.compile(loss='categorical_crossentropy', optimizer=optimizer, metrics=['accuracy'])
 from tensorflow.keras.callbacks import EarlyStopping, ReduceLROnPlateau, ModelCheckpoint
 es = EarlyStopping(monitor='val_loss', patience=30, mode='min')
-file_path = '../data/lotte/model/Lotte_model_04.hdf5'
+file_path = '../data/lotte/model/Lotte_model_04+aug.hdf5'
 mc = ModelCheckpoint(file_path, monitor='val_accuracy',save_best_only=True,mode='max',verbose=1)
 rl = ReduceLROnPlateau(monitor='val_loss',factor=0.3,patience=15,verbose=1,mode='min')
 model.fit(x_train, y_train, batch_size=16, epochs=200, validation_data=(x_val, y_val),callbacks=[es,mc,rl])
@@ -73,7 +93,7 @@ from sklearn.metrics import r2_score
 loss, acc = model.evaluate(x_val, y_val)
 
 
-model = load_model('../data/lotte/model/Lotte_model_04.hdf5')
+model = load_model('../data/lotte/model/Lotte_model_04+aug.hdf5')
 x_pred = np.load('../data/lotte/lotte_data/predict_x(192,192).npy')
 
 result = model.predict(x_pred)
@@ -84,6 +104,6 @@ import pandas as pd
 submission = pd.read_csv('../data/lotte/sample.csv')
 submission['prediction'] = result.argmax(1)
 
-submission.to_csv('../data/lotte/result/sample_04.csv', index=False)
+submission.to_csv('../data/lotte/result/sample_04+aug.csv', index=False)
 
 # 63.292
