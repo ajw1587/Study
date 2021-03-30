@@ -60,14 +60,14 @@ def generate_hangul_images(label_file, fonts_dir, output_dir):
 
         for font in fonts:
             total_count += 1
-            image = Image.new('L', (IMAGE_WIDTH, IMAGE_HEIGHT), color=0)
+            image = Image.new('L', (IMAGE_WIDTH, IMAGE_HEIGHT), color=255)
             font = ImageFont.truetype(font, 48)
             drawing = ImageDraw.Draw(image)
             w, h = drawing.textsize(character, font=font)
             drawing.text(
                 ((IMAGE_WIDTH-w)/2, (IMAGE_HEIGHT-h)/2),
                 character,
-                fill=(255),
+                fill=(0),
                 font=font
             )
             file_string = 'hangul_{}.jpeg'.format(total_count)
@@ -131,3 +131,15 @@ if __name__ == '__main__':
                              'label CSV file.')
     args = parser.parse_args()
     generate_hangul_images(args.label_file, args.fonts_dir, args.output_dir)
+
+# DEFAULT_LABEL_FILE = os.path.join(SCRIPT_PATH,
+#                                   '../labels/2350-common-hangul.txt')
+# DEFAULT_FONTS_DIR = os.path.join(SCRIPT_PATH, '../fonts')
+# DEFAULT_OUTPUT_DIR = os.path.join(SCRIPT_PATH, 'C:/Users/Admin/Desktop/image-data')
+# # C:\Users\Admin\Desktop\image-data
+# # Number of random distortion images to generate per font and character.
+# DISTORTION_COUNT = 3
+
+# # Width and height of the resulting image.
+# IMAGE_WIDTH = 64
+# IMAGE_HEIGHT = 64
