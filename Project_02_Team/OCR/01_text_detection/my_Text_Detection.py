@@ -89,20 +89,19 @@ def Word_Split(line_img, line_idx):
             word_idx.append(i)
             sign = False
 
-    print(len(word_idx))
+    # print(len(word_idx))
     word_img = []
     for k in range(0, len(word_idx), 2):
-        word_img.append(img[line_idx[0]: line_idx[1],
-                            word_idx[k]: word_idx[k + 1]])
+        word_img.append(img[line_idx[k]: line_idx[k + 1], word_idx[k]: word_idx[k + 1]])
         # cv.imshow('image', img[line_idx[0] : line_idx[1] , word_idx[k]: word_idx[k + 1]])
         # cv.waitKey(0)
         # cv.destroyAllWindows()
         print(word_idx[k])
-    return word_img, word_idx
+    return word_img
 
-line_img, line_idx = Line_Split(img2)
-print(np.array(line_img).shape)   # (19,)
-print(np.array(line_idx).shape)   # (38,)
+# line_img, line_idx = Line_Split(img2)
+# print(np.array(line_img).shape)   # (19,)
+# print(np.array(line_idx).shape)   # (38,)
 # for k, line_img in np.enumerate(line_img):
 #     word_img, word_idx = Word_Split(line_img, line_idx[k])
 #     for i in range(0, len(line_idx), 2):
