@@ -60,6 +60,8 @@ def Line_Split(gray_img):
 def Word_Split(line_img, line_idx, num): # line_img: numpy
     word_sum = line_img.sum(axis=0)
     word_idx = []
+
+    Word_Histogram(line_img)
     # print(type(line_idx))
     # print(line_idx)
     sign = False        # True: 추출중, False: 0인 지점
@@ -135,10 +137,38 @@ def Word_Split(line_img, line_idx, num): # line_img: numpy
         distance = math.sqrt((text_center_loc[i + 2] - text_center_loc[i])**2 + (text_center_loc[i + 3] - text_center_loc[i + 1])**2)
         distance_list.append(distance)
         dis_avg = sum(distance_list)/len(distance_list)
-    # print(distance_list)
-    print(np.array(text_center_loc).shape)
-    print(np.array(distance_list).shape)
-    # print(dis_avg)
+    print(distance_list)
+    # print(np.array(text_center_loc).shape)
+    # print(np.array(distance_list).shape)
+    print(dis_avg * 0.65)
+
+    # 2. '가' -> 'ㄱ' 'ㅏ'로 나오는 현상 없애주기: 각 글자의 중심값을 계산하여 이어주기
+    center_list = []
+    del_list = []
+    sign = True
+    for i in range(0, len(word_idx) - 2, 2):
+        # a = (word_idx[i + 1] + word_idx[i])/2
+        # b = (word_idx[i + 3] + word_idx[i + 2])/2
+        # # print(a)
+        # # print(b)
+        # c_subtract = b - a
+        # center_list.append(c_subtract)
+        distance = math.sqrt((text_center_loc[i + 2] - text_center_loc[i])**2 + (text_center_loc[i + 3] - text_center_loc[i + 1])**2)
+        if distance <= (dis_avg*0.2):
+            continue
+        if distance <= (dis_avg*0.68) and sign == True:    # and c_subtract > 25
+            del_list.append(word_idx[i + 1])
+            del_list.append(word_idx[i + 2])
+            sign = False
+        else:
+            sign = True
+
+
+    print(np.array(word_idx).shape)
+    for j in range(0, len(del_list), 2):
+        word_idx.remove(del_list[j])
+        word_idx.remove(del_list[j + 1])
+
 
 
     # 확인
@@ -148,12 +178,12 @@ def Word_Split(line_img, line_idx, num): # line_img: numpy
     #     cv.destroyAllWindows()
 
     word_img = []
-    # for k in range(0, len(word_idx), 2):
-    #     word_img.append(img[line_idx[0]: line_idx[1], word_idx[k]: word_idx[k + 1]])
-    #     cv.imwrite('F:/Team Project/Image_data/test_picture/test' + str(num) + '_' + str(k) + '.png', img[line_idx[0]: line_idx[1], word_idx[k]: word_idx[k + 1]])
-    #     cv.imshow('image', img[line_idx[0] : line_idx[1] , word_idx[k]: word_idx[k + 1]])
-    #     cv.waitKey(0)
-    #     cv.destroyAllWindows()
+    for k in range(0, len(word_idx), 2):
+        word_img.append(img[line_idx[0]: line_idx[1], word_idx[k]: word_idx[k + 1]])
+        # cv.imwrite('F:/Team Project/Image_data/test_picture/test' + str(num) + '_' + str(k) + '.png', img[line_idx[0]: line_idx[1], word_idx[k]: word_idx[k + 1]])
+        cv.imshow('image', img[line_idx[0] : line_idx[1] , word_idx[k]: word_idx[k + 1]])
+        cv.waitKey(0)
+        cv.destroyAllWindows()
     return word_img
 
 
@@ -178,13 +208,13 @@ kernel = np.ones((2, 2), np.uint8)
 img2 = cv.erode(img2, kernel, iterations=1)
 # print(img2.shape)   # (2400, 1080)
 # print(img2)
-# cv.imshow('img', img2)
-# cv.waitKey(0)
-# cv.destroyAllWindows()
+cv.imshow('img', img2)
+cv.waitKey(0)
+cv.destroyAllWindows()
 
-# Line_Histogram(img2)
+Line_Histogram(img2)
 line_img, line_idx = Line_Split(img2)
 
-word_img = Word_Split(line_img[0], line_idx[0 : 2], 0)
-# for i in range(len(line_img)):
-#     word_img = Word_Split(line_img[i], line_idx[i * 2 : i * 2 + 2], i)
+# word_img = Word_Split(line_img[0], line_idx[0 : 2], 0)
+for i in range(len(line_img)):
+    word_img = Word_Split(line_img[i], line_idx[i * 2 : i * 2 + 2], i)

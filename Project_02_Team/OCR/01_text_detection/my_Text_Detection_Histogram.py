@@ -110,32 +110,33 @@ def Word_Split(line_img, line_idx, num): # line_img: numpy
     print(word_idx)
 
     # 2. '가' -> 'ㄱ' 'ㅏ'로 나오는 현상 없애주기: 각 글자의 중심값을 계산하여 이어주기
-    # # [176, 240, 241, 307, 313, 369, 380, 422, 423, 434, 446, 499, 543, 602, 608, 671, 678, 679, 680, 731, 746, 779, 781, 808, 840, 904, 911, 961] 
-    # # (1, 2), (3, 4), (5, 6)... 중심값 거리 비교 (Center_Value)
-    # center_list = []
-    # del_list = []
-    # for i in range(0, len(word_idx) - 2, 2):
-    #     a = (word_idx[i + 1] + word_idx[i])/2
-    #     b = (word_idx[i + 3] + word_idx[i + 2])/2
-    #     # print(a)
-    #     # print(b)
-    #     c_subtract = b - a
-    #     center_list.append(c_subtract)
-    #     if c_subtract <= 35:    # and c_subtract > 25
-    #         del_list.append(word_idx[i + 1])
-    #         del_list.append(word_idx[i + 2])
-    # print(center_list)
-    # for j in range(0, len(del_list), 2):
-    #     word_idx.remove(del_list[j])
-    #     word_idx.remove(del_list[j + 1])
-    # # [66.0, 67.0, 60.0, 27.5, 44.0, 100.0, 67.0, 66.0, 57.0, 32.0, 77.5, 64.0]
-    # # [67.5, 42.0]
-    # # [65.5, 67.5, 66.5, 110.5, 28.0, 43.0, 27.0, 48.0, 116.5, 70.0, 68.0, 42.0]
-    # # [10.0, 41.0, 68.0, 90.5, 68.0, 43.0, 67.5, 68.5, 64.5, 45.5, 20.5, 10.0]
-    # # ...
-    # # 35 미만의 거리를 가지면 하나의 글자이다.
-    # # ,.'" 기호때문에 이상 발생한다.
-    # # 다른 방법을 생각해보자
+    # [176, 240, 241, 307, 313, 369, 380, 422, 423, 434, 446, 499, 543, 602, 608, 671, 678, 679, 680, 731, 746, 779, 781, 808, 840, 904, 911, 961] 
+    # (1, 2), (3, 4), (5, 6)... 중심값 거리 비교 (Center_Value)
+    center_list = []
+    del_list = []
+    for i in range(0, len(word_idx) - 2, 2):
+        a = (word_idx[i + 1] + word_idx[i])/2
+        b = (word_idx[i + 3] + word_idx[i + 2])/2
+        # print(a)
+        # print(b)
+        c_subtract = b - a
+        center_list.append(c_subtract)
+        if c_subtract <= 35:    # and c_subtract > 25
+            del_list.append(word_idx[i + 1])
+            del_list.append(word_idx[i + 2])
+    print(np.array(word_idx).shape)
+    print(np.array(center_list).shape)
+    for j in range(0, len(del_list), 2):
+        word_idx.remove(del_list[j])
+        word_idx.remove(del_list[j + 1])
+    # [66.0, 67.0, 60.0, 27.5, 44.0, 100.0, 67.0, 66.0, 57.0, 32.0, 77.5, 64.0]
+    # [67.5, 42.0]
+    # [65.5, 67.5, 66.5, 110.5, 28.0, 43.0, 27.0, 48.0, 116.5, 70.0, 68.0, 42.0]
+    # [10.0, 41.0, 68.0, 90.5, 68.0, 43.0, 67.5, 68.5, 64.5, 45.5, 20.5, 10.0]
+    # ...
+    # 35 미만의 거리를 가지면 하나의 글자이다.
+    # ,.'" 기호때문에 이상 발생한다.
+    # 다른 방법을 생각해보자
 
     word_img = []
     # print(word_idx)
