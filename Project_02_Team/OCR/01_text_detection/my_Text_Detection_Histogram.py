@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 # 'F:/Team Project/Image_data/02.jpg'
 # 'F:/Team Project/Image_data/03.png'
 # 'F:/Team Project/Image_data/ex04.png'
-img = cv.imread('F:/Team Project/Image_data/01.jpg', cv.IMREAD_COLOR)
+img = cv.imread('F:/Team Project/OCR/Text_detection/Image_data/0011.jpg', cv.IMREAD_COLOR)
 img2 = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
 img2 = cv.bitwise_not(img2)
 img2 = np.where(img2 < 50, 0, 255)
@@ -62,7 +62,7 @@ def Line_Split(gray_img):
             line_idx.append(i)
             sign = True
         else:   # sign == True
-            if i == line_sum.shape[0]-1:
+            if i == line_sum.shape[0]-1:    # 마지막 pixel이 0이 아닐때 생기는 오류 방지
                 line_idx.append(i -1)
                 break
             if line_sum[i] != 0:
