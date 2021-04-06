@@ -1,0 +1,4 @@
+﻿  iNode.c
+SingleLinkedList.obj : error LNK2005: _viewNode이(가) iNode.obj에 이미 정의되어 있습니다.
+MSVCRTD.lib(exe_main.obj) : error LNK2019: _main 외부 기호(참조 위치: "int __cdecl invoke_main(void)" (?invoke_main@@YAHXZ) 함수)에서 확인하지 못했습니다.
+C:\Users\ajw15\OneDrive\바탕 화면\자료구조\자료구조\자료구조\Debug\SingleLinkedList.exe : fatal error LNK1120: 1개의 확인할 수 없는 외부 참조입니다.

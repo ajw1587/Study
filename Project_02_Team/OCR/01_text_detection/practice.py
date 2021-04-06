@@ -131,12 +131,12 @@ def Word_Split(line_img, line_idx, num): # line_img: numpy
     # Text끼리의 중심값 거리
     distance_list = []
     dis_avg = 0
-    for i in range(0, len(word_idx), 2):
+    for i in range(0, len(word_idx) - 2, 2):
         distance = math.sqrt((text_center_loc[i + 2] - text_center_loc[i])**2 + (text_center_loc[i + 3] - text_center_loc[i + 1])**2)
         distance_list.append(distance)
         dis_avg = sum(distance_list)/len(distance_list)
     # print(distance_list)
-    print(np.array(word_idx).shape)
+    print(np.array(text_center_loc).shape)
     print(np.array(distance_list).shape)
     # print(dis_avg)
 

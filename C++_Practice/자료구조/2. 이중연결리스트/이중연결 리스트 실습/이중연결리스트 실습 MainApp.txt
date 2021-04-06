@@ -1,0 +1,10 @@
+#include "myList.h"
+
+int main() {
+	list* book = initList("../resource/°ñµç¸ÞÀÌÁö01.txt");
+	setList(book);
+	viewList(book);
+
+
+	return 0;
+}
