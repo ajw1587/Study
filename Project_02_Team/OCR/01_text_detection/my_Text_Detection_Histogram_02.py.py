@@ -57,7 +57,7 @@ def Line_Split(gray_img):
     return line_img, line_idx
 
 # Word Split
-def Word_Split(line_img, line_idx, num): # line_img: numpy
+def Word_Split(line_img, line_idx, num, avg_distance): # line_img: numpy
     word_sum = line_img.sum(axis=0)
     word_idx = []
 
@@ -136,14 +136,13 @@ def Word_Split(line_img, line_idx, num): # line_img: numpy
     for i in range(0, len(word_idx) - 2, 2):
         distance = math.sqrt((text_center_loc[i + 2] - text_center_loc[i])**2 + (text_center_loc[i + 3] - text_center_loc[i + 1])**2)
         distance_list.append(distance)
-        dis_avg = sum(distance_list)/len(distance_list)
+        # dis_avg = sum(distance_list)/len(distance_list)
     print(distance_list)
     # print(np.array(text_center_loc).shape)
     # print(np.array(distance_list).shape)
-    print(dis_avg * 0.65)
 
-    # 2. '가' -> 'ㄱ' 'ㅏ'로 나오는 현상 없애주기: 각 글자의 중심값을 계산하여 이어주기
-    center_list = []
+    # # 2. '가' -> 'ㄱ' 'ㅏ'로 나오는 현상 없애주기: 각 글자의 중심값을 계산하여 이어주기
+    # center_list = []
     del_list = []
     sign = True
     for i in range(0, len(word_idx) - 2, 2):
@@ -153,10 +152,11 @@ def Word_Split(line_img, line_idx, num): # line_img: numpy
         # # print(b)
         # c_subtract = b - a
         # center_list.append(c_subtract)
+        
         distance = math.sqrt((text_center_loc[i + 2] - text_center_loc[i])**2 + (text_center_loc[i + 3] - text_center_loc[i + 1])**2)
-        if distance <= (dis_avg*0.2):
+        if distance <= (avg_distance*0.2):
             continue
-        if distance <= (dis_avg*0.68) and sign == True:    # and c_subtract > 25
+        if distance <= (avg_distance*0.68) and sign == True:    # and c_subtract > 25
             del_list.append(word_idx[i + 1])
             del_list.append(word_idx[i + 2])
             sign = False
@@ -186,8 +186,88 @@ def Word_Split(line_img, line_idx, num): # line_img: numpy
         cv.destroyAllWindows()
     return word_img
 
+# Center distance
+def Center_Distance(line_img, line_idx): # line_img: numpy
+    word_sum = line_img.sum(axis=0)
+    word_idx = []
+
+    # Word_Histogram(line_img)
+    # print(type(line_idx))
+    # print(line_idx)
+    sign = False        # True: 추출중, False: 0인 지점
+    for i in range(word_sum.shape[0]):
+        if sign == False:
+            if word_sum[i] == 0:
+                continue
+            word_idx.append(i)
+            sign = True
+        else:   # sign == True
+            if word_sum[i] != 0:
+                continue
+            word_idx.append(i)
+            sign = False
+
+    # 1. 필요없는 작은 문자(1 Pixel) 지워주기: 왜 생기는지는 모르겠다. 위 erode로 인해 생기는것 같다.
+    del_list = []
+    for i in range(0, len(word_idx), 2):
+        diff = word_idx[i+1] - word_idx[i]
+        if diff == 1:
+            del_list.append(word_idx[i])
+            del_list.append(word_idx[i + 1])
+    # print(del_list)
+    for j in range(0, len(del_list), 2):
+        word_idx.remove(del_list[j])
+        word_idx.remove(del_list[j + 1])
+    # print(word_idx)
 
 
+
+    # 2. '가' -> 'ㄱ' 'ㅏ'로 나오는 현상 없애주기: 각 글자의 중심값을 계산하여 이어주기
+    # 글자 하나하나의 중심값 찾아주기
+    # line_idx: 하나의 line
+    # word_idx: 한 line내 글자들의 위치
+    # img2[line_idx[0]: line_idx[1], word_idx[i]: word_idx[i + 1]]
+
+    # 글자 이미지 잘라주기 -> 위의 잘라준 글자 이미지는 높이가 똑같다. 그래서 글자 자체의 높이를 구한다.
+    wline_idx = []
+    for i in range(0, len(word_idx), 2):
+        wline_sum = img2[line_idx[0]: line_idx[1], word_idx[i]: word_idx[i + 1]].sum(axis = 1)
+        box = []
+        sign = False        # True: 추출중, False: 0인 지점
+        for i in range(wline_sum.shape[0]):
+            if sign == False:
+                if wline_sum[i] == 0:
+                    continue
+                box.append(i)
+                sign = True
+            else:   # sign == True
+                if i == wline_sum.shape[0]-1:    # 마지막 pixel이 0이 아닐때 생기는 오류 방지
+                    box.append(i -1)
+                    break
+                if wline_sum[i] != 0:
+                    continue
+                box.append(i)
+                sign = False
+        wline_idx.append(box[0])
+        wline_idx.append(box[-1])
+    # print(wline_idx)
+
+    # 이미지의 중심값
+    text_center_loc = []
+    for i in range(0, len(word_idx), 2):
+        x_center_loc = word_idx[i] + (word_idx[i + 1] - word_idx[i]) / 2
+        y_center_loc = wline_idx[i] + (wline_idx[i] - wline_idx[i + 1]) / 2
+        text_center_loc.append(x_center_loc)
+        text_center_loc.append(y_center_loc)
+    
+    # Text끼리의 중심값 거리
+    distance_list = []
+    dis_avg = 0
+    for i in range(0, len(word_idx) - 2, 2):
+        distance = math.sqrt((text_center_loc[i + 2] - text_center_loc[i])**2 + (text_center_loc[i + 3] - text_center_loc[i + 1])**2)
+        distance_list.append(distance)
+        dis_avg = sum(distance_list)/len(distance_list)
+    return dis_avg
 
 # 적용
 # 'F:/Team Project/OCR/Text_detection/Image_data/01.jpg'
@@ -198,23 +278,29 @@ def Word_Split(line_img, line_idx, num): # line_img: numpy
 # 'F:/Team Project/OCR/Text_detection/Image_data/02.jpg'
 # 'F:/Team Project/OCR/Text_detection/Image_data/03.png'
 # 'F:/Team Project/OCR/Text_detection/Image_data/ex04.png'
-img = cv.imread('F:/Team Project/OCR/Text_detection/Image_data/0014.jpg', cv.IMREAD_COLOR)
+img = cv.imread('F:/Team Project/OCR/Text_detection/Image_data/0015.png', cv.IMREAD_COLOR)
 img2 = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
 img2 = cv.bitwise_not(img2)
-img2 = np.where(img2 < 50, 0, 255)
+img2 = np.where(img2 < 30, 0, 255)
 img2 = img2/255.
-# pixel값 줄여주기 = 겹치는 글자를 최소화 해주기 위해
-kernel = np.ones((2, 2), np.uint8)
-img2 = cv.erode(img2, kernel, iterations=1)
+# kernel = np.ones((2, 2), np.uint8)
+# img2 = cv.erode(img2, kernel, iterations=1)
 # print(img2.shape)   # (2400, 1080)
 # print(img2)
-cv.imshow('img', img2)
-cv.waitKey(0)
-cv.destroyAllWindows()
+# cv.imshow('img', img2)
+# cv.waitKey(0)
+# cv.destroyAllWindows()
 
 Line_Histogram(img2)
 line_img, line_idx = Line_Split(img2)
 
+# Center_Distance
+dis_avg = []
+for i in range(len(line_img)):
+    dis_avg.append(Center_Distance(line_img[i], line_idx[i * 2 : i * 2 + 2]))
+Dis_Avg = sum(dis_avg)/len(dis_avg)
+print(Dis_Avg)
+
 # word_img = Word_Split(line_img[0], line_idx[0 : 2], 0)
 for i in range(len(line_img)):
-    word_img = Word_Split(line_img[i], line_idx[i * 2 : i * 2 + 2], i)
+    word_img = Word_Split(line_img[i], line_idx[i * 2 : i * 2 + 2], i, Dis_Avg)
