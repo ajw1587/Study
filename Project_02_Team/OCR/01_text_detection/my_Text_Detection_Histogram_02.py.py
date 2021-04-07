@@ -288,3 +288,7 @@ print(Dis_Avg)
 # word_img = Word_Split(line_img[0], line_idx[0 : 2], 0)
 for i in range(len(line_img)):
     word_img = Word_Split(line_img[i], line_idx[i * 2 : i * 2 + 2], i, Dis_Avg)
+
+# 현재 코드의 문제점
+# '(', ')' 추출 못함...
+# 해결방안: 글자의 가로 길이의 평균을 구한후 길이가 평균의 몇 % 보다 작거나 크면 글자간 Combine Pass
