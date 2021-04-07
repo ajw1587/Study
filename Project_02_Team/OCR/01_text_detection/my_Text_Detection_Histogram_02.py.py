@@ -20,9 +20,6 @@ def Line_Histogram(gray_img):
 def Word_Histogram(Line_img):
     word_sum = Line_img.sum(axis=0)
     word_label = np.arange(0, Line_img.shape[1])
-    # print(np.max(word_sum))
-    # print(word_sum.shape)
-    # print(word_label.shape)
 
     plt.figure(figsize=(10, 5))
     plt.bar(word_label, word_sum)
@@ -59,12 +56,8 @@ def Line_Split(gray_img):
 # Word Split
 def Word_Split(line_img, line_idx, num, avg_distance): # line_img: numpy
     word_sum = line_img.sum(axis=0)
-    word_idx = []
-
-    Word_Histogram(line_img)
-    # print(type(line_idx))
-    # print(line_idx)
-    sign = False        # True: 추출중, False: 0인 지점
+    word_idx = []    
+    sign = False                                                                     # True: 추출중, False: 0인 지점
     for i in range(word_sum.shape[0]):
         if sign == False:
             if word_sum[i] == 0:
@@ -136,23 +129,14 @@ def Word_Split(line_img, line_idx, num, avg_distance): # line_img: numpy
     for i in range(0, len(word_idx) - 2, 2):
         distance = math.sqrt((text_center_loc[i + 2] - text_center_loc[i])**2 + (text_center_loc[i + 3] - text_center_loc[i + 1])**2)
         distance_list.append(distance)
-        # dis_avg = sum(distance_list)/len(distance_list)
     print(distance_list)
     # print(np.array(text_center_loc).shape)
     # print(np.array(distance_list).shape)
 
     # # 2. '가' -> 'ㄱ' 'ㅏ'로 나오는 현상 없애주기: 각 글자의 중심값을 계산하여 이어주기
-    # center_list = []
     del_list = []
     sign = True
     for i in range(0, len(word_idx) - 2, 2):
-        # a = (word_idx[i + 1] + word_idx[i])/2
-        # b = (word_idx[i + 3] + word_idx[i + 2])/2
-        # # print(a)
-        # # print(b)
-        # c_subtract = b - a
-        # center_list.append(c_subtract)
-        
         distance = math.sqrt((text_center_loc[i + 2] - text_center_loc[i])**2 + (text_center_loc[i + 3] - text_center_loc[i + 1])**2)
         if distance <= (avg_distance*0.2):
             continue
@@ -180,8 +164,10 @@ def Word_Split(line_img, line_idx, num, avg_distance): # line_img: numpy
     word_img = []
     for k in range(0, len(word_idx), 2):
         word_img.append(img[line_idx[0]: line_idx[1], word_idx[k]: word_idx[k + 1]])
-        # cv.imwrite('F:/Team Project/Image_data/test_picture/test' + str(num) + '_' + str(k) + '.png', img[line_idx[0]: line_idx[1], word_idx[k]: word_idx[k + 1]])
-        cv.imshow('image', img[line_idx[0] : line_idx[1] , word_idx[k]: word_idx[k + 1]])
+        cv.imwrite('F:/Team Project/Image_data/test_picture/test' + str(num) + '_' + str(k) + '.png', img[line_idx[0]: line_idx[1], word_idx[k]: word_idx[k + 1]])
+        word = img[line_idx[0] : line_idx[1] , word_idx[k]: word_idx[k + 1]]
+        # word = cv.resize(word, dsize = (64, 64))
+        cv.imshow('image', word)
         cv.waitKey(0)
         cv.destroyAllWindows()
     return word_img
@@ -191,9 +177,6 @@ def Center_Distance(line_img, line_idx): # line_img: numpy
     word_sum = line_img.sum(axis=0)
     word_idx = []
 
-    # Word_Histogram(line_img)
-    # print(type(line_idx))
-    # print(line_idx)
     sign = False        # True: 추출중, False: 0인 지점
     for i in range(word_sum.shape[0]):
         if sign == False:
@@ -219,7 +202,6 @@ def Center_Distance(line_img, line_idx): # line_img: numpy
         word_idx.remove(del_list[j])
         word_idx.remove(del_list[j + 1])
     # print(word_idx)
-
 
 
     # 2. '가' -> 'ㄱ' 'ㅏ'로 나오는 현상 없애주기: 각 글자의 중심값을 계산하여 이어주기
@@ -278,13 +260,15 @@ def Center_Distance(line_img, line_idx): # line_img: numpy
 # 'F:/Team Project/OCR/Text_detection/Image_data/02.jpg'
 # 'F:/Team Project/OCR/Text_detection/Image_data/03.png'
 # 'F:/Team Project/OCR/Text_detection/Image_data/ex04.png'
-img = cv.imread('F:/Team Project/OCR/Text_detection/Image_data/0015.png', cv.IMREAD_COLOR)
+img = cv.imread('F:/Team Project/OCR/Text_detection/Image_data/01.jpg', cv.IMREAD_COLOR)
 img2 = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
 img2 = cv.bitwise_not(img2)
-img2 = np.where(img2 < 30, 0, 255)
+img2 = np.where(img2 < 50, 0, 255)
 img2 = img2/255.
-# kernel = np.ones((2, 2), np.uint8)
-# img2 = cv.erode(img2, kernel, iterations=1)
+
+
+kernel = np.ones((2, 2), np.uint8)
+img2 = cv.erode(img2, kernel, iterations=1)
 # print(img2.shape)   # (2400, 1080)
 # print(img2)
 # cv.imshow('img', img2)
