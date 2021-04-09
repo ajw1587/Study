@@ -21,7 +21,7 @@ DEFAULT_FONTS_DIR = os.path.join(SCRIPT_PATH, 'C:/Study/Project_02_Team/OCR/tens
 DEFAULT_OUTPUT_DIR = os.path.join(SCRIPT_PATH, 'F:/Team Project/OCR/Image_to_Text_model/image-data/my_hangul_images')
 # C:\Users\Admin\Desktop\image-data
 # Number of random distortion images to generate per font and character.
-DISTORTION_COUNT = 1
+DISTORTION_COUNT = 0
 
 # Width and height of the resulting image.
 IMAGE_WIDTH = 64

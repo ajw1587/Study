@@ -19,10 +19,10 @@ SCRIPT_PATH = os.path.dirname(os.path.abspath(__file__))
 # '../labels/2350-common-hangul.txt'
 DEFAULT_LABEL_FILE = os.path.join(SCRIPT_PATH, 'C:/Study/Project_02_Team/OCR/tensorflow-hangul-recognition-master/labels/2350-common-hangul-2.txt')
 DEFAULT_FONTS_DIR = os.path.join(SCRIPT_PATH, 'C:/Study/Project_02_Team/OCR/tensorflow-hangul-recognition-master/fonts')
-DEFAULT_OUTPUT_DIR = os.path.join(SCRIPT_PATH, 'F:/Team Project/OCR/Image_to_Text_model/image-data/my_hangul_images')
+DEFAULT_OUTPUT_DIR = os.path.join(SCRIPT_PATH, 'F:/Team Project/OCR/02_Image_to_Text_model/image-data/my_hangul_images')
 # C:\Users\Admin\Desktop\image-data
 # Number of random distortion images to generate per font and character.
-DISTORTION_COUNT = 2
+DISTORTION_COUNT = 0
 
 # Width and height of the resulting image.
 IMAGE_WIDTH = 64
@@ -117,9 +117,9 @@ def generate_hangul_images(label_file, fonts_dir, output_dir):
                 # labels_csv.write(u'{},{}\n'.format(file_path, character))
     label_list = numpy.array(label_list)
     label_list = pd.DataFrame(label_list)
-    label_list.to_csv('F:/Team Project/OCR/Image_to_Text_model/image-data/my_hangul_images/labels-map.csv'
+    label_list.to_csv('F:/Team Project/OCR/02_Image_to_Text_model/image-data/my_hangul_images/labels-map.csv'
                       , index_label = False
-                      , header = 0)
+                      , header = False)
 
 
     print('Finished generating {} images.'.format(total_count))
