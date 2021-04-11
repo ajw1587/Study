@@ -10,16 +10,19 @@ from tensorflow.keras.layers import BatchNormalization, Input, Flatten
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.applications import EfficientNetB4
 from tensorflow.keras.utils import to_categorical
+from sklearn.preprocessing import LabelEncoder, train_test_split
+
 # Data가 String일때 to_categorical 하는법
 # 1. pandas.get_dummies(y_train)
 #
-# 2. from sklearn.preprocessing import LabelEncoder
+# 2. from sklearn.preprocessing import LabelEncoder: String Data -> Number Data Change
 #    code = np.array(code)
 #    label_encoder = LabelEncoder()
 #    vec = label_encoder.fit_transform(code)
 #
 # 3. integer_mapping = {x: i for i,x in enumerate(code)}
 #    vec = [integer_mapping[word] for word in code]
+
 
 
 
@@ -43,21 +46,29 @@ from tensorflow.keras.utils import to_categorical
 
 #################################################################################################
 
+x_train_path = 'F:/Team Project/OCR/02_Image_to_Text_model/image-data/my_hangul_images/ocr_x_train.npy'
+y_train_path = 'F:/Team Project/OCR/02_Image_to_Text_model/image-data/my_hangul_images/labels-map.csv'
+
 ########################## Read Input Data
-x_train = np.load('F:/Team Project/OCR/02_Image_to_Text_model/image-data/my_hangul_images/ocr_x_train.npy')
+x_train = np.load(x_train_path)
 print(x_train.shape)
 
 ########################## Read Label Data
-y_train = pd.read_csv('F:/Team Project/OCR/02_Image_to_Text_model/image-data/my_hangul_images/labels-map.csv'
-                      , header = None)
-y_train = y_train.iloc[:, 1].values.reshape(-1, 1)
-print(type(y_train))
-print(y_train.shape)
+y_train = pd.read_csv(y_train_path, header = None)
+y_train = y_train.iloc[:, 1]
 
-print(ex)
-print(np.unique(y_train).shape)
+########################## String Label OneHotEncoding
+onehot = LabelEncoder()
+onehot_y_train = onehot.fit_transform(y_train)
+# print(onehot_y_train.shape)
+# result = np.where(onehot_y_train == 18)
+# print(result)
+# print(result[0][0])
+# print(y_train[result[0][0]])
 
-'''
+y_categorical = to_categorical(onehot_y_train.reshape(-1, 1))
+print(y_categorical.shape)
+
 ########################## Model
 eff04 = EfficientNetB4(include_top = False, weights = 'imagenet', input_shape = (64, 64, 1))
 initial_model = eff04
@@ -90,9 +101,8 @@ model = Model(inputs = initial_model.input, outputs = output1)
 hist = model.compile(optimizer = Adam(learning_rate = 0.001),
                      loss = 'categorical_crossentropy',
                      metrics = ['acc'])
-model.fit(x_train, y_train, batch_size = 32, epochs = 100, validation_data = (x_val, y_val))
+model.fit(x_train, y_categorical, batch_size = 32, epochs = 100, validation_data = (x_val, y_val))
 
 
 result = model.evaluate(x_test, y_test, batch_size = 256)
 y_predict = model.predict(x_test)
-'''
