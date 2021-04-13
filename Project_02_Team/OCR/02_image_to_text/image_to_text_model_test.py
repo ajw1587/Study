@@ -4,8 +4,8 @@ import cv2 as cv
 from tensorflow.keras.models import load_model
 
 Y_TRAIN_PATH = 'F:/Team Project/OCR/02_Image_to_Text_model/image-data/my_hangul_images/labels-map.csv'
-TEST_IMAGE_PATH = 'F:/Team Project/OCR/02_Image_to_Text_model/image-data/my_hangul_images/hangul-images/hangul_10.jpeg'
-MODEL_PATH = 'F:/Team Project/OCR/02_Image_to_Text_model/model_checkpoint/01_image_to_text_resnet101.hdf5'
+TEST_IMAGE_PATH = 'F:/Team Project/OCR/02_Image_to_Text_model/image-data/my_hangul_images/hangul-images/hangul_200.jpeg'
+MODEL_PATH = 'F:/Team Project/OCR/02_Image_to_Text_model/model_checkpoint/03_image_to_text_mujin.hdf5'
 
 # Test Image
 img = cv.imread(TEST_IMAGE_PATH, cv.IMREAD_COLOR)
