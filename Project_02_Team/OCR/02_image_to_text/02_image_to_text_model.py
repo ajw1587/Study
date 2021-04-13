@@ -13,6 +13,8 @@ from tensorflow.keras.utils import to_categorical
 from tensorflow.keras.callbacks import EarlyStopping, ReduceLROnPlateau, ModelCheckpoint
 from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
+from tensorflow.keras.applications import ResNet101
+
 '''
 # Data가 String일때 to_categorical 하는법
 # 1. pandas.get_dummies(y_train)
@@ -46,13 +48,13 @@ np.save('F:/Team Project/OCR/02_Image_to_Text_model/image-data/my_hangul_images/
 '''
 
 ########################## Path
-X_TRAIN_PATH = 'F:/Team Project/OCR/02_Image_to_Text_model/image-data/my_hangul_images/ocr_x_train.npy'
+X_TRAIN_PATH = 'F:/Team Project/OCR/02_Image_to_Text_model/image-data/my_hangul_images/ocr_x_train_color.npy'
 Y_TRAIN_PATH = 'F:/Team Project/OCR/02_Image_to_Text_model/image-data/my_hangul_images/labels-map.csv'
-MODEL_SAVE_PATH = 'F:/Team Project/OCR/02_Image_to_Text_model/model_checkpoint/01_image_to_text_eff04.hdf5'
+MODEL_SAVE_PATH = 'F:/Team Project/OCR/02_Image_to_Text_model/model_checkpoint/01_image_to_text_resnet101.hdf5'
 
 ########################## Read Input Data
 x_train = np.load(X_TRAIN_PATH)
-x_train = x_train.reshape(x_train.shape[0], x_train.shape[1], x_train.shape[2], 1)
+# x_train = x_train.reshape(x_train.shape[0], x_train.shape[1], x_train.shape[2], 1)
 # print(x_train.shape)
 
 ########################## Read Label Data
@@ -65,7 +67,7 @@ onehot_y_train = onehot.fit_transform(y_train)
 # print(type(onehot_y_train))
 # print(onehot_y_train.shape)
 # print(onehot_y_train)
-np.save('F:/Team Project/OCR/02_Image_to_Text_model/onehot_y_train.npy', onehot_y_train)
+# np.save('F:/Team Project/OCR/02_Image_to_Text_model/onehot_y_train.npy', onehot_y_train)
 
 # result = np.where(onehot_y_train == 18)
 # print(result)
@@ -80,10 +82,10 @@ print(y_categorical.shape)
 x_train = x_train/255.
 x_train, x_val, y_train, y_val = train_test_split(x_train, y_categorical, train_size = 0.8, shuffle = True)
 
-print('x_train: ', x_train.shape)
-print('y_train: ', y_train.shape)
-print('x_val: ', x_val.shape)
-print('y_val: ', y_val.shape)
+# print('x_train: ', x_train.shape)
+# print('y_train: ', y_train.shape)
+# print('x_val: ', x_val.shape)
+# print('y_val: ', y_val.shape)
 
 ########################## Model
 # eff04 = EfficientNetB4(include_top = False, weights = 'imagenet', input_shape = (64, 64, 3))
@@ -96,66 +98,24 @@ print('y_val: ', y_val.shape)
 # model = Model(inputs = initial_model.input, outputs = output1)
 
 def mnist_model(drop = 0.2, shape = 64, channel = 1, lr_rate = 0.001):
-    input1 = Input(shape = (shape, shape, channel))
-    dense1 = Conv2D(128, 2, 1, padding = 'same', activation = 'relu')(input1)
-    dense1 = MaxPooling2D((2, 2))(dense1)
-    # dense1 = BatchNormalization()(dense1)
-    # dense1 = Dropout(drop)(dense1)
+    resnet101 = ResNet101(weights = 'imagenet', include_top = False, input_shape = (64, 64, 3))
+    resnet101.trainable = False
 
-    dense1 = Conv2D(64, 2, 1, padding = 'same', activation = 'relu')(dense1)
-    dense1 = MaxPooling2D((2, 2))(dense1)
-    # dense1 = BatchNormalization()(dense1)
-    # dense1 = Dropout(drop)(dense1)
+    x = resnet101.output
 
-    dense1 = Conv2D(64, 2, 1, padding = 'same', activation = 'relu')(dense1)
-    dense1 = MaxPooling2D((2, 2))(dense1)
-    # dense1 = BatchNormalization()(dense1)
-    # dense1 = Dropout(drop)(dense1)
+    x = Flatten()(x)
+    x = Dense(256, activation= 'swish') (x)
+    x = Dropout(0.2) (x)
+    x = Dense(128, activation= 'swish') (x)
+    x = Dropout(0.2) (x)
 
-    dense1 = Conv2D(32, 2, 1, padding = 'same', activation = 'relu')(dense1)
-    dense1 = MaxPooling2D((2, 2))(dense1)
-    # dense1 = BatchNormalization()(dense1)
-    # dense1 = Dropout(drop)(dense1)
+    output1 = Dense(2238, activation = 'softmax')(x)
 
-    # dense1 = Conv2D(32, 2, 1, padding = 'same', activation = 'relu')(dense1)
-    # dense1 = MaxPooling2D((2, 2))(dense1)
-    # dense1 = BatchNormalization()(dense1)
-    # dense1 = Dropout(drop)(dense1)
-
-    # dense1 = Conv2D(32, 2, 1, padding = 'same', activation = 'relu')(dense1)
-    # dense1 = MaxPooling2D((2, 2))(dense1)
-    # dense1 = BatchNormalization()(dense1)
-    # dense1 = Dropout(drop)(dense1)
-
-    # dense1 = Conv2D(16, 2, 1, padding = 'same', activation = 'relu')(dense1)
-    # dense1 = MaxPooling2D((2, 2))(dense1)
-    # dense1 = BatchNormalization()(dense1)
-    # dense1 = Dropout(drop)(dense1)
-    
-    # dense1 = Conv2D(8, 2, 1, padding = 'same', activation = 'relu')(dense1)
-    # dense1 = MaxPooling2D((2, 2))(dense1)
-    # dense1 = BatchNormalization()(dense1)
-    # dense1 = Dropout(drop)(dense1)
-
-    dense1 = Flatten()(dense1)
-
-    # dense1 = Dense(64, activation = 'relu')(dense1)
-    # dense1 = BatchNormalization()(dense1)
-    # dense1 = Dropout(drop)(dense1)
-
-    dense1 = Dense(128, activation = 'relu')(dense1)
-    # dense1 = BatchNormalization()(dense1)
-    # dense1 = Dropout(drop)(dense1)
-
-    dense1 = Dense(64, activation = 'relu')(dense1)
-    # dense1 = BatchNormalization()(dense1)
-
-    output1 = Dense(2238, activation = 'softmax')(dense1)
-
-    model = Model(inputs = input1, outputs = output1)
+    model = Model(inputs = resnet101.input , outputs = output1)
     model.compile(optimizer = Adam(learning_rate = lr_rate), loss = 'categorical_crossentropy', metrics = ['acc'])
     return model
 model = mnist_model()
+model.summary
 
 # Model Compile and Fit
 es = EarlyStopping(monitor = 'val_loss', patience = 10, mode = 'auto')

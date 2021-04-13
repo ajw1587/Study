@@ -140,7 +140,7 @@ def Word_Split(line_img, line_idx, num, avg_distance): # line_img: numpy
         distance = math.sqrt((text_center_loc[i + 2] - text_center_loc[i])**2 + (text_center_loc[i + 3] - text_center_loc[i + 1])**2)
         if distance <= (avg_distance*0.2):
             continue
-        if distance <= (avg_distance*0.68) and sign == True:    # and c_subtract > 25
+        if distance <= (avg_distance*0.75) and sign == True:    # and c_subtract > 25
             del_list.append(word_idx[i + 1])
             del_list.append(word_idx[i + 2])
             sign = False
@@ -260,20 +260,33 @@ def Center_Distance(line_img, line_idx): # line_img: numpy
 # 'F:/Team Project/OCR/Text_detection/Image_data/02.jpg'
 # 'F:/Team Project/OCR/Text_detection/Image_data/03.png'
 # 'F:/Team Project/OCR/Text_detection/Image_data/ex04.png'
-img = cv.imread('F:/Team Project/OCR/Text_detection/Image_data/01.jpg', cv.IMREAD_COLOR)
+# F:/Team Project/OCR/01_Text_detection/Image_data/test_data_OCR/taeyeon
+img = cv.imread('F:/Team Project/OCR/01_Text_detection/Image_data/test_data_OCR/taeyeon/Image00010.jpg', cv.IMREAD_COLOR)
 img2 = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
 img2 = cv.bitwise_not(img2)
-img2 = np.where(img2 < 50, 0, 255)
+img2 = np.where(img2 < 120, 0, 255)
 img2 = img2/255.
 
-
 kernel = np.ones((2, 2), np.uint8)
-img2 = cv.erode(img2, kernel, iterations=1)
+img2 = cv.morphologyEx(img2, cv.MORPH_CLOSE, kernel)
+
+# kernel = np.ones((2, 2), np.int)
+# img2 = cv.erode(img2, kernel, iterations=1)
+
+# kernel = np.array([[0, -1, 0],
+#                    [-1, 20,-1],
+#                    [0, -1, 0]]) # 커널을 만듭니다.
+
+# # 이미지를 선명하게 만듭니다.
+# img2 = cv.filter2D(img2, -1, kernel)
+
+
 # print(img2.shape)   # (2400, 1080)
 # print(img2)
-# cv.imshow('img', img2)
-# cv.waitKey(0)
-# cv.destroyAllWindows()
+cv.imshow('img', img2)
+cv.waitKey(0)
+cv.destroyAllWindows()
+
 
 Line_Histogram(img2)
 line_img, line_idx = Line_Split(img2)
@@ -288,6 +301,8 @@ print(Dis_Avg)
 # word_img = Word_Split(line_img[0], line_idx[0 : 2], 0)
 for i in range(len(line_img)):
     word_img = Word_Split(line_img[i], line_idx[i * 2 : i * 2 + 2], i, Dis_Avg)
+
+
 
 # 현재 코드의 문제점
 # '(', ')' 추출 못함...
