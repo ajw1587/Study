@@ -15,7 +15,7 @@ from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
 from tensorflow.keras.applications import ResNet101
 
-'''
+
 # Data가 String일때 to_categorical 하는법
 # 1. pandas.get_dummies(y_train)
 #
@@ -45,12 +45,12 @@ print(x_train.shape)
 
 ######################### 3. Save x_train image data
 np.save('F:/Team Project/OCR/02_Image_to_Text_model/image-data/my_hangul_images/ocr_x_train_color.npy', x_train)
-'''
+
 
 ########################## Path
 X_TRAIN_PATH = 'F:/Team Project/OCR/02_Image_to_Text_model/image-data/my_hangul_images/ocr_x_train_color.npy'
 Y_TRAIN_PATH = 'F:/Team Project/OCR/02_Image_to_Text_model/image-data/my_hangul_images/labels-map.csv'
-MODEL_SAVE_PATH = 'F:/Team Project/OCR/02_Image_to_Text_model/model_checkpoint/01_image_to_text_resnet101.hdf5'
+MODEL_SAVE_PATH = 'F:/Team Project/OCR/02_Image_to_Text_model/model_checkpoint/02_image_to_text_resnet101.hdf5'
 
 ########################## Read Input Data
 x_train = np.load(X_TRAIN_PATH)

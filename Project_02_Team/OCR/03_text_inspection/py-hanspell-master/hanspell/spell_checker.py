@@ -3,12 +3,15 @@
 Python용 한글 맞춤법 검사 모듈
 """
 
-import requests
-import json
-import time
-import sys
-from collections import OrderedDict
-import xml.etree.ElementTree as ET
+import requests                         
+# Python에서 HTTP 요청을 보내는 모듈
+# https://dgkim5360.tistory.com/entry/python-requests
+
+import json                             # 데이터 형식: http://www.tcpschool.com/json/json_basic_structure
+import time                             # 시간 관련 모듈
+import sys                              # 인터프리터 변수와 함수 제어 모듈: https://wikidocs.net/78, https://wikidocs.net/33#sys
+from collections import OrderedDict     # dict를 for문 돌렸을때 순서대로 key와 value가 나올 수 있음: https://www.daleseo.com/python-collections-ordered-dict/
+import xml.etree.ElementTree as ET      # XML 객채화: https://dololak.tistory.com/253
 
 from . import __version__
 from .response import Checked
@@ -16,15 +19,21 @@ from .constants import base_url
 from .constants import CheckResult
 
 _agent = requests.Session()
-PY3 = sys.version_info[0] == 3
+# Session에 대한 설명
+# 웹상에서 서버는 이전 요청과 새로운 요청이 같은 사용자에서 이루어졌는지 확인하는 방법이 필요다하다.
+# 이 때 등장하는 것이 ‘쿠키’와 ‘세션’입니다.
+# 쿠키는 Key-Value 형식으로 로컬에 저장된다. 때문에 쿠키로만 사용자 확인하지 않는다.
+# 이때, Session을 사용한다.
+# https://beomi.github.io/2017/01/20/HowToMakeWebCrawler-With-Login/
 
+PY3 = sys.version_info[0] == 3  # python 버전 확인 True or False: https://www.delftstack.com/ko/howto/python/how-to-check-the-python-version-in-the-scripts/
 
 def _remove_tags(text):
     text = u'<content>{}</content>'.format(text).replace('<br>','')
-    if not PY3:
+    if not PY3: # 만약 Python 3버전이 아니면: 즉, 버전 호환을 위해 추가
         text = text.encode('utf-8')
 
-    result = ''.join(ET.fromstring(text).itertext())
+    result = ''.join(ET.fromstring(text).itertext())        # XML파일에서 구성요소 및 주소값 파싱: https://www.slideshare.net/dahlmoon/xml-70416770 45쪽
 
     return result
 
@@ -33,7 +42,7 @@ def check(text):
     """
     매개변수로 입력받은 한글 문장의 맞춤법을 체크합니다.
     """
-    if isinstance(text, list):
+    if isinstance(text, list):      # 자료형 확인하는 함수: https://devpouch.tistory.com/87
         result = []
         for item in text:
             checked = check(item)
@@ -44,21 +53,26 @@ def check(text):
     if len(text) > 500:
         return Checked(result=False)
 
-    payload = {
-        '_callback': 'window.__jindo2_callback._spellingCheck_0',
+    payload = {     # 개발자 모드로 -> NetWork -> SpellerProxy 더블클릭 어느곳으로 요청을 보내는지 알 수 있다.
+        # '_callback': 'window.__jindo2_callback._spellingCheck_0',
+        '_callback': 'jQuery11240563406526059222_1618304364547',
         'q': text
     }
 
-    headers = {
+    # response 403 에러가 나는 경우에 headers 설정
+    headers = {     
+        # 접속하는 사람/프로그램에 대한 정보를 가지고 있고 정보는 한 가지 항목이 아닌 여러가지 항목이 들어갈 수 있기에  복수형태로 headers 로 입력한다. https://m.blog.naver.com/PostView.nhn?blogId=kiddwannabe&logNo=221185808375&proxyReferer=https:%2F%2Fwww.google.com%2F
+        # user-agent 값 얻기: http://www.useragentstring.com/
         'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.133 Safari/537.36',
-        'referer': 'https://search.naver.com/',
+        # 'referer': 'https://search.naver.com/'    # Referer 정보를 바꾸어 웹에서 접속한 것으로 요청. 
     }
 
     start_time = time.time()
-    r = _agent.get(base_url, params=payload, headers=headers)
+    r = _agent.get(base_url, params=payload) #, headers=headers)   # Session을 이용하여 url 호출
     passed_time = time.time() - start_time
 
-    r = r.text[42:-2]
+    # r = r.text[42:-2]
+    r = r.text[:]
 
     data = json.loads(r)
     html = data['message']['result']['html']
