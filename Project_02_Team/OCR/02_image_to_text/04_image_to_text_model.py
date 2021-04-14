@@ -6,7 +6,7 @@ import cv2 as cv
 import glob
 from tensorflow.keras.models import Model, Sequential
 from tensorflow.keras.layers import Dense, Conv2D, MaxPooling2D, Dropout
-from tensorflow.keras.layers import BatchNormalization, Input, Flatten
+from tensorflow.keras.layers import BatchNormalization, Input, Flatten, GlobalMaxPool2D
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.applications import EfficientNetB4
 from tensorflow.keras.utils import to_categorical
@@ -15,7 +15,7 @@ from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
 from tensorflow.keras.applications import ResNet101
 
-
+'''
 # Data가 String일때 to_categorical 하는법
 # 1. pandas.get_dummies(y_train)
 #
@@ -27,7 +27,7 @@ from tensorflow.keras.applications import ResNet101
 # 3. integer_mapping = {x: i for i,x in enumerate(code)}
 #    vec = [integer_mapping[word] for word in code]
 
-'''
+
 ######################### 1. Check Image Data Length
 img_path = glob.glob('F:/Team Project/OCR/02_Image_to_Text_model/image-data/my_hangul_images/hangul-images/*.jpeg')
 print(len(img_path))
@@ -38,7 +38,7 @@ first_path = 'F:/Team Project/OCR/02_Image_to_Text_model/image-data/my_hangul_im
 last_path = '.jpeg'
 img_list = []
 for i in range(1, len(img_path) + 1):
-    img = cv.imread(first_path + str(i) + last_path, cv.IMREAD_GRAYSCALE)
+    img = cv.imread(first_path + str(i) + last_path, cv.IMREAD_COLOR)
     img_list.append(img)
 x_train = np.array(img_list)
 print(x_train.shape)
@@ -50,12 +50,12 @@ np.save('F:/Team Project/OCR/02_Image_to_Text_model/image-data/my_hangul_images/
 ########################## Path
 X_TRAIN_PATH = 'F:/Team Project/OCR/02_Image_to_Text_model/image-data/my_hangul_images/ocr_x_train_color.npy'
 Y_TRAIN_PATH = 'F:/Team Project/OCR/02_Image_to_Text_model/image-data/my_hangul_images/labels-map.csv'
-MODEL_SAVE_PATH = 'F:/Team Project/OCR/02_Image_to_Text_model/model_checkpoint/02_image_to_text_resnet101.hdf5'
+MODEL_SAVE_PATH = 'F:/Team Project/OCR/02_Image_to_Text_model/model_checkpoint/04_image_to_text_inwoo.hdf5'
 
 ########################## Read Input Data
 x_train = np.load(X_TRAIN_PATH)
 # x_train = x_train.reshape(x_train.shape[0], x_train.shape[1], x_train.shape[2], 1)
-print(x_train.shape)
+# print(x_train.shape)
 
 ########################## Read Label Data
 y_train = pd.read_csv(Y_TRAIN_PATH, header = None)
@@ -88,30 +88,15 @@ x_train, x_val, y_train, y_val = train_test_split(x_train, y_categorical, train_
 # print('y_val: ', y_val.shape)
 
 ########################## Model
-# eff04 = EfficientNetB4(include_top = False, weights = 'imagenet', input_shape = (64, 64, 3))
-# initial_model = eff04
-# last = eff04.output
-# x = Flatten()(last)
-# x = Dense(32)(x)
-# x = Dense(16)(x)
-# output1 = Dense(10, activation = 'softmax')(x)
-# model = Model(inputs = initial_model.input, outputs = output1)
-
 def mnist_model(drop = 0.2, shape = 64, channel = 1, lr_rate = 0.001):
-    resnet101 = ResNet101(weights = 'imagenet', include_top = False, input_shape = (64, 64, 3))
-    resnet101.trainable = False
+    input = Input(shape=(64,64,3))
+    
+    x = Conv2D(256, kernel_size = (3, 3), strides = (1, 1))
 
-    x = resnet101.output
+    output = Dense(2238, activation="softmax")(x)
 
-    x = Flatten()(x)
-    x = Dense(256, activation= 'swish') (x)
-    x = Dropout(0.2) (x)
-    x = Dense(128, activation= 'swish') (x)
-    x = Dropout(0.2) (x)
+    model = Model(inputs=input, outputs= output)
 
-    output1 = Dense(2238, activation = 'softmax')(x)
-
-    model = Model(inputs = resnet101.input , outputs = output1)
     model.compile(optimizer = Adam(learning_rate = lr_rate), loss = 'categorical_crossentropy', metrics = ['acc'])
     return model
 model = mnist_model()
