@@ -15,7 +15,7 @@ from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
 from tensorflow.keras.applications import ResNet101
 
-'''
+
 # Data가 String일때 to_categorical 하는법
 # 1. pandas.get_dummies(y_train)
 #
@@ -27,7 +27,7 @@ from tensorflow.keras.applications import ResNet101
 # 3. integer_mapping = {x: i for i,x in enumerate(code)}
 #    vec = [integer_mapping[word] for word in code]
 
-
+'''
 ######################### 1. Check Image Data Length
 img_path = glob.glob('F:/Team Project/OCR/02_Image_to_Text_model/image-data/my_hangul_images/hangul-images/*.jpeg')
 print(len(img_path))

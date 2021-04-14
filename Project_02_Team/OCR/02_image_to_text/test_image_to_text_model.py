@@ -13,23 +13,23 @@ cv.imshow('img', img)
 cv.waitKey(0)
 cv.destroyAllWindows()
 img = img.reshape(1, img.shape[0], img.shape[1], 3)
-print(type(img))
-print(img.shape)
+print('1: ', type(img))
+print('2: ', img.shape)
 
 # Model
 model = load_model(MODEL_PATH)
 model.summary()
 y_pred = model.predict(img)
-print(np.argmax(y_pred))
-print(y_pred)
+print('3: ', np.argmax(y_pred))
+print('4: ', y_pred)
 
 # Test
 onehot_y_train = np.load('F:/Team Project/OCR/02_Image_to_Text_model/onehot_y_train.npy')
-print(onehot_y_train.shape)
+print('5: ', onehot_y_train.shape)
 
 result = np.where(onehot_y_train == np.argmax(y_pred))
-print(result)
+print('6: ', result)
 
 y_train = pd.read_csv(Y_TRAIN_PATH, header = None)
 y_train = y_train.iloc[:, 1]
-print(y_train[result[0][0]])
+print('7: ', y_train[result[0][0]])

@@ -74,8 +74,8 @@ def check(text):
     passed_time = time.time() - start_time
 
     # r의 return이 뭔지를 모르겠네
-    # r = r.text[42:-2]
-    r = r.text[:]
+    r = r.text[42:-2]
+    # r = r.text[:]
 
     data = json.loads(r)
     html = data['message']['result']['html']
