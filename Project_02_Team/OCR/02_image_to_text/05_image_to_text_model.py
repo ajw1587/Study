@@ -1,116 +1,99 @@
-# import os
-import pandas as pd
-import cv2
+# metrics가 다를 경우
+
 import numpy as np
-from tensorflow.keras.layers import Conv2D, SeparableConv2D, MaxPool2D, GlobalAveragePooling2D, Flatten, Dense, Input, BatchNormalization, GlobalMaxPool2D
+
+# 1. 데이터
+x1 = np.array([range(100), range(301,401), range(1, 101)])       #(3,100)
+y1 = np.array([range(711, 811), range(1, 101), range(201, 301)]) #(3,100)
+
+x2 = np.array([range(101, 201), range(411, 511), range(100, 200)])
+y2 = np.array([range(501, 601), range(711, 811), range(100)])
+
+x1 = np.transpose(x1)
+x2 = np.transpose(x2)
+y1 = np.transpose(y1)
+y2 = np.transpose(y2)
+
+from sklearn.model_selection import train_test_split
+x1_train, x1_test, y1_train, y1_test = train_test_split(x1, y1, train_size = 0.8, shuffle = False)
+x2_train, x2_test, y2_train, y2_test = train_test_split(x2, y2, train_size = 0.8, shuffle = False)
+
+# 2. 모델 구성
 from tensorflow.keras.models import Model, Sequential
-from tensorflow.python.keras.backend import conv2d
-from tensorflow.keras.callbacks import EarlyStopping, ReduceLROnPlateau, ModelCheckpoint
-from sklearn.preprocessing import OneHotEncoder
-from sklearn.model_selection import KFold
-from sklearn.utils import shuffle
+from tensorflow.keras.layers import Dense, Input
 
-X_TRAIN_PATH = 'F:/Team Project/OCR/02_Image_to_Text_model/image-data/my_hangul_images/hangul-images'
-Y_TRAIN_PATH = 'F:/Team Project/OCR/02_Image_to_Text_model/image-data/my_hangul_images/labels-map.csv'
-MODEL_SAVE_PATH = 'F:/Team Project/OCR/02_Image_to_Text_model/model_checkpoint/05_modelcheckpoint/'
+# 2-1. 모델 1
+input1 = Input(shape = (3,), name = "model1")
+dense1 = Dense(10, activation = "relu", name = "model1-1")(input1)
+dense1 = Dense(5, activation = "relu", name = "model1-2")(dense1)
+# output1 = Dense(3)(dense1)
 
-y_train = pd.read_csv(Y_TRAIN_PATH,encoding="utf-8")
+# 2-2. 모델 2
+input2 = Input(shape = (3,), name = "model2")
+dense2 = Dense(5, activation = "relu", name = "model2-1")(input2)
+dense2 = Dense(5, activation = "relu", name = "model2-2")(dense2)
+dense2 = Dense(5, activation = "relu", name = "model2-3")(dense2)
+# output2 = Dense(3)(dense1)
 
-def Recognition_model():
-    input = Input(shape=(64,64,3))
-    x = Conv2D(filters=(64), kernel_size=(64,21),strides=1)(input)
-    x = BatchNormalization()(x)
-    x1 = GlobalMaxPool2D()(x)
+# 2-3. 모델 3
+input3 = Input(shape = (3,), name = "model3")
+dense3 = Dense(5, activation = "relu", name = "model3-1")(input3)
+dense3 = Dense(5, activation = "relu", name = "model3-2")(dense3)
+dense3 = Dense(5, activation = "relu", name = "model3-3")(dense3)
 
-    x = Conv2D(filters=(64), kernel_size=(21,64),strides=1)(input)
-    x = BatchNormalization()(x)
-    x2 = GlobalMaxPool2D()(x)
+# 모델 병합 / concatenate: 연쇄시키다
+from tensorflow.keras.layers import Concatenate, concatenate
+# from keras.layers.merge import concatenate, Concatenate
+# from keras.layers import concatenatem Concatenate
+merge1 = concatenate([dense1, dense2, dense3])
+middle1 = Dense(3, name = "merge-1")(merge1)
+middle1 = Dense(5, name = "merge-2")(middle1)
+middle1 = Dense(5, name = "merge-3")(middle1)
 
-    x = Conv2D(filters=(64), kernel_size=(21,21),strides=1)(input)
-    x = BatchNormalization()(x)
-    x3 = GlobalMaxPool2D()(x)
+# 모델 분기 1
+output1 = Dense(3, name = "output1-1")(middle1)
+output1 = Dense(7, name = "output1-2")(output1)
+output1 = Dense(3, name = "output1-3")(output1)
+# 모델 분기 2
+output2 = Dense(1, name = "output2-1")(middle1)
+output2 = Dense(5, name = "output2-2")(output2)
+output2 = Dense(3, name = "output2-3")(output2)
 
-    x = Conv2D(filters=(64), kernel_size=(5,5),strides=1)(input)
-    x = BatchNormalization()(x)
-    x4 = GlobalMaxPool2D()(x)
+# 모델 선언
+model = Model(inputs = [input1, input2], outputs = [output1, output2])
+model.summary()
 
-    x5 = Flatten()(x1+x2+x3+x4)
+# compile
+model.compile(loss = "mse", optimizer = "adam", metrics = ["mae", "mse"])   # metrics에 2개의 값 사용 가능
+model.fit([x1_train, x2_train, x2_train], [y1_train, y2_train], epochs = 10, batch_size = 1, validation_split = 0.2, verbose = 1)
 
-    x = Dense(1512)(x5)
-    output = Dense(2220, activation="softmax")(x)
+# 평가, 예측
+loss = model.evaluate([x1_test, x2_test], [y1_test, y2_test], batch_size = 1)
+print("loss: ", loss)                           # loss 7개의 값이 나온다.
 
-    model = Model(inputs=input, outputs= output)
+print("metrics_name: ", model.metrics_names)    # loss 7개의 값이 나온다. [분기모델1+분기모델2의 mse합, output1의 mse, output2의 mse, output1의 metrics값, output2의 metrics값]
+                                                # loss:  [4844.7060546875, 1856.223388671875, 2988.483154296875, 39.791404724121094, 1856.223388671875, 52.21002960205078, 2988.483154296875]
+                                                # metrics_name: ['loss', 'output1-3_loss', 'output2-3_loss', 'output1-3_mae', 'output1-3_mse', 'output2-3_mae', 'output2-3_mse']
 
-    model.summary()
-    model.compile(optimizer='adam', loss="categorical_crossentropy", metrics=['acc'])
-    return model
+y1_predict, y2_predict = model.predict([x1_test, x2_test])
+# print("=============================================")
+# print("y1_predict\n", y1_predict)
+# print("=============================================")
+# print("y2_predict\n", y2_predict)
+# print("=============================================")
 
-model = Recognition_model()
-y_train = shuffle(y_train)
-# 759240
-# 39960,42180,50616,
+# RMSE
+from sklearn.metrics import mean_squared_error
+def RMSE(y_test, y_predict):
+    return np.sqrt(mean_squared_error(y_test, y_predict))
+RMSE_1 = RMSE(y1_test, y1_predict)
+RMSE_2 = RMSE(y2_test, y2_predict)
+print("1. RMSE: ", RMSE_1)
+print("2. RMSE: ", RMSE_2)
+print("RMSE: ", (RMSE_1+RMSE_2)/2)
 
-
-es = EarlyStopping(monitor = 'val_loss', patience = 20, mode = 'auto')
-rl = ReduceLROnPlateau(monitor = 'val_loss', factor = 0.3, patience = 10)
-cp = ModelCheckpoint(filepath = MODEL_SAVE_PATH, monitor = 'val_loss', save_best_only = True, mode = 'auto')
-for i in range(0,15):
-    step = 50616
-    # step = 10
-    lst_image_path = list(y_train.iloc[step*i:step*(i+1),0])
-    lst_image_label = list(y_train.iloc[step*i:step*(i+1),-1])
-    
-    print(lst_image_path)
-    print(type(lst_image_path))
-    # lst_image_path = []
-    # for j in range(step*i + 1, step*(i + 1) + 1):
-    #     sub_path = X_TRAIN_PATH + 'hangul_' +str(j) + 'jpeg'
-    #     lst_image_path.append(sub_path)
-    # lst_image_label = list(y_train.iloc[step*i:step*(i+1),-1])
-    # print(lst_image_path)
-    # print(lst_image_label)
-    # print('\n')
-    # print('\n')
-
-    x_images = []
-    for i, image_path in enumerate(lst_image_path) :
-        img = cv2.imread(image_path)
-        x_images.append(img)
-        print(i)
-
-    x_images = np.array(x_images)
-    y_label = np.array(lst_image_label)
-
-    print(x_images)
-    print(y_label)
-
-    print(y_label.shape)
-    print(x_images.shape)
-    print(np.unique(y_label))
-    
-    # (37599,)
-    # (37599, 64, 64, 3)
-
-    y_label = y_label.reshape(-1,1)
-    onehot = OneHotEncoder()
-    onehot.fit(y_label)
-    y_label = onehot.transform(y_label).toarray()
-
-    print(y_label)
-    print(y_label.shape)
-
-    x_images = x_images/255.
-    print(x_images.shape)
-
-    kfold = KFold(n_splits=5, shuffle=True)
-    a = 1
-    for train_index, test_index in kfold.split(x_images):
-        print("TRAIN:", train_index.shape, "TEST:", test_index.shape)
-        x_train, x_val = x_images[train_index], x_images[test_index]
-        y_train, y_val = y_label[train_index], y_label[test_index]
-
-        model.fit(x_train, y_train, batch_size = 100, epochs = 300, validation_data=(x_val, y_val), shuffle=True
-                  , callbacks = [es, rl])
-        if a == 5:
-            model.save(MODEL_SAVE_PATH + str(i) + '.hdf5')
-        a += 1
+# R2
+from sklearn.metrics import r2_score
+print("1. R2: ", r2_score(y1_test, y1_predict))
+print("2. R2: ", r2_score(y2_test, y2_predict))
+print("R2: ", (r2_score(y1_test, y1_predict)+r2_score(y2_test, y2_predict)))

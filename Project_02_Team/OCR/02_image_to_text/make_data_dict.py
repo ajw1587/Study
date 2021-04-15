@@ -1,6 +1,7 @@
 # DICTIONARY 만들기
 import numpy as np
 import pandas as pd
+import pickle
 
 LABEL_PATH = 'C:/Study/Project_02_Team/OCR/tensorflow-hangul-recognition-master/labels/2350-common-hangul-3.txt'
 
@@ -32,4 +33,17 @@ label_dic = {}
 for i in range(len(label_list)):
     label_dic[i] = label_list[i]
 
+
 # 생성된 DICTIONARY를 PICKLE로 저장시켜주기
+# Save
+# Path: F:/Team Project/OCR/02_Image_to_Text_model
+dic_file = open("F:/Team Project/OCR/02_Image_to_Text_model/label_dic.pkl", "wb")
+pickle.dump(label_dic, dic_file)
+dic_file.close()
+
+'''
+# Open
+dic_file = open("F:/Team Project/OCR/02_Image_to_Text_model/label_dic.pkl", "rb")
+output = pickle.load(dic_file)
+print(output)
+'''
