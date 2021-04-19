@@ -378,6 +378,7 @@ base_weight_path = os.path.join(base_path, 'resnet50.h5')
 #config_output_filename = os.path.join(base_path, 'model_res_config.pickle')
 ########################################################################################################
 
+
 ########################################################################################################
 # Create the config
 C = Config()
@@ -395,6 +396,7 @@ C.num_rois = num_rois
 C.base_net_weights = base_weight_path
 ########################################################################################################
 
+
 ########################################################################################################
 #--------------------------------------------------------#
 # This step will spend some time to load the data        #
@@ -404,6 +406,7 @@ train_imgs, classes_count, class_mapping = get_data(train_path)
 print()
 print('Spend %0.2f mins to load the data' % ((time.time()-st)/60))
 ########################################################################################################
+
 
 ########################################################################################################
 if 'bg' not in classes_count:
@@ -420,6 +423,7 @@ print('Num classes (including bg) = {}'.format(len(classes_count)))
 print(class_mapping)
 ########################################################################################################
 
+
 ########################################################################################################
 input_shape_img = (None, None, 3)
 
@@ -429,6 +433,7 @@ roi_input = Input(shape=(None, 4))
 # define the base network (VGG here, can be Resnet50, Inception, etc)
 shared_layers = model(img_input)
 ########################################################################################################
+
 
 ########################################################################################################
 # define the RPN, built on the base layers
@@ -484,6 +489,7 @@ else:
     print('Already train %dK batches'% (len(record_df)))
 ########################################################################################################
 
+
 ########################################################################################################
 # Model prediction
 def format_img_size(img, C):
@@ -491,7 +497,7 @@ def format_img_size(img, C):
 	img_min_side = float(300)
 	(height,width,_) = img.shape
 		
-	if width &lt;= height:
+	if width == height:
 		ratio = img_min_side/width
 		new_height = 400
 		new_width = 300
@@ -528,12 +534,14 @@ def get_real_coordinates(ratio, x1, y1, x2, y2):
 	return (real_x1, real_y1, real_x2 ,real_y2)
 ########################################################################################################
 
+
 ########################################################################################################
 class_mapping = C.class_mapping
 class_mapping = {v: k for k, v in class_mapping.items()}
 print(class_mapping)
 class_to_color = {class_mapping[v]: np.random.randint(0, 255, 3) for v in class_mapping}
 ########################################################################################################
+
 
 ########################################################################################################
 #test_path = os.path.join(annotation_path, 'annotation_test.txt')
@@ -554,7 +562,17 @@ all_imgs = []
 classes = {}
 ########################################################################################################
 
+
 ########################################################################################################
+# If the box classification value is less than this, we ignore this box
+# bbox_threshold = 0.3
+
+# for idx, img_name in enumerate(imgs_path): 
+#     if not img_name.lower().endswith(('.bmp', '.jpeg', '.jpg', '.png', '.tif', '.tiff')): 
+#         continue 
+#     print(img_name) 
+#     st = time.time() 
+#     filepath = os.path.join(test_base_path, img_name)
 img = plt.imread(filepath)
 
 X, ratio = format_img(img, C)
