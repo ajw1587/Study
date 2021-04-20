@@ -56,7 +56,7 @@ for box in bbox0:
     box = [int(a * b) for a, b in zip(box, ratioLst)]
     bbox.append(box)
 bbox = np.array(bbox)
-# print(bbox)
+print('bbox: ', bbox)
 
 
 # display bounding box and labels
@@ -161,8 +161,18 @@ for x in range(len(ctr_x)):
 # for each of the 2500 anchors, generate 9 anchor boxes
 # 2500 x 9 = 22500 anchor boxes
 ratios = [0.5, 1, 2]# [0.5, 1, 2]
+# for i, e in enumerate(ratios):
+#     print('np.sqrt(ratios[{}]): '.format(e), np.sqrt(ratios[i]))
+#     print('np.sqrt(1./ratios[{}]): '.format(e), np.sqrt(1./ratios[i]))
+# np.sqrt(ratios[0.5]):  0.7071067811865476
+# np.sqrt(1./ratios[0.5]):  1.4142135623730951
+# np.sqrt(ratios[1]):  1.0
+# np.sqrt(1./ratios[1]):  1.0
+# np.sqrt(ratios[2]):  1.4142135623730951
+# np.sqrt(1./ratios[2]):  0.7071067811865476
+
 scales = [8, 16, 32]# [4, 8, 16]
-sub_sample = 10
+sub_sample = 10# 10
 anchor_boxes = np.zeros(((fe_size * fe_size * 9), 4))
 index = 0
 print('ctr: ', ctr)
@@ -172,7 +182,7 @@ for c in ctr:   # anchors들의 위치
         for j in range(len(scales)):
             h = sub_sample * scales[j] * np.sqrt(ratios[i])
             w = sub_sample * scales[j] * np.sqrt(1./ratios[i])
-            print('i: ', i, 'j: ', j, 'h, w: ', h, '  ', w)
+            # print('i: ', i, 'j: ', j, 'h, w: ', h, '  ', w)
             anchor_boxes[index, 0] = ctr_x - w / 2.
             anchor_boxes[index, 1] = ctr_y - h / 2.
             anchor_boxes[index, 2] = ctr_x + w / 2.
@@ -181,17 +191,102 @@ for c in ctr:   # anchors들의 위치
 # print(anchor_boxes.shape)
 
 
-# display the 9 anchor boxes of one anchor and the ground trugh bbox
+# # display the 9 anchor boxes of one anchor and the ground truth bbox
+# img_clone = np.copy(img)
+# for i in range(11025, 11034):       # 0, anchor_boxes.shape[0] 11025, 11034
+#     x0 = int(anchor_boxes[i][0])
+#     y0 = int(anchor_boxes[i][1])
+#     x1 = int(anchor_boxes[i][2])
+#     y1 = int(anchor_boxes[i][3])
+#     cv.rectangle(img_clone, (x0, y0), (x1, y1), color = (255, 0, 0), thickness = 1)
+
+# for i in range(len(bbox)):
+#     cv.rectangle(img_clone, (bbox[i][0], bbox[i][1]), (bbox[i][2], bbox[i][3]), color = (0, 255, 0), thickness = 3)
+# plt.imshow(img_clone)
+# plt.show()
+
+
+# Ignore cross-boundary anchor boxes
+# valid anchor boxes with (x1, y1) > 0 and (x2, y2) <= 800
+index_inside = np.where(
+    (anchor_boxes[:, 0] >= 0) &
+    (anchor_boxes[:, 1] >= 0) &
+    (anchor_boxes[:, 2] <= 800) &
+    (anchor_boxes[:, 3] <= 800)
+)[0]
+# print(index_inside.shape)
+# print(index_inside)
+
+valid_anchor_boxes = anchor_boxes[index_inside]
+print('valid_anchor_boxes.shape: ', valid_anchor_boxes.shape)
+
 img_clone = np.copy(img)
-for i in range(11025, 11034):       # 0, anchor_boxes.shape[0]
-    x0 = int(anchor_boxes[i][0])
-    y0 = int(anchor_boxes[i][1])
-    x1 = int(anchor_boxes[i][2])
-    y1 = int(anchor_boxes[i][3])
-    cv.rectangle(img_clone, (x0, y0), (x1, y1), color = (255, 0, 0), thickness = 1)
+for i in range(valid_anchor_boxes.shape[0]):       # 0, anchor_boxes.shape[0] 11025, 11034
+    x0 = int(valid_anchor_boxes[i][0])
+    y0 = int(valid_anchor_boxes[i][1])
+    x1 = int(valid_anchor_boxes[i][2])
+    y1 = int(valid_anchor_boxes[i][3])
+#     cv.rectangle(img_clone, (x0, y0), (x1, y1), color = (255, 0, 0), thickness = 1)
+# plt.imshow(img_clone)
+# plt.show()
 
-for i in range(len(bbox)):
-    cv.rectangle(img_clone, (bbox[i][0], bbox[i][1]), (bbox[i][2], bbox[i][3]), color = (0, 255, 0), thickness = 3)
+# Calculate iou of the valid anchor boxes
+ious = np.empty((len(valid_anchor_boxes), 2), dtype = np.float32)
+ious.fill(0)
+for num1, i in enumerate(valid_anchor_boxes):
+    xa1, ya1, xa2, ya2 = i
+    anchor_area = (ya2 - ya1) * (xa2 - xa1)
+    for num2, j in enumerate(bbox):
+        xb1, yb1, xb2, yb2 = j
+        box_area = (yb2 - yb1) * (xb2 - xb1)
+        inter_x1 = max([xb1, xa1])
+        inter_y1 = max([yb1, ya1])
+        inter_x2 = min([xb2, xa2])
+        inter_y2 = min([yb2, ya2])
+        if(inter_x1 < inter_x2) and (inter_y1 < inter_y2):
+            iter_area = (inter_y2 - inter_y1) * (inter_x2 - inter_x1)
+            iou = iter_area / (anchor_area + box_area - iter_area)
+        else:
+            iou = 0.
+        ious[num1, num2] = iou
+        # print('\n')
+        # print('iou: ', iou)
+        # print(type(iou))
+        # print('num1: ', num1)
+        # print('num2: ', num2)
+        # print('ious[num1, num2]: ', ious[num1, num2])
+        # print('ious.shape: ', ious.shape)
+        # num1: valid_anchor_boxes의 index값
+        # num2: bbox의 index값
+# print('ious.shape: ', ious.shape)                             # ious.shape:  (13088, 2)
+# print('ious[13042, 1]: ', ious[13042, 1])
 
-plt.imshow(img_clone)
-plt.show()
+# What anchor box has max iou with the ground truth bbox
+# ious에서 가장 큰 인덱스 위치 얻기
+gt_argmax_ious = ious.argmax(axis = 0)
+# print('gt_argmax_ious: ', gt_argmax_ious)                     # gt_argmax_ious:  [ 2545 12413]
+# print('np.arange(ious.shape[1]): ', np.arange(ious.shape[1])) # np.arange(ious.shape[1]):  [0 1]
+
+# max iou 얻기
+# print('ious[2545, 0]: ', ious[2545, 0])                       # ious[2545, 0]:  0.74050635
+# print('ious[12413, 1]: ', ious[12413, 1])                     # ious[12413, 1]:  0.7899971
+gt_max_ious = ious[gt_argmax_ious, np.arange(ious.shape[1])]
+# print('gt_max_ious: ', gt_max_ious)                           # gt_max_ious:  [0.74050635 0.7899971 ]
+
+
+gt_argmax_ious = np.where(ious == gt_max_ious)
+# print('np.where(ious == gt_max_ious): ', np.where(ious == gt_max_ious))          
+# (array([ 2545,  2552, 12413], dtype=int64), array([0, 0, 1], dtype=int64))
+# print('gt_argmax_ious: ', gt_argmax_ious)                     # gt_argmax_ious:  [ 2545  2552 12413]
+
+# print('ious[12413, 1]: ', ious[12413, 1])                     # ious[12413, 1]:  0.7899971
+# print('ious[2545, 0]: ', ious[2545, 0])                       # ious[2545, 0]:  0.74050635
+# print('ious[2552, 0]: ', ious[2552, 0])                       # ious[2552, 0]:  0.74050635
+# print('ious[2552, 1]: ', ious[2552, 1])                       # ious[2552, 1]:  0.0
+
+# What Ground truth bbox is associated with each anchor box
+argmax_ious = ious.argmax(axis = 1)
+print(argmax_ious.shape)
+print(argmax_ious)
+max_ious = ious[np.arange(len(index_inside)), argmax_ious]
+print(max_ious)
