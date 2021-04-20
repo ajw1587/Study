@@ -42,29 +42,23 @@ img = cv.resize(img0, dsize = (800, 800), interpolation = cv.INTER_CUBIC)
 plt.imshow(img0)
 plt.show()
 
-# change the bounding box coordinates
-Wratio = 800/img0.shape[0]
-Hratio = 800/img0.shape[1]
-# print(img0.shape[0])
-# print(img0.shape[1])
-# print(Wratio)
-# print(Hratio)
-ratioLst = [Hratio, Wratio, Hratio, Wratio]
-# print(ratioLst)
-bbox = []
-for box in bbox0:
-    box = [int(a * b) for a, b in zip(box, ratioLst)]
-    bbox.append(box)
-bbox = np.array(bbox)
-print('bbox: ', bbox)
+# # change the bounding box coordinates
+# Wratio = 800/img0.shape[0]
+# Hratio = 800/img0.shape[1]
+# ratioLst = [Hratio, Wratio, Hratio, Wratio]
+# bbox = []
+# for box in bbox0:
+#     box = [int(a * b) for a, b in zip(box, ratioLst)]
+#     bbox.append(box)
+# bbox = np.array(bbox)
 
 
 # display bounding box and labels
 img_clone = np.copy(img)
-bbox_clone = bbox.astype(int)
-for i in range(len(bbox)):
-    cv.rectangle(img_clone, (bbox[i][0], bbox[i][1]), (bbox[i][2], bbox[i][3]), color = (0, 255, 0), thickness = 3)
-    cv.putText(img_clone, str(int(labels[i])), (bbox[i][2], bbox[i][3]), cv.FONT_HERSHEY_SIMPLEX, 3, (0, 0, 255), thickness = 3)
+bbox_clone = bbox0.astype(int)
+for i in range(len(bbox0)):
+    cv.rectangle(img_clone, (bbox0[i][0], bbox0[i][1]), (bbox0[i][2], bbox0[i][3]), color = (0, 255, 0), thickness = 3)
+    cv.putText(img_clone, str(int(labels[i])), (bbox0[i][2], bbox0[i][3]), cv.FONT_HERSHEY_SIMPLEX, 3, (0, 0, 255), thickness = 3)
 plt.imshow(img_clone)
 plt.show()
 
