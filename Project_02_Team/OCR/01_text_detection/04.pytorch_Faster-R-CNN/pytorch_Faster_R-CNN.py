@@ -84,16 +84,16 @@ req_features = []
 k = dummy_img.clone().to(device)
 for i in fe:                        # i = layer
     k = i(k)
-    print(type(i))
-    print('###################### ', i, ' ######################')
-    print(type(k))
-    print(k.shape)
+    # print(type(i))
+    # print('###################### ', i, ' ######################')
+    # print(type(k))
+    # print(k.shape)
     if k.size()[2] < 800//16:
         break
     req_features.append(i)
     out_channels = k.size()[1]
-print('len(req_features): ', len(req_features))
-print('out_channels: ', out_channels)
+# print('len(req_features): ', len(req_features))
+# print('out_channels: ', out_channels)
 
 # Convert this list into a Sequential module
 faster_rcnn_fe_extractor = nn.Sequential(*req_features)
@@ -130,7 +130,7 @@ out_map = faster_rcnn_fe_extractor(imgTensor)
 # 50 x 50 = 2500 anchors, each anchor generate 9 anchor boxes, Total = 50 x 50 x 9 = 22,500
 # x, y intervals to generate anchor box center
 fe_size = (800//16)     # 50
-print(fe_size)
+# print(fe_size)
 ctr_x = np.arange(16, (fe_size + 1) * 16, 16)
 ctr_y = np.arange(16, (fe_size + 1) * 16, 16)
 # print(len(ctr_x), ctr_x)
@@ -175,7 +175,7 @@ scales = [8, 16, 32]# [4, 8, 16]
 sub_sample = 10# 10
 anchor_boxes = np.zeros(((fe_size * fe_size * 9), 4))
 index = 0
-print('ctr: ', ctr)
+# print('ctr: ', ctr)
 for c in ctr:   # anchors들의 위치
     ctr_x, ctr_y = c
     for i in range(len(ratios)):
@@ -218,7 +218,7 @@ index_inside = np.where(
 # print(index_inside)
 
 valid_anchor_boxes = anchor_boxes[index_inside]
-print('valid_anchor_boxes.shape: ', valid_anchor_boxes.shape)
+# print('valid_anchor_boxes.shape: ', valid_anchor_boxes.shape)
 
 img_clone = np.copy(img)
 for i in range(valid_anchor_boxes.shape[0]):       # 0, anchor_boxes.shape[0] 11025, 11034
@@ -274,8 +274,8 @@ gt_max_ious = ious[gt_argmax_ious, np.arange(ious.shape[1])]
 # print('gt_max_ious: ', gt_max_ious)                           # gt_max_ious:  [0.74050635 0.7899971 ]
 
 
-gt_argmax_ious = np.where(ious == gt_max_ious)
-# print('np.where(ious == gt_max_ious): ', np.where(ious == gt_max_ious))          
+gt_argmax_ious = np.where(ious == gt_max_ious)[0]
+# print('np.where(ious == gt_max_ious): ', np.where(ious == gt_max_ious)[0])          
 # (array([ 2545,  2552, 12413], dtype=int64), array([0, 0, 1], dtype=int64))
 # print('gt_argmax_ious: ', gt_argmax_ious)                     # gt_argmax_ious:  [ 2545  2552 12413]
 
@@ -286,7 +286,43 @@ gt_argmax_ious = np.where(ious == gt_max_ious)
 
 # What Ground truth bbox is associated with each anchor box
 argmax_ious = ious.argmax(axis = 1)
-print(argmax_ious.shape)
-print(argmax_ious)
+# print('argmax_ious.shape: ', argmax_ious.shape)
+# print('argmax_ious: ', argmax_ious)
 max_ious = ious[np.arange(len(index_inside)), argmax_ious]
-print(max_ious)
+# print('max_ious: ', max_ious)
+# print(type(max_ious))
+# print(max_ious.shape)
+
+
+
+# 13088 valid anchor boxes      1: object, 0: background, -1: ignore
+label = np.empty((len(index_inside), ), dtype = np.int32)
+label.fill(-1)
+# print(label.shape)
+
+# Assign 0 (background) to an anchor if its iou ratio is lower than 0.3 for all ground-truth boxes
+pos_iou_threshold = 0.7
+neg_iou_threshold = 0.3
+label[gt_argmax_ious] = 1
+label[max_ious >= pos_iou_threshold] = 1
+label[max_ious < neg_iou_threshold] = 0
+
+
+# mini-batch training 256 valid anchor boxes RPN, 128 positive examples, 128 negetive examples
+n_sample = 256
+pos_ratio = 0.5
+n_pos = pos_ratio * n_sample            # 128
+
+pos_index = np.where(label == 1)[0]
+# print(pos_index)                      # [ 2545  2552 12408 12413]
+if len(pos_index) > n_pos:
+    disable_index = np.random.choice(pos_index, size = (len(pos_index) - n_pos), replace = False)
+    label[disable_index] = -1
+
+n_neg = n_sample * np.sum(label == 1)
+# print(n_neg)                          # 1024
+neg_index = np.where(label == 0)[0]
+if len(neg_index) > n_neg:
+    disable_index = np.random.choice(neg_index, size = (len(neg_index) - n_neg), replace = False)
+    label[disable_index] = -1
+
