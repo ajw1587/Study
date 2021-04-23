@@ -1,4 +1,5 @@
 # 출처: https://www.youtube.com/watch?v=4yOcsWg-7g8
+# https://github.com/herbwood/pytorch_faster_r_cnn/blob/main/faster_r_cnn.ipynb
 
 import torch
 import torchvision

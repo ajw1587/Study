@@ -1,4 +1,5 @@
 # https://herbwood.tistory.com/11?category=867198
+# https://github.com/herbwood/pytorch_faster_r_cnn/blob/main/faster_r_cnn.ipynb
 # nuggy875.tistory.com/33
 import torch
 import torchvision
@@ -34,7 +35,8 @@ for box in bbox0:
     box = [int(a * b) for a, b in zip(box, ratioList)]
     bbox.append(box)
 
-# # Show img, bbox
+# Show img, bbox
+print(len(bbox))
 # img_clone = np.copy(img)
 # for i in range(len(bbox)):
 #     cv2.rectangle(img_clone, (bbox[i][0], bbox[i][1]), (bbox[i][2], bbox[i][3]), color=(0, 255, 0), thickness=5)
@@ -190,7 +192,7 @@ print(valid_anchor_boxes.shape)
 # since we have 8940 anchor boxes and 4 ground truth objects,
 # we should get an array with (8940, 4) as the output
 # [IoU with gt box1, IoU with gt box2, IoU with gt box3,IoU with gt box4]
-ious = np.empty((len(valid_anchor_boxes),4), dtype=np.float32)
+ious = np.empty((len(valid_anchor_boxes), len(bbox)), dtype=np.float32)
 ious.fill(0)
 
 # anchor boxes
@@ -226,16 +228,103 @@ gt_argmax_ious = ious.argmax(axis=0)
 print('gt_argmax_ious: ', gt_argmax_ious)
 
 gt_max_ious = ious[gt_argmax_ious, np.arange(ious.shape[1])]
+# print(np.arange(ious.shape[1]))
+# print(gt_argmax_ious.shape)
 print('gt_max_ious: ', gt_max_ious)
 
 gt_argmax_ious = np.where(ious == gt_max_ious)[0]
 print('gt_argmax_ious: ', gt_argmax_ious)
 
-
 # what ground truth bbox is associated with each anchor box
 argmax_ious = ious.argmax(axis=1)
 print('argmax_ious.shape: ', argmax_ious.shape)
+print(ious)
 print('argmax_ious: ', argmax_ious)
 
 max_ious = ious[np.arange(len(index_inside)), argmax_ious]
+print('max_ious.shape: ', max_ious.shape)
 print('max_ious: ', max_ious)
+
+# Label
+# set the labels of 8940 valid anchor boxes to -1(ignore)
+label = np.empty((len(index_inside),), dtype=np.int32)
+label.fill(-1)
+print('label.shape: ', label.shape)
+print('label: ', label)
+
+
+
+# use IoU to assign 1 (objects) to two kind of anchors
+# a) the anchors with the highest IoU overlap with a ground truth box
+# b) an anchor that has an IoU overlap higher than 0.7 with ground truth box
+
+# Assign 0 (background) to an anchor if its IoU ratio is lower than 0.3
+pos_iou_threshold = 0.7
+neg_iou_threshold = 0.3
+
+label[gt_argmax_ious] = 1
+label[max_ious >= pos_iou_threshold] = 1
+label[max_ious < neg_iou_threshold] = 0
+
+
+# Every time mini-batch training take only 256 valid anchor boxes to train RPN
+# of which 128 positive examples, 128 negative-examples
+# disable leftover positive/negative anchors 
+n_sample = 256
+pos_ratio = 0.5
+n_pos = pos_ratio * n_sample
+
+pos_index = np.where(label == 1)[0]
+
+if len(pos_index) > n_pos:
+    disable_index = np.random.choice(pos_index,
+                                    size = (len(pos_index) - n_pos),
+                                    replace=False)
+    label[disable_index] = -1
+    
+n_neg = n_sample * np.sum(label == 1)
+neg_index = np.where(label == 0)[0]
+
+if len(neg_index) > n_neg:
+    disable_index = np.random.choice(neg_index, 
+                                    size = (len(neg_index) - n_neg), 
+                                    replace = False)
+    label[disable_index] = -1
+
+# convert the format of valid anchor boxes [x1, y1, x2, y2]
+# For each valid anchor box, find the groundtruth object which has max_iou
+print('argmax_ious: ', argmax_ious)
+print('argmax_ious.shape: ', argmax_ious.shape)
+print('argmax_ious.type: ', type(argmax_ious))
+print('bbox.type: ', type(bbox))
+bbox = np.array(bbox)
+print('bbox.type: ', type(bbox))
+max_iou_bbox = bbox[argmax_ious]
+print(max_iou_bbox.shape)
+
+height = valid_anchor_boxes[:, 3] - valid_anchor_boxes[:, 1]
+width = valid_anchor_boxes[:, 2] = valid_anchor_boxes[:, 0]
+ctr_y = valid_anchor_boxes[:, 1] + 0.5 * height
+ctr_x = valid_anchor_boxes[:, 0] + 0.5 * width
+
+base_height = max_iou_bbox[:, 3] - max_iou_bbox[:, 1]
+base_width = max_iou_bbox[:, 2] - max_iou_bbox[:, 0]
+base_ctr_y = max_iou_bbox[:, 1] + 0.5 * base_height
+base_ctr_x = max_iou_bbox[:, 0] + 0.5 * base_width
+
+eps = np.finfo(height.dtype).eps
+height = np.maximum(height, eps)
+width = np.maximum(width, eps)
+
+dy = (base_ctr_y - ctr_y) / height
+dx = (base_ctr_x - ctr_x) / width
+dh = np.log(base_height / height)
+dw = np.log(base_width / width)
+
+anchor_locs = np.vstack((dx, dy, dw, dh))
+print(anchor_locs.shape)
+anchor_locs = anchor_locs.transpose()
+print(anchor_locs.shape)
+
+
+########################### RPN
