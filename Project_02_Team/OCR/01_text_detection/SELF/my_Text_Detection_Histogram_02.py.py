@@ -140,15 +140,16 @@ def Word_Split(line_img, line_idx, num, avg_distance): # line_img: numpy
         distance = math.sqrt((text_center_loc[i + 2] - text_center_loc[i])**2 + (text_center_loc[i + 3] - text_center_loc[i + 1])**2)
         if distance <= (avg_distance*0.2):
             continue
-        if distance <= (avg_distance*0.75) and sign == True:    # and c_subtract > 25
+        if distance <= (avg_distance*0.75) and sign == True:
             del_list.append(word_idx[i + 1])
             del_list.append(word_idx[i + 2])
             sign = False
         else:
             sign = True
 
+    # and c_subtract > 25
 
-    print(np.array(word_idx).shape)
+    print(np.array(word_idx).shape) 
     for j in range(0, len(del_list), 2):
         word_idx.remove(del_list[j])
         word_idx.remove(del_list[j + 1])
