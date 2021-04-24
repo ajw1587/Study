@@ -9,7 +9,6 @@ else:
     print('No GPU available, using the CPU instead.')
     device = torch.device("cpu")
 
-
 import os
 import random
 import numpy as np
@@ -241,9 +240,6 @@ print("Target : ", annotations[_idx]['labels'])
 plot_image_from_output(imgs[_idx], annotations[_idx])
 print("Prediction : ", pred[_idx]['labels'])
 plot_image_from_output(imgs[_idx], pred[_idx])
-
-
-
 
 
 from tqdm import tqdm
