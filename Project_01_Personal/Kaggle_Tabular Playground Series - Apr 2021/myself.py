@@ -5,10 +5,10 @@ from sklearn.model_selection import StratifiedKFold
 from sklearn.metrics import accuracy_score
 
 
-train_path = 'F:/Personal Project/Kaggle/Tabular Playground Series - Apr 2021/train.csv'
-test_path = 'F:/Personal Project/Kaggle/Tabular Playground Series - Apr 2021/test.csv'
-pseudo_label_path = 'F:/Personal Project/Kaggle/Tabular Playground Series - Apr 2021/lgbm_result_submission.csv'
-submission_path = 'F:/Personal Project/Kaggle/Tabular Playground Series - Apr 2021/sample_submission.csv'
+train_path = 'F:/Personal Project/Kaggle/Tabular Playground Series - Apr 2021/data/train.csv'
+test_path = 'F:/Personal Project/Kaggle/Tabular Playground Series - Apr 2021/data/test.csv'
+pseudo_label_path = 'F:/Personal Project/Kaggle/Tabular Playground Series - Apr 2021/lgbm_pseudo_label_result_submission02_0.81646.csv'
+submission_path = 'F:/Personal Project/Kaggle/Tabular Playground Series - Apr 2021/data/sample_submission.csv'
 
 train = pd.read_csv(train_path, index_col=0)
 test = pd.read_csv(test_path, index_col=0)
@@ -161,7 +161,7 @@ def kfold_prediction(X, y, X_test, K, od_wait = 500):
         y_val = y.iloc[test_idx]
         
         # https://catboost.ai/docs/concepts/parameter-tuning.html
-        params = {'iterations': 10000,
+        params = {'iterations': 15000,
                   'use_best_model':True ,
                   'eval_metric': 'AUC', # 'Accuracy'
                   'loss_function':'Logloss',
@@ -252,4 +252,4 @@ submission_pseudo = pd.DataFrame({
     'Survived':yp.apply(lambda x:vote(x, yp.columns.tolist()),axis=1)
 })
 
-submission_pseudo.to_csv('F:/Personal Project/Kaggle/Tabular Playground Series - Apr 2021/lgbm_pseudo_label_result_submission.csv', index = False) # best 0.80398 LB
+submission_pseudo.to_csv('F:/Personal Project/Kaggle/Tabular Playground Series - Apr 2021/lgbm_pseudo_label_result_submission03.csv', index = False) # best 0.80398 LB
