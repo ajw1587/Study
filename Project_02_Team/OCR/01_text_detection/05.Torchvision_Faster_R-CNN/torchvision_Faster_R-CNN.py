@@ -77,6 +77,7 @@ dummy_img = torch.zeros((1, 3, 800, 800)).float()
 
 req_features = []
 k = dummy_img.clone().to(device)
+
 for i in fe:                        # i = layer
     k = i(k)
     # print(type(i))
@@ -87,6 +88,7 @@ for i in fe:                        # i = layer
         break
     req_features.append(i)
     out_channels = k.size()[1]
+
 # print('len(req_features): ', len(req_features))
 # print('out_channels: ', out_channels)
 

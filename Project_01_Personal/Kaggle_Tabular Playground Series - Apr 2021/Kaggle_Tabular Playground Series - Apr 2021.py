@@ -24,12 +24,12 @@ import seaborn as sns
 import plotly.graph_objs as py
 import plotly.express as go
 
-train = pd.read_csv('F:\Personal Project\Kaggle\Dataset\Tabular Playground Series - Apr 2021/train.csv')
-test = pd.read_csv('F:\Personal Project\Kaggle\Dataset\Tabular Playground Series - Apr 2021/test.csv')
-submission = pd.read_csv('F:\Personal Project\Kaggle\Dataset\Tabular Playground Series - Apr 2021/sample_submission.csv')
+train = pd.read_csv('F:\Personal Project\Kaggle\Tabular Playground Series - Apr 2021/train.csv')
+test = pd.read_csv('F:\Personal Project\Kaggle\Tabular Playground Series - Apr 2021/test.csv')
+submission = pd.read_csv('F:\Personal Project\Kaggle\Tabular Playground Series - Apr 2021/sample_submission.csv')
 
 train.info()
-
+'''
 is_na = pd.DataFrame(train.isna().sum(),columns=['Number'])
 is_na['Percent'] = is_na['Number']/100000
 is_na = is_na.sort_values('Percent',ascending=False)
@@ -243,4 +243,5 @@ np.mean(cv_means)
 
 submission = pd.DataFrame({'PassengerID':id_col,'Survived':lr.predict(test.drop(columns=['Ticket_alpha','Ticket_num','Family_members']))})
 submission = submission.set_index('PassengerID')
-submission.to_csv('F:\Personal Project\Kaggle\Dataset\Tabular Playground Series - Apr 2021/result_submission.csv')
+submission.to_csv('F:\Personal Project\Kaggle\Tabular Playground Series - Apr 2021/result_submission.csv')
+'''
