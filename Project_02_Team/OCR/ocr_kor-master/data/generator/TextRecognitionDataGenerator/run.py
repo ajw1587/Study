@@ -47,7 +47,7 @@ def parse_arguments():
         type=str,
         nargs="?",
         help="The language to use, should be fr (French), en (English), es (Spanish), de (German), or cn (Chinese).",
-        default="en"
+        default="ko"
     )
     parser.add_argument(
         "-c",
@@ -270,7 +270,7 @@ def load_dict(lang):
     """
 
     lang_dict = []
-    with open(os.path.join('dicts', lang + '.txt'), 'r', encoding="utf8", errors='ignore') as d:
+    with open(os.path.join('C:/Study/Project_02_Team/OCR/ocr_kor-master/data/generator/TextRecognitionDataGenerator/dicts', lang + '.txt'), 'r', encoding="utf8", errors='ignore') as d:
         lang_dict = [l for l in d.read().splitlines() if len(l) > 0]
     return lang_dict
 
@@ -280,11 +280,11 @@ def load_fonts(lang):
     """
 
     if lang == 'cn':
-        return [os.path.join('fonts/cn', font) for font in os.listdir('fonts/cn')]
+        return [os.path.join('C:/Study/Project_02_Team/OCR/ocr_kor-master/data/generator/TextRecognitionDataGenerator/cn', font) for font in os.listdir('fonts/cn')]
     elif lang == 'ko':
-        return [os.path.join('fonts/ko', font) for font in os.listdir('fonts/ko')]
+        return [os.path.join('C:/Study/Project_02_Team/OCR/ocr_kor-master/data/generator/TextRecognitionDataGenerator/fonts/ko', font) for font in os.listdir('C:/Study/Project_02_Team/OCR/ocr_kor-master/data/generator/TextRecognitionDataGenerator/fonts/ko')]
     else:
-        return [os.path.join('fonts/latin', font) for font in os.listdir('fonts/latin')]
+        return [os.path.join('C:/Study/Project_02_Team/OCR/ocr_kor-master/data/generator/TextRecognitionDataGenerator/fonts/latin', font) for font in os.listdir('C:/Study/Project_02_Team/OCR/ocr_kor-master/data/generator/TextRecognitionDataGenerator/fonts/latin')]
 
 def main():
     """

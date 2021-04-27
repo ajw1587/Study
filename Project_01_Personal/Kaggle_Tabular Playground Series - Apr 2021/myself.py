@@ -161,7 +161,7 @@ def kfold_prediction(X, y, X_test, K, od_wait = 500):
         y_val = y.iloc[test_idx]
         
         # https://catboost.ai/docs/concepts/parameter-tuning.html
-        params = {'iterations': 15000,
+        params = {'iterations': 10000,
                   'use_best_model':True ,
                   'eval_metric': 'AUC', # 'Accuracy'
                   'loss_function':'Logloss',
