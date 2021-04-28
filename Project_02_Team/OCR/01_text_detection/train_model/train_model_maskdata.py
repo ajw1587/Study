@@ -1,3 +1,5 @@
+# https://pseudo-lab.github.io/Tutorial-Book/chapters/object-detection/Ch5-Faster-R-CNN.html
+
 import torch
 
 if torch.cuda.is_available():    
