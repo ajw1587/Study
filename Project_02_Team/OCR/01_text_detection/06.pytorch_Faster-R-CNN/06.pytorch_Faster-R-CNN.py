@@ -1,10 +1,11 @@
 # https://herbwood.tistory.com/11?category=867198
 # https://github.com/herbwood/pytorch_faster_r_cnn/blob/main/faster_r_cnn.ipynb
 # nuggy875.tistory.com/33
+# https://dongjk.github.io/code/object+detection/keras/2018/05/21/Faster_R-CNN_step_by_step,_Part_I.html
 import torch
 import torchvision
 import torch.nn as nn
-import cv2 as cv2
+import cv2
 import torch.nn.functional as F
 from torchvision import transforms
 import matplotlib.pyplot as plt
@@ -18,7 +19,7 @@ else:
     # print(device)
 
 # image
-img0 = cv2.imread('F:/Team Project/OCR/01_Text_detection/data/faster_rcnn/test/zebras.jpg')
+img0 = cv2.imread('F:/Team Project/OCR/01_Text_detection/faster_rcnn/test/zebras.jpg')
 img0 = cv2.cvtColor(img0, cv2.COLOR_BGR2RGB)
 
 bbox0 = np.array([[223, 782, 623, 1074], [597, 695, 1038, 1050], 
@@ -374,7 +375,6 @@ cls_layer.bias.data.zero_()
 x = conv1(output_map.to(DEVICE)) # output_map = faster_rcnn_feature_extractor(imgTensor)
 pred_anchor_locs = reg_layer(x) # bounding box regresor output
 pred_cls_scores = cls_layer(x)  # classifier output 
-
 print('LINE 377 pred_anchor_locs.shape: ', pred_anchor_locs.shape)
 print('LINE 378 pred_cls_scores.shape: ', pred_cls_scores.shape)
 
@@ -461,6 +461,7 @@ print(anc_ctr_x.shape)
 # format = (dx, dy, dw, dh)
 pred_anchor_locs_numpy = pred_anchor_locs[0].cpu().data.numpy()
 objectness_score_numpy = objectness_score[0].cpu().data.numpy()
+print('LINE 463 pred_anchor_locs_numpy: ', pred_anchor_locs_numpy.shape)
 
 dy = pred_anchor_locs_numpy[:, 1::4]
 dx = pred_anchor_locs_numpy[:, 0::4]
