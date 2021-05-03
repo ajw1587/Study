@@ -22,11 +22,11 @@ DEFAULT_FONTS_DIR = os.path.join(SCRIPT_PATH, 'C:/Study/Project_02_Team/OCR/tens
 DEFAULT_OUTPUT_DIR = os.path.join(SCRIPT_PATH, 'F:/Team Project/OCR/02_Image_to_Text_model/test_data')
 # C:\Users\Admin\Desktop\image-data
 # Number of random distortion images to generate per font and character.
-DISTORTION_COUNT = 5
+DISTORTION_COUNT = 0
 
 # Width and height of the resulting image.
-IMAGE_WIDTH = 64
-IMAGE_HEIGHT = 64
+IMAGE_WIDTH = 512
+IMAGE_HEIGHT = 512
 
 def generate_hangul_images(label_file, fonts_dir, output_dir):
     """Generate Hangul image files.
@@ -63,14 +63,14 @@ def generate_hangul_images(label_file, fonts_dir, output_dir):
 
         for font in fonts:
             total_count += 1
-            image = Image.new('L', (IMAGE_WIDTH, IMAGE_HEIGHT), color=0)
-            font = ImageFont.truetype(font, 48)
+            image = Image.new('L', (IMAGE_WIDTH, IMAGE_HEIGHT), color=255)
+            font = ImageFont.truetype(font, 24)
             drawing = ImageDraw.Draw(image)
             w, h = drawing.textsize(character, font=font)
             drawing.text(
-                ((IMAGE_WIDTH-w)/2, (IMAGE_HEIGHT-h)/2),
+                ((IMAGE_WIDTH)/2, (IMAGE_HEIGHT)/2),
                 character,
-                fill=(255),
+                fill=(0),
                 font=font
             )
             file_string = 'hangul_{}.jpeg'.format(total_count)
