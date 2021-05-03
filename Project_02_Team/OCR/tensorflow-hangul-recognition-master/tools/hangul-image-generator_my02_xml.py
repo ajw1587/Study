@@ -5,12 +5,14 @@ import glob
 import io
 import os
 import random
+import math
 
 import numpy
 import pandas as pd
 from PIL import Image, ImageFont, ImageDraw
 from scipy.ndimage.interpolation import map_coordinates
 from scipy.ndimage.filters import gaussian_filter
+from xml.etree.ElementTree import Element, SubElement, ElementTree
 
 
 SCRIPT_PATH = os.path.dirname(os.path.abspath(__file__))
@@ -22,11 +24,34 @@ DEFAULT_FONTS_DIR = os.path.join(SCRIPT_PATH, 'C:/Study/Project_02_Team/OCR/tens
 DEFAULT_OUTPUT_DIR = os.path.join(SCRIPT_PATH, 'F:/Team Project/OCR/02_Image_to_Text_model/test_data')
 # C:\Users\Admin\Desktop\image-data
 # Number of random distortion images to generate per font and character.
-DISTORTION_COUNT = 0
+DISTORTION_COUNT = 1
 
 # Width and height of the resulting image.
 IMAGE_WIDTH = 512
 IMAGE_HEIGHT = 512
+
+def generate_hangul_location(start, end, text_size):
+    while True:
+        x1 = random.randint(start + math.ceil(text_size/2), end - math.ceil(text_size/2))
+        y1 = random.randint(start + math.ceil(text_size/2), end - math.ceil(text_size/2))
+
+        x2 = random.randint(start + math.ceil(text_size/2), end - math.ceil(text_size/2))
+        y2 = random.randint(start + math.ceil(text_size/2), end - math.ceil(text_size/2))
+
+        x3 = random.randint(start + math.ceil(text_size/2), end - math.ceil(text_size/2))
+        y3 = random.randint(start + math.ceil(text_size/2), end - math.ceil(text_size/2))
+
+        dis1 = math.sqrt((x1 - x2)**2 + (y1 - y2)**2)
+        dis2 = math.sqrt((x1 - x3)**2 + (y1 - y3)**2)
+        dis3 = math.sqrt((x2 - x3)**2 + (y2 - y3)**2)
+
+        if dis1 < text_size or dis2 < text_size or dis3 < text_size:
+            continue
+        else:
+            return x1, y1, x2, y2, x3, y3
+
+def generate_annotation_xml(width, height, depth, name1, x1, y1, name2, x2, y2, name3, x3, y3):
+    
 
 def generate_hangul_images(label_file, fonts_dir, output_dir):
     """Generate Hangul image files.
@@ -52,6 +77,7 @@ def generate_hangul_images(label_file, fonts_dir, output_dir):
 
     total_count = 0
     prev_count = 0
+    text_size = 20
 
     label_list = []
     path_list = []
@@ -62,17 +88,56 @@ def generate_hangul_images(label_file, fonts_dir, output_dir):
             print('{} images generated...'.format(total_count))
 
         for font in fonts:
+            
+            # 위치 생성
+            # while True:
+            #     x1 = random.randint(0 + math.ceil(text_size/2), 500 - math.ceil(text_size/2))
+            #     y1 = random.randint(0 + math.ceil(text_size/2), 500 - math.ceil(text_size/2))
+
+            #     x2 = random.randint(0 + math.ceil(text_size/2), 500 - math.ceil(text_size/2))
+            #     y2 = random.randint(0 + math.ceil(text_size/2), 500 - math.ceil(text_size/2))
+
+            #     x3 = random.randint(0 + math.ceil(text_size/2), 500 - math.ceil(text_size/2))
+            #     y3 = random.randint(0 + math.ceil(text_size/2), 500 - math.ceil(text_size/2))
+
+            #     dis1 = math.sqrt((x1 - x2)**2 + (y1 - y2)**2)
+            #     dis2 = math.sqrt((x1 - x3)**2 + (y1 - y3)**2)
+            #     dis3 = math.sqrt((x2 - x3)**2 + (y2 - y3)**2)
+
+            #     if dis1 < text_size or dis2 < text_size or dis3 < text_size:
+            #         continue
+            #     else:
+            #         break
+            x1, y1, x2, y2, x3, y3 = generate_hangul_location(0, 500, text_size)
+
             total_count += 1
             image = Image.new('L', (IMAGE_WIDTH, IMAGE_HEIGHT), color=255)
-            font = ImageFont.truetype(font, 24)
+            font = ImageFont.truetype(font, text_size)
             drawing = ImageDraw.Draw(image)
             w, h = drawing.textsize(character, font=font)
+
+            # drawing 1
             drawing.text(
-                ((IMAGE_WIDTH)/2, (IMAGE_HEIGHT)/2),
+                (x1, y1), # ((IMAGE_WIDTH)/2, (IMAGE_HEIGHT)/2),
                 character,
                 fill=(0),
                 font=font
             )
+            # drawing 2
+            drawing.text(
+                (x2, y2), # ((IMAGE_WIDTH)/2, (IMAGE_HEIGHT)/2),
+                character,
+                fill=(0),
+                font=font
+            )
+            # drawing 3
+            drawing.text(
+                (x3, y3), # ((IMAGE_WIDTH)/2, (IMAGE_HEIGHT)/2),
+                character,
+                fill=(0),
+                font=font
+            )
+
             file_string = 'hangul_{}.jpeg'.format(total_count)
             file_path = os.path.join(image_dir, file_string)
             image.save(file_path, 'JPEG')
