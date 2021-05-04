@@ -29,6 +29,7 @@ DISTORTION_COUNT = 0
 # Width and height of the resulting image.
 IMAGE_WIDTH = 512
 IMAGE_HEIGHT = 512
+DEPTH = 3
 
 def generate_hangul_location(start, end, text_size):
     while True:
@@ -50,63 +51,63 @@ def generate_hangul_location(start, end, text_size):
         else:
             return x1, y1, x2, y2, x3, y3
 
-def generate_annotation_xml(width, height, depth, name1, x1, y1, name2, x2, y2, name3, x3, y3):
-    root = Element('annotations')
+def generate_annotation_xml(filename, width, height, depth, text_size, name, x1, y1, x2, y2, x3, y3):
+    root = Element('annotation')
     SubElement(root, 'folder').text = 'images'
 
-    SubElement(root, 'filename').text = 'example'
+    SubElement(root, 'filename').text = filename + '.png'
 
     size = SubElement(root, 'size')
-    SubElement(size, 'width').text = '1'
-    SubElement(size, 'height').text = '2'
-    SubElement(size, 'depth').text = '3'
+    SubElement(size, 'width').text = str(width)
+    SubElement(size, 'height').text = str(height)
+    SubElement(size, 'depth').text = str(depth)
 
     SubElement(root, 'segmented').text = '0'
 
     # object 1
     object = SubElement(root, 'object')
-    SubElement(object, 'name').text = 'without_mask'
+    SubElement(object, 'name').text = name
     SubElement(object, 'pose').text = 'Unspecified'
     SubElement(object, 'truncated').text = '0'
     SubElement(object, 'occluded').text = '0'
     SubElement(object, 'difficult').text = '0'
 
     bnd = SubElement(object, 'bndbox')
-    SubElement(bnd, 'xmin').text = '10'
-    SubElement(bnd, 'ymin').text = '10'
-    SubElement(bnd, 'xmax').text = '20'
-    SubElement(bnd, 'ymax').text = '20'
+    SubElement(bnd, 'xmin').text = str(x1 - text_size/2)
+    SubElement(bnd, 'ymin').text = str(y1 - text_size/2)
+    SubElement(bnd, 'xmax').text = str(x1 + text_size/2)
+    SubElement(bnd, 'ymax').text = str(y1 + text_size/2)
 
     # object 2
     object = SubElement(root, 'object')
-    SubElement(object, 'name').text = 'without_mask'
+    SubElement(object, 'name').text = name
     SubElement(object, 'pose').text = 'Unspecified'
     SubElement(object, 'truncated').text = '0'
     SubElement(object, 'occluded').text = '0'
     SubElement(object, 'difficult').text = '0'
 
     bnd = SubElement(object, 'bndbox')
-    SubElement(bnd, 'xmin').text = '10'
-    SubElement(bnd, 'ymin').text = '10'
-    SubElement(bnd, 'xmax').text = '20'
-    SubElement(bnd, 'ymax').text = '20'
+    SubElement(bnd, 'xmin').text = str(x2 - text_size/2)
+    SubElement(bnd, 'ymin').text = str(y2 - text_size/2)
+    SubElement(bnd, 'xmax').text = str(x2 + text_size/2)
+    SubElement(bnd, 'ymax').text = str(y2 + text_size/2)
 
     # object 3
     object = SubElement(root, 'object')
-    SubElement(object, 'name').text = 'without_mask'
+    SubElement(object, 'name').text = name
     SubElement(object, 'pose').text = 'Unspecified'
     SubElement(object, 'truncated').text = '0'
     SubElement(object, 'occluded').text = '0'
     SubElement(object, 'difficult').text = '0'
 
     bnd = SubElement(object, 'bndbox')
-    SubElement(bnd, 'xmin').text = '10'
-    SubElement(bnd, 'ymin').text = '10'
-    SubElement(bnd, 'xmax').text = '20'
-    SubElement(bnd, 'ymax').text = '20'
+    SubElement(bnd, 'xmin').text = str(x3 - text_size/2)
+    SubElement(bnd, 'ymin').text = str(y3 - text_size/2)
+    SubElement(bnd, 'xmax').text = str(x3 + text_size/2)
+    SubElement(bnd, 'ymax').text = str(y3 + text_size/2)
 
     tree = ElementTree(root)
-    tree.write('F:/xmltest/' + filename + '.xml')
+    tree.write('F:/Team Project/OCR/02_Image_to_Text_model/test_data/' + filename + '.xml')
 
 def generate_hangul_images(label_file, fonts_dir, output_dir):
     """Generate Hangul image files.
@@ -145,28 +146,10 @@ def generate_hangul_images(label_file, fonts_dir, output_dir):
         for font in fonts:
             
             # 위치 생성
-            # while True:
-            #     x1 = random.randint(0 + math.ceil(text_size/2), 500 - math.ceil(text_size/2))
-            #     y1 = random.randint(0 + math.ceil(text_size/2), 500 - math.ceil(text_size/2))
-
-            #     x2 = random.randint(0 + math.ceil(text_size/2), 500 - math.ceil(text_size/2))
-            #     y2 = random.randint(0 + math.ceil(text_size/2), 500 - math.ceil(text_size/2))
-
-            #     x3 = random.randint(0 + math.ceil(text_size/2), 500 - math.ceil(text_size/2))
-            #     y3 = random.randint(0 + math.ceil(text_size/2), 500 - math.ceil(text_size/2))
-
-            #     dis1 = math.sqrt((x1 - x2)**2 + (y1 - y2)**2)
-            #     dis2 = math.sqrt((x1 - x3)**2 + (y1 - y3)**2)
-            #     dis3 = math.sqrt((x2 - x3)**2 + (y2 - y3)**2)
-
-            #     if dis1 < text_size or dis2 < text_size or dis3 < text_size:
-            #         continue
-            #     else:
-            #         break
             x1, y1, x2, y2, x3, y3 = generate_hangul_location(0, 500, text_size)
 
             total_count += 1
-            image = Image.new('RGB', (IMAGE_WIDTH, IMAGE_HEIGHT), color=255) # 'L' -> 'RGB'
+            image = Image.new('RGB', (IMAGE_WIDTH, IMAGE_HEIGHT), color=(255, 255, 255)) # 'L' -> 'RGB'
             font = ImageFont.truetype(font, text_size)
             drawing = ImageDraw.Draw(image)
             w, h = drawing.textsize(character, font=font)
@@ -175,36 +158,39 @@ def generate_hangul_images(label_file, fonts_dir, output_dir):
             drawing.text(
                 (x1, y1), # ((IMAGE_WIDTH)/2, (IMAGE_HEIGHT)/2),
                 character,
-                fill=(0),
+                fill=(0, 0, 0),
                 font=font
             )
             # drawing 2
             drawing.text(
                 (x2, y2), # ((IMAGE_WIDTH)/2, (IMAGE_HEIGHT)/2),
                 character,
-                fill=(0),
+                fill=(0, 0, 0),
                 font=font
             )
             # drawing 3
             drawing.text(
                 (x3, y3), # ((IMAGE_WIDTH)/2, (IMAGE_HEIGHT)/2),
                 character,
-                fill=(0),
+                fill=(0, 0, 0),
                 font=font
             )
 
-            file_string = 'hangul_{}.jpeg'.format(total_count)
+            file_string = 'hangul_{}.png'.format(total_count)
             file_path = os.path.join(image_dir, file_string)
-            image.save(file_path, 'JPEG')
+            image.save(file_path, 'PNG')
 
+            annotation_name = 'hangul_{}'.format(total_count)
+            generate_annotation_xml(annotation_name, IMAGE_WIDTH, IMAGE_HEIGHT, DEPTH, text_size, character, x1, y1, x2, y2, x3, y3)
 
-            label_list.append(character)
-            path_list.append(file_path)
+            # label_list.append(character)
+            # path_list.append(file_path)
+
             # labels_csv.write(u'{},{}\n'.format(file_path, character))
 
             for i in range(DISTORTION_COUNT):
                 total_count += 1
-                file_string = 'hangul_{}.jpeg'.format(total_count)
+                file_string = 'hangul_{}.png'.format(total_count)
                 file_path = os.path.join(image_dir, file_string)
                 arr = numpy.array(image)
 
@@ -213,25 +199,26 @@ def generate_hangul_images(label_file, fonts_dir, output_dir):
                     sigma=random.randint(5, 6)
                 )
                 distorted_image = Image.fromarray(distorted_array)
-                distorted_image.save(file_path, 'JPEG')
+                distorted_image.save(file_path, 'PNG')
+                generate_annotation_xml(annotation_name, IMAGE_WIDTH, IMAGE_HEIGHT, DEPTH, text_size, character, x1, y1, x2, y2, x3, y3)
 
-
-                label_list.append(character)
-                path_list.append(file_path)
+                # label_list.append(character)
+                # path_list.append(file_path)
 
                 # labels_csv.write(u'{},{}\n'.format(file_path, character))
-    label_list = numpy.array(label_list)
-    path_list = numpy.array(path_list)
 
-    label_list = label_list.reshape(-1, 1)
-    path_list = path_list.reshape(-1, 1)
+    # label_list = numpy.array(label_list)
+    # path_list = numpy.array(path_list)
 
-    final_list = numpy.concatenate((path_list, label_list), axis = 1)
+    # label_list = label_list.reshape(-1, 1)
+    # path_list = path_list.reshape(-1, 1)
 
-    final_list = pd.DataFrame(final_list)
-    final_list.to_csv('F:/Team Project/OCR/02_Image_to_Text_model/test_data/test-labels-map.csv'
-                      , index_label = False
-                      , header = False)
+    # final_list = numpy.concatenate((path_list, label_list), axis = 1)
+
+    # final_list = pd.DataFrame(final_list)
+    # final_list.to_csv('F:/Team Project/OCR/02_Image_to_Text_model/test_data/test-labels-map.csv'
+    #                   , index_label = False
+    #                   , header = False)
 
 
     print('Finished generating {} images.'.format(total_count))
