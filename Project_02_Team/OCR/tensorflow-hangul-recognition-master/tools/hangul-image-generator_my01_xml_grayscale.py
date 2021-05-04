@@ -9,6 +9,7 @@ import math
 
 import numpy
 import pandas as pd
+import cv2
 from PIL import Image, ImageFont, ImageDraw
 from scipy.ndimage.interpolation import map_coordinates
 from scipy.ndimage.filters import gaussian_filter
@@ -24,7 +25,7 @@ DEFAULT_FONTS_DIR = os.path.join(SCRIPT_PATH, 'C:/Study/Project_02_Team/OCR/tens
 DEFAULT_OUTPUT_DIR = os.path.join(SCRIPT_PATH, 'F:/Team Project/OCR/02_Image_to_Text_model/test_data')
 # C:\Users\Admin\Desktop\image-data
 # Number of random distortion images to generate per font and character.
-DISTORTION_COUNT = 1
+DISTORTION_COUNT = 0
 
 # Width and height of the resulting image.
 IMAGE_WIDTH = 512

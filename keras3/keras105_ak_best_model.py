@@ -42,5 +42,9 @@ print(results)
 
 # ImageClassifier -> 우리가 사용하는 Model, 그래야 save가 된다.
 model2 = model.export_model()
-model2.summary()
-model2.save('F:/autokeras/save_model/aaa.h5')
+model2.save('F:/autokeras/save_model/aaa.hdf5')
+
+best_model = model.tuner.get_best_model()
+best_model.save('F:/autokeras/save_model/best_aaa.hdf5')
+
+# [0.05652626231312752, 0.9817000031471252]
