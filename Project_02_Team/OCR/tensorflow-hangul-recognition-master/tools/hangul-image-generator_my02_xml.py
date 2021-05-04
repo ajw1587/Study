@@ -24,7 +24,7 @@ DEFAULT_FONTS_DIR = os.path.join(SCRIPT_PATH, 'C:/Study/Project_02_Team/OCR/tens
 DEFAULT_OUTPUT_DIR = os.path.join(SCRIPT_PATH, 'F:/Team Project/OCR/02_Image_to_Text_model/test_data')
 # C:\Users\Admin\Desktop\image-data
 # Number of random distortion images to generate per font and character.
-DISTORTION_COUNT = 0
+DISTORTION_COUNT = 1
 
 # Width and height of the resulting image.
 IMAGE_WIDTH = 512
@@ -51,7 +51,7 @@ def generate_hangul_location(start, end, text_size):
         else:
             return x1, y1, x2, y2, x3, y3
 
-def generate_annotation_xml(filename, width, height, depth, text_size, name, x1, y1, x2, y2, x3, y3):
+def generate_annotation_xml(filename, path, width, height, depth, text_size, name, x1, y1, x2, y2, x3, y3):
     root = Element('annotation')
     SubElement(root, 'folder').text = 'images'
 
@@ -107,7 +107,7 @@ def generate_annotation_xml(filename, width, height, depth, text_size, name, x1,
     SubElement(bnd, 'ymax').text = str(y3 + text_size/2)
 
     tree = ElementTree(root)
-    tree.write('F:/Team Project/OCR/02_Image_to_Text_model/test_data/' + filename + '.xml')
+    tree.write(path + filename + '.xml')
 
 def generate_hangul_images(label_file, fonts_dir, output_dir):
     """Generate Hangul image files.
@@ -121,10 +121,16 @@ def generate_hangul_images(label_file, fonts_dir, output_dir):
     with io.open(label_file, 'r', encoding='utf-8') as f:
         labels = f.read().splitlines()
 
-    image_dir = os.path.join(output_dir, 'hangul-images')
-    if not os.path.exists(image_dir):
-        os.makedirs(os.path.join(image_dir))
+    # image_dir = os.path.join(output_dir, 'hangul-images')
 
+    TRAIN_IMAGE_DIR = os.path.join(output_dir, 'train_hangul-images')
+    TEST_IMAGE_DIR = os.path.join(output_dir, 'test_hangul-images')
+    if not os.path.exists(TRAIN_IMAGE_DIR):
+        os.makedirs(os.path.join(TRAIN_IMAGE_DIR))
+    if not os.path.exists(TEST_IMAGE_DIR):
+        os.makedirs(os.path.join(TEST_IMAGE_DIR))
+    # if not os.path.exists(image_dir):
+    #     os.makedirs(os.path.join(image_dir))
     # Get a list of the fonts.
     fonts = glob.glob(os.path.join(fonts_dir, '*.ttf'))
 
@@ -134,6 +140,12 @@ def generate_hangul_images(label_file, fonts_dir, output_dir):
     total_count = 0
     prev_count = 0
     text_size = 20
+    TRAIN_ANNOTATION_PATH = 'F:/Team Project/OCR/02_Image_to_Text_model/test_data/train_annotation/'
+    TEST_ANNOTATION_PATH = 'F:/Team Project/OCR/02_Image_to_Text_model/test_data/test_annotation/'
+    if not os.path.exists(TRAIN_ANNOTATION_PATH):
+        os.makedirs(os.path.join(TRAIN_ANNOTATION_PATH))
+    if not os.path.exists(TEST_ANNOTATION_PATH):
+        os.makedirs(os.path.join(TEST_ANNOTATION_PATH))
 
     label_list = []
     path_list = []
@@ -177,11 +189,13 @@ def generate_hangul_images(label_file, fonts_dir, output_dir):
             )
 
             file_string = 'hangul_{}.png'.format(total_count)
-            file_path = os.path.join(image_dir, file_string)
+            file_path = os.path.join(TEST_IMAGE_DIR, file_string)
+            # shape = numpy.array(image)
+            # print('shape.shape: ', shape.shape)
             image.save(file_path, 'PNG')
 
             annotation_name = 'hangul_{}'.format(total_count)
-            generate_annotation_xml(annotation_name, IMAGE_WIDTH, IMAGE_HEIGHT, DEPTH, text_size, character, x1, y1, x2, y2, x3, y3)
+            generate_annotation_xml(annotation_name, TEST_ANNOTATION_PATH, IMAGE_WIDTH, IMAGE_HEIGHT, DEPTH, text_size, character, x1, y1, x2, y2, x3, y3)
 
             # label_list.append(character)
             # path_list.append(file_path)
@@ -191,8 +205,9 @@ def generate_hangul_images(label_file, fonts_dir, output_dir):
             for i in range(DISTORTION_COUNT):
                 total_count += 1
                 file_string = 'hangul_{}.png'.format(total_count)
-                file_path = os.path.join(image_dir, file_string)
+                file_path = os.path.join(TRAIN_IMAGE_DIR, file_string)
                 arr = numpy.array(image)
+                # print('arr.shape: ', arr.shape)
 
                 distorted_array = elastic_distort(
                     arr, alpha=random.randint(30, 36),
@@ -200,7 +215,7 @@ def generate_hangul_images(label_file, fonts_dir, output_dir):
                 )
                 distorted_image = Image.fromarray(distorted_array)
                 distorted_image.save(file_path, 'PNG')
-                generate_annotation_xml(annotation_name, IMAGE_WIDTH, IMAGE_HEIGHT, DEPTH, text_size, character, x1, y1, x2, y2, x3, y3)
+                generate_annotation_xml(annotation_name, TRAIN_ANNOTATION_PATH, IMAGE_WIDTH, IMAGE_HEIGHT, DEPTH, text_size, character, x1, y1, x2, y2, x3, y3)
 
                 # label_list.append(character)
                 # path_list.append(file_path)
@@ -234,6 +249,8 @@ def elastic_distort(image, alpha, sigma):
     """
     random_state = numpy.random.RandomState(None)
     shape = image.shape
+    print('image.shape: ', image.shape)
+    print('shape: ', shape)
 
     dx = gaussian_filter(
         (random_state.rand(*shape) * 2 - 1),

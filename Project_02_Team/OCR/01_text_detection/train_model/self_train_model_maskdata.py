@@ -16,10 +16,10 @@ import random
 import numpy as np
 import shutil
 
-base_path = 'F:/Team Project/OCR/01_Text_detection/data/DataSet/'
+base_path = 'F:/Team Project/OCR/02_Image_to_Text_model/test_data/'
 print(len(os.listdir('F:/Team Project/OCR/01_Text_detection/data/DataSet/annotations/')))
-print(len(os.listdir('F:/Team Project/OCR/01_Text_detection/data/DataSet/images/')))
-images_path = 'F:/Team Project/OCR/01_Text_detection/data/DataSet/images/'
+print(len(os.listdir('F:/Team Project/OCR/02_Image_to_Text_model/test_data/hangul-images/')))
+images_path = 'F:/Team Project/OCR/02_Image_to_Text_model/test_data/hangul-images/'
 test_images_path = 'F:/Team Project/OCR/01_Text_detection/data/DataSet/test_images/'
 annotations_path = 'F:/Team Project/OCR/01_Text_detection/data/DataSet/annotations/'
 test_annotations_path = 'F:/Team Project/OCR/01_Text_detection/data/DataSet/test_annotations/'
