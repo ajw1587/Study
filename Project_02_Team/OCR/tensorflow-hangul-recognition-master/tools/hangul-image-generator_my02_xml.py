@@ -24,7 +24,7 @@ DEFAULT_FONTS_DIR = os.path.join(SCRIPT_PATH, 'C:/Study/Project_02_Team/OCR/tens
 DEFAULT_OUTPUT_DIR = os.path.join(SCRIPT_PATH, 'F:/Team Project/OCR/02_Image_to_Text_model/test_data')
 # C:\Users\Admin\Desktop\image-data
 # Number of random distortion images to generate per font and character.
-DISTORTION_COUNT = 1
+DISTORTION_COUNT = 0
 
 # Width and height of the resulting image.
 IMAGE_WIDTH = 512
@@ -51,7 +51,62 @@ def generate_hangul_location(start, end, text_size):
             return x1, y1, x2, y2, x3, y3
 
 def generate_annotation_xml(width, height, depth, name1, x1, y1, name2, x2, y2, name3, x3, y3):
-    
+    root = Element('annotations')
+    SubElement(root, 'folder').text = 'images'
+
+    SubElement(root, 'filename').text = 'example'
+
+    size = SubElement(root, 'size')
+    SubElement(size, 'width').text = '1'
+    SubElement(size, 'height').text = '2'
+    SubElement(size, 'depth').text = '3'
+
+    SubElement(root, 'segmented').text = '0'
+
+    # object 1
+    object = SubElement(root, 'object')
+    SubElement(object, 'name').text = 'without_mask'
+    SubElement(object, 'pose').text = 'Unspecified'
+    SubElement(object, 'truncated').text = '0'
+    SubElement(object, 'occluded').text = '0'
+    SubElement(object, 'difficult').text = '0'
+
+    bnd = SubElement(object, 'bndbox')
+    SubElement(bnd, 'xmin').text = '10'
+    SubElement(bnd, 'ymin').text = '10'
+    SubElement(bnd, 'xmax').text = '20'
+    SubElement(bnd, 'ymax').text = '20'
+
+    # object 2
+    object = SubElement(root, 'object')
+    SubElement(object, 'name').text = 'without_mask'
+    SubElement(object, 'pose').text = 'Unspecified'
+    SubElement(object, 'truncated').text = '0'
+    SubElement(object, 'occluded').text = '0'
+    SubElement(object, 'difficult').text = '0'
+
+    bnd = SubElement(object, 'bndbox')
+    SubElement(bnd, 'xmin').text = '10'
+    SubElement(bnd, 'ymin').text = '10'
+    SubElement(bnd, 'xmax').text = '20'
+    SubElement(bnd, 'ymax').text = '20'
+
+    # object 3
+    object = SubElement(root, 'object')
+    SubElement(object, 'name').text = 'without_mask'
+    SubElement(object, 'pose').text = 'Unspecified'
+    SubElement(object, 'truncated').text = '0'
+    SubElement(object, 'occluded').text = '0'
+    SubElement(object, 'difficult').text = '0'
+
+    bnd = SubElement(object, 'bndbox')
+    SubElement(bnd, 'xmin').text = '10'
+    SubElement(bnd, 'ymin').text = '10'
+    SubElement(bnd, 'xmax').text = '20'
+    SubElement(bnd, 'ymax').text = '20'
+
+    tree = ElementTree(root)
+    tree.write('F:/xmltest/' + filename + '.xml')
 
 def generate_hangul_images(label_file, fonts_dir, output_dir):
     """Generate Hangul image files.
@@ -111,7 +166,7 @@ def generate_hangul_images(label_file, fonts_dir, output_dir):
             x1, y1, x2, y2, x3, y3 = generate_hangul_location(0, 500, text_size)
 
             total_count += 1
-            image = Image.new('L', (IMAGE_WIDTH, IMAGE_HEIGHT), color=255)
+            image = Image.new('RGB', (IMAGE_WIDTH, IMAGE_HEIGHT), color=255) # 'L' -> 'RGB'
             font = ImageFont.truetype(font, text_size)
             drawing = ImageDraw.Draw(image)
             w, h = drawing.textsize(character, font=font)
