@@ -32,6 +32,20 @@ IMAGE_WIDTH = 512
 IMAGE_HEIGHT = 512
 DEPTH = 3
 
+# Noise Image
+noise1 = Image.open('F:/noise1.png')
+noise2 = Image.open('F:/noise2.png')
+noise3 = Image.open('F:/noise3.png')
+noise4 = Image.open('F:/noise4.png')
+noise5 = Image.open('F:/noise5.png')
+noise6 = Image.open('F:/noise6.png')
+noise1 = noise1.resize((int(noise1.width / 2), int(noise1.height / 2)))
+noise2 = noise2.resize((int(noise2.width / 2), int(noise2.height / 2)))
+noise3 = noise3.resize((int(noise3.width / 2), int(noise3.height / 2)))
+noise4 = noise4.resize((int(noise4.width / 2), int(noise4.height / 2)))
+noise5 = noise5.resize((int(noise5.width / 2), int(noise5.height / 2)))
+noise6 = noise6.resize((int(noise6.width / 2), int(noise6.height / 2)))
+
 def noisy(noise_typ,image):
     if noise_typ == "gauss":
         row,col,ch= image.shape
@@ -93,6 +107,16 @@ def generate_hangul_location(start, end, text_size):
             continue
         else:
             return x1, y1, x2, y2, x3, y3, math.ceil(text_size1), math.ceil(text_size2), math.ceil(text_size3)
+
+def generate_image_noise(img):
+    img.paste(noise1, (random.randint(0, IMAGE_WIDTH), random.randint(0, IMAGE_HEIGHT)))
+    img.paste(noise2, (random.randint(0, IMAGE_WIDTH), random.randint(0, IMAGE_HEIGHT)))
+    img.paste(noise3, (random.randint(0, IMAGE_WIDTH), random.randint(0, IMAGE_HEIGHT)))
+    img.paste(noise4, (random.randint(0, IMAGE_WIDTH), random.randint(0, IMAGE_HEIGHT)))
+    img.paste(noise5, (random.randint(0, IMAGE_WIDTH), random.randint(0, IMAGE_HEIGHT)))
+    img.paste(noise6, (random.randint(0, IMAGE_WIDTH), random.randint(0, IMAGE_HEIGHT)))
+
+    return img
 
 def generate_annotation_xml(filename, path, width, height, depth, text_size1, text_size2, text_size3, name, x1, y1, x2, y2, x3, y3):
     root = Element('annotation')
@@ -258,12 +282,16 @@ def generate_hangul_images(label_file, fonts_dir, output_dir):
                 file_string = 'hangul_{}.png'.format(train_total_count)
                 file_path = os.path.join(TRAIN_IMAGE_DIR, file_string)
                 ######################################################################
-                # 위치 생성
-                x1, y1, x2, y2, x3, y3, text_size1, text_size2, text_size3 = generate_hangul_location(0, 500, text_size)
-
+                # 노이즈 background 생성
                 image2 = Image.new('RGB', (IMAGE_WIDTH, IMAGE_HEIGHT), color=(255, 255, 255)) # 'L' -> 'RGB'
                 image2 = Image.open('F:/paper_texture.png')
                 image2 = image2.resize((512, 512))
+
+                image2 = generate_image_noise(image2)
+                ######################################################################
+                # 글자 위치 생성
+                x1, y1, x2, y2, x3, y3, text_size1, text_size2, text_size3 = generate_hangul_location(0, 500, text_size)
+
                 font1 = ImageFont.truetype(font, text_size1)
                 font2 = ImageFont.truetype(font, text_size2)
                 font3 = ImageFont.truetype(font, text_size3)

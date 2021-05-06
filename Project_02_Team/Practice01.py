@@ -1,7 +1,8 @@
 from PIL import Image, ImageOps, ImageFilter
 
 img = Image.open('F:/paper_texture.png')
-deco = Image.open('F:/example_noise2.png')
+deco = Image.open('F:/noise1.png')
+deco = deco.resize((int(deco.width / 2), int(deco.height / 2)))
 
 deco = deco.convert("RGBA")
 datas = deco.getdata()
@@ -18,5 +19,5 @@ for item in datas:
  
 deco.putdata(newData)
 
-img.paste(deco)
+img.paste(deco, (100, 100))
 img.save('F:/AAAAA.png')
