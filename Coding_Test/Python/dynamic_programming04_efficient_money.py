@@ -7,7 +7,19 @@
 # (1 <= N <= 100, 1 <= M <= 10000)
 
 n, m = map(int, input().split())
-m_list = []
+n_list = []
 for i in range(n):
     x = int(input())
-    m_list.append(x)
+    n_list.append(x)
+
+m_list = [10001] * (m + 1)
+m_list[0] = 0
+for i in range(n):
+    for j in range(n_list[i], m + 1):
+        if m_list[j - n_list[i]] != 10001:
+            m_list[j] = min(m_list[j - n_list[i]] + 1, m_list[j])
+
+if m_list[m] == 10001:
+    print(-1)
+else:
+    print(m_list[m])
