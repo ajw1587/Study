@@ -22,7 +22,7 @@ SCRIPT_PATH = os.path.dirname(os.path.abspath(__file__))
 # '../labels/2350-common-hangul.txt'
 DEFAULT_LABEL_FILE = os.path.join(SCRIPT_PATH, 'C:/Study/Project_02_Team/OCR/tensorflow-hangul-recognition-master/labels/2350-common-hangul-3.txt')
 DEFAULT_FONTS_DIR = os.path.join(SCRIPT_PATH, 'C:/Study/Project_02_Team/OCR/tensorflow-hangul-recognition-master/fonts')
-DEFAULT_OUTPUT_DIR = os.path.join(SCRIPT_PATH, 'F:/Team Project/OCR/02_Image_to_Text_model/test_data')
+DEFAULT_OUTPUT_DIR = os.path.join(SCRIPT_PATH, 'F:/Team Project/OCR/01_Text_detection/data') # 'F:/Team Project/OCR/02_Image_to_Text_model/test_data')
 # C:\Users\Admin\Desktop\image-data
 # Number of random distortion images to generate per font and character.
 DISTORTION_COUNT = 1
@@ -208,8 +208,8 @@ def generate_hangul_images(label_file, fonts_dir, output_dir):
     train_total_count = 0
     prev_count = 0
     text_size = 20
-    TRAIN_ANNOTATION_PATH = 'F:/Team Project/OCR/02_Image_to_Text_model/test_data/train_annotation/'
-    TEST_ANNOTATION_PATH = 'F:/Team Project/OCR/02_Image_to_Text_model/test_data/test_annotation/'
+    TRAIN_ANNOTATION_PATH = 'F:/Team Project/OCR/01_Text_detection/data/train_annotation/' # 'F:/Team Project/OCR/02_Image_to_Text_model/test_data/train_annotation/'
+    TEST_ANNOTATION_PATH = 'F:/Team Project/OCR/01_Text_detection/data/test_annotation/' # 'F:/Team Project/OCR/02_Image_to_Text_model/test_data/test_annotation/'
     if not os.path.exists(TRAIN_ANNOTATION_PATH):
         os.makedirs(os.path.join(TRAIN_ANNOTATION_PATH))
     if not os.path.exists(TEST_ANNOTATION_PATH):
@@ -296,10 +296,6 @@ def generate_hangul_images(label_file, fonts_dir, output_dir):
                 font2 = ImageFont.truetype(font, text_size2)
                 font3 = ImageFont.truetype(font, text_size3)
                 drawing = ImageDraw.Draw(image2)
-                # w, h = drawing.textsize(character, font=font)
-                # w1, h1 = drawing.textsize(character, font = font1)
-                # w2, h2 = drawing.textsize(character, font = font2)
-                # w3, h3 = drawing.textsize(character, font = font3)
 
                 # drawing 1
                 drawing.text(
