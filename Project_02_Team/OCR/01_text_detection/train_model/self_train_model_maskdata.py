@@ -189,10 +189,10 @@ optimizer = torch.optim.SGD(params, lr=0.005,
                                 momentum=0.9, weight_decay=0.0005)
 
 print('----------------------train start--------------------------')
+i = 0    
 for epoch in range(num_epochs):
     start = time.time()
     model.train()
-    i = 0    
     epoch_loss = 0
     print('epoch: ', i)
     for imgs, annotations in data_loader:
