@@ -16,13 +16,13 @@ import random
 import numpy as np
 import shutil
 
-base_path = 'F:/Team Project/OCR/02_Image_to_Text_model/test_data/'
-print(len(os.listdir('F:/Team Project/OCR/01_Text_detection/data/DataSet/annotations/')))
-print(len(os.listdir('F:/Team Project/OCR/02_Image_to_Text_model/test_data/hangul-images/')))
-images_path = 'F:/Team Project/OCR/02_Image_to_Text_model/test_data/hangul-images/'
-test_images_path = 'F:/Team Project/OCR/01_Text_detection/data/DataSet/test_images/'
-annotations_path = 'F:/Team Project/OCR/01_Text_detection/data/DataSet/annotations/'
-test_annotations_path = 'F:/Team Project/OCR/01_Text_detection/data/DataSet/test_annotations/'
+base_path = 'F:/Team Project/OCR/01_Text_detection/data/'
+# print(len(os.listdir('F:/Team Project/OCR/01_Text_detection/data/DataSet/annotations/')))
+# print(len(os.listdir('F:/Team Project/OCR/02_Image_to_Text_model/test_data/hangul-images/')))
+images_path = 'F:/Team Project/OCR/01_Text_detection/data/train_hangul-images/'
+test_images_path = 'F:/Team Project/OCR/01_Text_detection/data/test_hangul-images/'
+annotations_path = 'F:/Team Project/OCR/01_Text_detection/data/train_annotation/'
+test_annotations_path = 'F:/Team Project/OCR/01_Text_detection/data/test_annotation/'
 
 # random.seed(1234)
 # idx = random.sample(range(853), 170)
@@ -194,10 +194,10 @@ for epoch in range(num_epochs):
     model.train()
     i = 0    
     epoch_loss = 0
-    print(11111111111)
+    print('epoch: ', i)
     for imgs, annotations in data_loader:
         i += 1
-        print(222222222222)
+        # print(222222222222)
         imgs = list(img.to(device) for img in imgs)
         annotations = [{k: v.to(device) for k, v in t.items()} for t in annotations]
         loss_dict = model(imgs, annotations) 
@@ -210,6 +210,7 @@ for epoch in range(num_epochs):
     print(f'epoch : {epoch+1}, Loss : {epoch_loss}, time : {time.time() - start}')
 
 torch.save(model.state_dict(),f'model_{num_epochs}.pt')
+
 model.load_state_dict(torch.load(f'model_{num_epochs}.pt'))
 
 def make_prediction(model, img, threshold):
@@ -237,12 +238,13 @@ with torch.no_grad():
         print(pred)
         break
 
+#===========================================================
 _idx = 1
 print("Target : ", annotations[_idx]['labels'])
 plot_image_from_output(imgs[_idx], annotations[_idx])
 print("Prediction : ", pred[_idx]['labels'])
 plot_image_from_output(imgs[_idx], pred[_idx])
-
+#===========================================================
 
 from tqdm import tqdm
 

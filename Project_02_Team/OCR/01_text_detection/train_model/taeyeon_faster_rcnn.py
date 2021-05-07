@@ -1,5 +1,3 @@
-# https://pseudo-lab.github.io/Tutorial-Book/chapters/object-detection/Ch5-Faster-R-CNN.html
-
 import torch
 
 if torch.cuda.is_available():    
@@ -8,35 +6,43 @@ if torch.cuda.is_available():
     print('We will use the GPU:', torch.cuda.get_device_name(0))
 
 else:
-    print('No GPU available, using the CPU instead.')
-    device = torch.device("cpu")
+    print('No GPU available, using the CPU instead.') #There are 1 GPU(s) available.
+    device = torch.device("cpu") #We will use the GPU: GeForce RTX 3090
+
+# !git clone https://github.com/Pseudo-Lab/Tutorial-Book-Utils
+# !python Tutorial-Book-Utils/PL_data_loader.py --data FaceMaskDetection
+# !unzip -q Face\ Mask\ Detection.zip
+
+
+#======================================================
 
 import os
 import random
 import numpy as np
 import shutil
 
-base_path = 'F:/Team Project/OCR/01_Text_detection/mask_data/DataSet/'
-print(len(os.listdir('F:/Team Project/OCR/01_Text_detection/mask_data/DataSet/annotations/')))
-print(len(os.listdir('F:/Team Project/OCR/01_Text_detection/mask_data/DataSet/images/')))
-images_path = 'F:/Team Project/OCR/01_Text_detection/mask_data/DataSet/images/'
-test_images_path = 'F:/Team Project/OCR/01_Text_detection/mask_data/DataSet/test_images/'
-annotations_path = 'F:/Team Project/OCR/01_Text_detection/mask_data/DataSet/annotations/'
-test_annotations_path = 'F:/Team Project/OCR/01_Text_detection/mask_data/DataSet/test_annotations/'
+print(len(os.listdir('C:/final_project/FRCNN_RACCOONS/annotations')))
+print(len(os.listdir('C:/final_project/FRCNN_RACCOONS/images')))
 
-# random.seed(1234)
-# idx = random.sample(range(853), 170)
+# !mkdir test_images
+# !mkdir test_annotations
 
-# for img in np.array(sorted(os.listdir(images_path)))[idx]:
-#     shutil.move(images_path + img, test_images_path + img)
+'''
+random.seed(1234)
+idx = random.sample(range(200), 20)
 
-# for annot in np.array(sorted(os.listdir(annotations_path)))[idx]:
-#     shutil.move(annotations_path + annot, test_annotations_path + annot)
+for img in np.array(sorted(os.listdir('C:/final_project/FRCNN_RACCOONS/images')))[idx]:
+    shutil.move('C:/final_project/FRCNN_RACCOONS/images/'+img, 'C:/final_project/FRCNN_RACCOONS/test_images/'+img)
 
-print(len(os.listdir(annotations_path)))
-print(len(os.listdir(images_path)))
-print(len(os.listdir(test_annotations_path)))
-print(len(os.listdir(test_images_path)))
+for annot in np.array(sorted(os.listdir('C:/final_project/FRCNN_RACCOONS/annotations')))[idx]:
+    shutil.move('C:/final_project/FRCNN_RACCOONS/annotations/'+annot, 'C:/final_project/FRCNN_RACCOONS/test_annotations/'+annot)
+
+print(len(os.listdir('C:/final_project/FRCNN_RACCOONS/annotations')))
+print(len(os.listdir('C:/final_project/FRCNN_RACCOONS/images')))
+print(len(os.listdir('C:/final_project/FRCNN_RACCOONS/test_annotations')))
+print(len(os.listdir('C:/final_project/FRCNN_RACCOONS/test_images')))
+'''
+#========================================================
 
 import os
 import numpy as np
@@ -49,6 +55,7 @@ from torchvision import transforms, datasets, models
 from torchvision.models.detection.faster_rcnn import FastRCNNPredictor
 import time
 
+#========================================================
 def generate_box(obj):
     
     xmin = float(obj.find('xmin').text)
@@ -120,11 +127,13 @@ def plot_image_from_output(img, annotation):
 
     plt.show()
 
+#========================================================
+
 class MaskDataset(object):
     def __init__(self, transforms, path):
-        '''
-        path: path to train folder or test folder
-        '''
+        
+        #path: path to train folder or test folder
+        
         # transform module과 img path 경로를 정의
         self.transforms = transforms
         self.path = path
@@ -138,9 +147,9 @@ class MaskDataset(object):
         img_path = os.path.join(self.path, file_image)
         
         if 'test' in self.path:
-            label_path = os.path.join(test_annotations_path, file_label)
+             label_path = os.path.join("C:/final_project/FRCNN_RACCOONS/test_annotations/", file_label)
         else:
-            label_path = os.path.join(annotations_path, file_label)
+            label_path = os.path.join("C:/final_project/FRCNN_RACCOONS/annotations/", file_label)
 
         img = Image.open(img_path).convert("RGB")
         #Generate Label
@@ -154,6 +163,8 @@ class MaskDataset(object):
     def __len__(self): 
         return len(self.imgs)
 
+
+
 data_transform = transforms.Compose([  # transforms.Compose : list 내의 작업을 연달아 할 수 있게 호출하는 클래스
         transforms.ToTensor() # ToTensor : numpy 이미지에서 torch 이미지로 변경
     ])
@@ -161,43 +172,54 @@ data_transform = transforms.Compose([  # transforms.Compose : list 내의 작업
 def collate_fn(batch):
     return tuple(zip(*batch))
 
-dataset = MaskDataset(data_transform, images_path)
-test_dataset = MaskDataset(data_transform, test_images_path)
+dataset = MaskDataset(data_transform, 'C:/final_project/FRCNN_RACCOONS/images/')
 
+#테스트 이미지 루트 #기존 : 'test_images/' // 변경 : 'test_dataset/'
+#test_dataset = 'C:/final_project/FRCNN_RACCOONS/test_dataset/'
+test_dataset = MaskDataset(data_transform, 'C:/final_project/FRCNN_RACCOONS/test_dataset/')
+#print(test_dataset)
 data_loader = torch.utils.data.DataLoader(dataset, batch_size=4, collate_fn=collate_fn)
-test_data_loader = torch.utils.data.DataLoader(test_dataset, batch_size=2, collate_fn=collate_fn)
+test_data_loader = torch.utils.data.DataLoader(test_dataset, batch_size=6, collate_fn=collate_fn)
 
+
+#========================================================
 
 def get_model_instance_segmentation(num_classes):
-  
+      
     model = torchvision.models.detection.fasterrcnn_resnet50_fpn(pretrained=True)
     in_features = model.roi_heads.box_predictor.cls_score.in_features
     model.roi_heads.box_predictor = FastRCNNPredictor(in_features, num_classes)
 
     return model
 
+#========================================================
+
 model = get_model_instance_segmentation(4)
 
 device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu') 
 model.to(device)
 
+#========================================================
+
 torch.cuda.is_available()
 
-num_epochs = 10
+#========================================================
+
+num_epochs = 500
 params = [p for p in model.parameters() if p.requires_grad]
 optimizer = torch.optim.SGD(params, lr=0.005,
                                 momentum=0.9, weight_decay=0.0005)
 
+#========================================================
+'''
 print('----------------------train start--------------------------')
 for epoch in range(num_epochs):
     start = time.time()
     model.train()
     i = 0    
     epoch_loss = 0
-    print(11111111111)
     for imgs, annotations in data_loader:
         i += 1
-        print(222222222222)
         imgs = list(img.to(device) for img in imgs)
         annotations = [{k: v.to(device) for k, v in t.items()} for t in annotations]
         loss_dict = model(imgs, annotations) 
@@ -209,8 +231,16 @@ for epoch in range(num_epochs):
         epoch_loss += losses
     print(f'epoch : {epoch+1}, Loss : {epoch_loss}, time : {time.time() - start}')
 
+#========================================================
+
 torch.save(model.state_dict(),f'model_{num_epochs}.pt')
+'''
+#========================================================
+
+
 model.load_state_dict(torch.load(f'model_{num_epochs}.pt'))
+
+#========================================================
 
 def make_prediction(model, img, threshold):
     model.eval()
@@ -228,21 +258,27 @@ def make_prediction(model, img, threshold):
 
     return preds
 
+#========================================================
+
 with torch.no_grad(): 
     # 테스트셋 배치사이즈= 2
     for imgs, annotations in test_data_loader:
         imgs = list(img.to(device) for img in imgs)
+        #imgs = list(img.to(device) for img in imgs)
 
         pred = make_prediction(model, imgs, 0.5)
         print(pred)
         break
 
+#========================================================
+
 _idx = 1
-print("Target : ", annotations[_idx]['labels'])
-plot_image_from_output(imgs[_idx], annotations[_idx])
+# print("Target : ", annotations[_idx]['labels'])
+# plot_image_from_output(imgs[_idx], annotations[_idx])
 print("Prediction : ", pred[_idx]['labels'])
 plot_image_from_output(imgs[_idx], pred[_idx])
 
+#========================================================
 
 from tqdm import tqdm
 
@@ -263,7 +299,13 @@ for im, annot in tqdm(test_data_loader, position = 0, leave = True):
         preds_adj_all.append(preds_adj)
         annot_all.append(annot)
 
-import utils_ObjectDetection as utils
+#========================================================
+
+#%cd Tutorial-Book-Utils/
+from Tutorial_Book_Utils import utils_ObjectDetection as utils
+
+#========================================================
+
 sample_metrics = []
 for batch_i in range(len(preds_adj_all)):
     sample_metrics += utils.get_batch_statistics(preds_adj_all[batch_i], annot_all[batch_i], iou_threshold=0.5) 

@@ -7,12 +7,12 @@
 # 첫째줄: N (1<= N <= 2000), 둘째줄: 각 병사의 전투력
 
 n = int(input())
-list = map(int, input().split())
+array = list(map(int, input().split()))
 
 dp = [1] * n
 for i in range(1, n):
   for j in range(i):
-    if list[j] > list[i]:
+    if array[j] > array[i]:
       dp[i] = max(dp[i], dp[j] + 1)
 
 print(dp[-1])
