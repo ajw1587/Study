@@ -23,6 +23,9 @@ SCRIPT_PATH = os.path.dirname(os.path.abspath(__file__))
 DEFAULT_LABEL_FILE = os.path.join(SCRIPT_PATH, 'C:/Study/Project_02_Team/OCR/tensorflow-hangul-recognition-master/labels/2350-common-hangul-3.txt')
 DEFAULT_FONTS_DIR = os.path.join(SCRIPT_PATH, 'C:/Study/Project_02_Team/OCR/tensorflow-hangul-recognition-master/fonts')
 DEFAULT_OUTPUT_DIR = os.path.join(SCRIPT_PATH, 'F:/Team Project/OCR/01_Text_detection/data') # 'F:/Team Project/OCR/02_Image_to_Text_model/test_data')
+
+TRAIN_ANNOTATION_PATH = 'F:/Team Project/OCR/01_Text_detection/data/train_annotation/' # 'F:/Team Project/OCR/02_Image_to_Text_model/test_data/train_annotation/'
+TEST_ANNOTATION_PATH = 'F:/Team Project/OCR/01_Text_detection/data/test_annotation/' # 'F:/Team Project/OCR/02_Image_to_Text_model/test_data/test_annotation/'
 # C:\Users\Admin\Desktop\image-data
 # Number of random distortion images to generate per font and character.
 DISTORTION_COUNT = 1
@@ -140,10 +143,14 @@ def generate_annotation_xml(filename, path, width, height, depth, text_size1, te
     SubElement(object, 'difficult').text = '0'
 
     bnd = SubElement(object, 'bndbox')
-    SubElement(bnd, 'xmin').text = str(x1 - text_size1/2)
-    SubElement(bnd, 'ymin').text = str(y1 - text_size1/2)
-    SubElement(bnd, 'xmax').text = str(x1 + text_size1/2)
-    SubElement(bnd, 'ymax').text = str(y1 + text_size1/2)
+    # SubElement(bnd, 'xmin').text = str(x1 - text_size1/2)
+    # SubElement(bnd, 'ymin').text = str(y1 - text_size1/2)
+    # SubElement(bnd, 'xmax').text = str(x1 + text_size1/2)
+    # SubElement(bnd, 'ymax').text = str(y1 + text_size1/2)
+    SubElement(bnd, 'xmin').text = str(x1)
+    SubElement(bnd, 'ymin').text = str(y1)
+    SubElement(bnd, 'xmax').text = str(x1 + text_size1)
+    SubElement(bnd, 'ymax').text = str(y1 + text_size1)
 
     # object 2
     object = SubElement(root, 'object')
@@ -154,10 +161,14 @@ def generate_annotation_xml(filename, path, width, height, depth, text_size1, te
     SubElement(object, 'difficult').text = '0'
 
     bnd = SubElement(object, 'bndbox')
-    SubElement(bnd, 'xmin').text = str(x2 - text_size2/2)
-    SubElement(bnd, 'ymin').text = str(y2 - text_size2/2)
-    SubElement(bnd, 'xmax').text = str(x2 + text_size2/2)
-    SubElement(bnd, 'ymax').text = str(y2 + text_size2/2)
+    # SubElement(bnd, 'xmin').text = str(x2 - text_size2/2)
+    # SubElement(bnd, 'ymin').text = str(y2 - text_size2/2)
+    # SubElement(bnd, 'xmax').text = str(x2 + text_size2/2)
+    # SubElement(bnd, 'ymax').text = str(y2 + text_size2/2)
+    SubElement(bnd, 'xmin').text = str(x2)
+    SubElement(bnd, 'ymin').text = str(y2)
+    SubElement(bnd, 'xmax').text = str(x2 + text_size2)
+    SubElement(bnd, 'ymax').text = str(y2 + text_size2)
 
     # object 3
     object = SubElement(root, 'object')
@@ -168,10 +179,14 @@ def generate_annotation_xml(filename, path, width, height, depth, text_size1, te
     SubElement(object, 'difficult').text = '0'
 
     bnd = SubElement(object, 'bndbox')
-    SubElement(bnd, 'xmin').text = str(x3 - text_size3/2)
-    SubElement(bnd, 'ymin').text = str(y3 - text_size3/2)
-    SubElement(bnd, 'xmax').text = str(x3 + text_size3/2)
-    SubElement(bnd, 'ymax').text = str(y3 + text_size3/2)
+    # SubElement(bnd, 'xmin').text = str(x3 - text_size3/2)
+    # SubElement(bnd, 'ymin').text = str(y3 - text_size3/2)
+    # SubElement(bnd, 'xmax').text = str(x3 + text_size3/2)
+    # SubElement(bnd, 'ymax').text = str(y3 + text_size3/2)
+    SubElement(bnd, 'xmin').text = str(x3)
+    SubElement(bnd, 'ymin').text = str(y3)
+    SubElement(bnd, 'xmax').text = str(x3 + text_size3)
+    SubElement(bnd, 'ymax').text = str(y3 + text_size3)
 
     tree = ElementTree(root)
     tree.write(path + filename + '.xml')
@@ -208,8 +223,8 @@ def generate_hangul_images(label_file, fonts_dir, output_dir):
     train_total_count = 0
     prev_count = 0
     text_size = 20
-    TRAIN_ANNOTATION_PATH = 'F:/Team Project/OCR/01_Text_detection/data/train_annotation/' # 'F:/Team Project/OCR/02_Image_to_Text_model/test_data/train_annotation/'
-    TEST_ANNOTATION_PATH = 'F:/Team Project/OCR/01_Text_detection/data/test_annotation/' # 'F:/Team Project/OCR/02_Image_to_Text_model/test_data/test_annotation/'
+    # TRAIN_ANNOTATION_PATH = 'F:/Team Project/OCR/01_Text_detection/data/train_annotation/' # 'F:/Team Project/OCR/02_Image_to_Text_model/test_data/train_annotation/'
+    # TEST_ANNOTATION_PATH = 'F:/Team Project/OCR/01_Text_detection/data/test_annotation/' # 'F:/Team Project/OCR/02_Image_to_Text_model/test_data/test_annotation/'
     if not os.path.exists(TRAIN_ANNOTATION_PATH):
         os.makedirs(os.path.join(TRAIN_ANNOTATION_PATH))
     if not os.path.exists(TEST_ANNOTATION_PATH):
