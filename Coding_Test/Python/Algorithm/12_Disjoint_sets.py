@@ -6,8 +6,8 @@
 # 특정 원소가 속한 집합을 찾기
 def find_parent(parent, x):
     if parent[x] != x:
-        return find_parent(parent, parent[x])
-    return x
+        parent[x] = find_parent(parent, parent[x])
+    return parent[x]
 
 # 두 원소가 속한 집합을 합치기
 def union_parent(parent, a, b):
