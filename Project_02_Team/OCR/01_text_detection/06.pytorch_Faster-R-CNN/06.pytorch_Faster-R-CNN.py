@@ -2,6 +2,7 @@
 # https://github.com/herbwood/pytorch_faster_r_cnn/blob/main/faster_r_cnn.ipynb
 # nuggy875.tistory.com/33
 # https://dongjk.github.io/code/object+detection/keras/2018/05/21/Faster_R-CNN_step_by_step,_Part_I.html
+# wolfy.tistory.com/258
 import torch
 import torchvision
 import torch.nn as nn

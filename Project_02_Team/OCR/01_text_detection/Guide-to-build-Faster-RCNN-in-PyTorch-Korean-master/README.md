@@ -25,7 +25,7 @@
 
 -7. anchor label이 0인 것, 1인 것을 mini batch size의 반씩 뽑는다.
 
--8. anchor과 gt box와의 상대적인 크기를 구한다.
+-8. anchor와 gt box와의 상대적인 크기를 구한다.
 
 -9. 전체 anchor의 label과 상대 위치를 저장한다.
 
@@ -37,9 +37,9 @@
 
 -13. 예측 label이 높은 순서로 일정 개수만큼 뽑는다.
 
--14. 한 anchor을 기준으로 해당 anchor가 0.7 이상 겹치는 anchor을 지운다.(반복)
+-14. 한 anchor를 기준으로 해당 anchor가 0.7 이상 겹치는 anchor을 지운다.(반복)
 
--15. 예측 anchor과 gt box와의 iou를 구한다.
+-15. 예측 anchor와 gt box와의 iou를 구한다.
 
 -16. 각 예측 anchor마다 최대 iou를 가지는 gt box를 찾는다.
 
