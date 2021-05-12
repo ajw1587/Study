@@ -208,6 +208,7 @@ for epoch in range(num_epochs):
         optimizer.step() 
         epoch_loss += losses
     print(f'epoch : {epoch+1}, Loss : {epoch_loss}, time : {time.time() - start}')
+    torch.save(model.state_dict(), f'model_{num_epochs}_sub.pt')
 
 torch.save(model.state_dict(),f'model_{num_epochs}.pt')
 
