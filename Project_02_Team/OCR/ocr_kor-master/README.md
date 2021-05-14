@@ -1,3 +1,6 @@
+<!-- https://github.com/parksunwoo/ocr_kor -->
+<!-- https://medium.com/@sunwoopark/%EB%94%A5%EB%9F%AC%EB%8B%9D%EC%9D%84-%ED%99%9C%EC%9A%A9%ED%95%9C-%ED%95%9C%EA%B8%80%EB%AC%B8%EC%9E%A5-ocr-%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8-hclt-2019-bb9d17622412 -->
+
 # 딥러닝을 활용한 한글문서 OCR 연구
 | [paper](document/HCLT2019_deeplearningOCR.pdf) | [poster](document/Poster_HCLT2019_deeplearningOCR.pdf)
 

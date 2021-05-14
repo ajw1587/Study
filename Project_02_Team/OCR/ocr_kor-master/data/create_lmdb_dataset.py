@@ -84,4 +84,7 @@ def createDataset(inputPath, gtFile, outputPath, checkValid=True):
 
 
 if __name__ == '__main__':
-    fire.Fire(createDataset)
+    # fire.Fire(createDataset)
+    createDataset(inputPath = './generator/TextRecognitionDataGenerator/',
+                  gtFile = './gt_basic.txt',
+                  outputPath = 'C:/Study/Project_02_Team/OCR/ocr_kor-master/deep-text-recognition-benchmark/data_lmdb_release/training')
