@@ -20,13 +20,13 @@ SCRIPT_PATH = os.path.dirname(os.path.abspath(__file__))
 
 # Default data paths.
 # '../labels/2350-common-hangul.txt'
-DEFAULT_LABEL_FILE = os.path.join(SCRIPT_PATH, 'C:/Study/Project_02_Team/OCR/tensorflow-hangul-recognition-master/labels/2350-common-hangul-3.txt')
-DEFAULT_FONTS_DIR = os.path.join(SCRIPT_PATH, 'C:/Study/Project_02_Team/OCR/tensorflow-hangul-recognition-master/fonts')
+DEFAULT_LABEL_FILE = os.path.join(SCRIPT_PATH, 'C:/Study/Project_02_Team/OCR/IBM_create_data_tensorflow-hangul-recognition-master/labels/2350-common-hangul-3.txt')
+DEFAULT_FONTS_DIR = os.path.join(SCRIPT_PATH, 'C:/Study/Project_02_Team/OCR/IBM_create_data_tensorflow-hangul-recognition-master/fonts')
 DEFAULT_OUTPUT_DIR = os.path.join(SCRIPT_PATH, 'F:/Team Project/OCR/01_Text_detection/data') # 'F:/Team Project/OCR/02_Image_to_Text_model/test_data')
 
 TRAIN_ANNOTATION_PATH = 'F:/Team Project/OCR/01_Text_detection/data/train_annotation/' # 'F:/Team Project/OCR/02_Image_to_Text_model/test_data/train_annotation/'
 TEST_ANNOTATION_PATH = 'F:/Team Project/OCR/01_Text_detection/data/test_annotation/' # 'F:/Team Project/OCR/02_Image_to_Text_model/test_data/test_annotation/'
-# C:\Users\Admin\Desktop\image-data
+# C:/Users/Admin/Desktop/image-data
 # Number of random distortion images to generate per font and character.
 DISTORTION_COUNT = 1
 
@@ -290,7 +290,7 @@ def generate_hangul_images(label_file, fonts_dir, output_dir):
             # label_list.append(character)
             # path_list.append(file_path)
 
-            # labels_csv.write(u'{},{}\n'.format(file_path, character))
+            # labels_csv.write(u'{},{}/n'.format(file_path, character))
 
             for i in range(DISTORTION_COUNT):
                 train_total_count += 1
@@ -347,7 +347,7 @@ def generate_hangul_images(label_file, fonts_dir, output_dir):
                 # label_list.append(character)
                 # path_list.append(file_path)
 
-                # labels_csv.write(u'{},{}\n'.format(file_path, character))
+                # labels_csv.write(u'{},{}/n'.format(file_path, character))
 
     # label_list = numpy.array(label_list)
     # path_list = numpy.array(path_list)
@@ -413,7 +413,7 @@ if __name__ == '__main__':
 #                                   '../labels/2350-common-hangul.txt')
 # DEFAULT_FONTS_DIR = os.path.join(SCRIPT_PATH, '../fonts')
 # DEFAULT_OUTPUT_DIR = os.path.join(SCRIPT_PATH, 'C:/Users/Admin/Desktop/image-data')
-# # C:\Users\Admin\Desktop\image-data
+# # C:/Users/Admin/Desktop/image-data
 # # Number of random distortion images to generate per font and character.
 # DISTORTION_COUNT = 3
 
