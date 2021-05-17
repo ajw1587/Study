@@ -31,7 +31,8 @@ def parse_arguments():
         type=str,
         nargs="?",
         help="The output directory",
-        default="out/",
+        default = 'F:/Team Project/OCR/01_Text_detection/data2_parksumwoo/'
+        # default="out/"
     )
     parser.add_argument(
         "-i",
@@ -365,7 +366,8 @@ def main():
 
     if args.name_format == 2:
         # Create file with filename-to-label connections
-        with open(os.path.join(args.output_dir, "labels.txt"), 'w', encoding="utf8") as f:
+        # with open(os.path.join(args.output_dir, "labels.txt"), 'w', encoding="utf8") as f:
+        with open("F:/Team Project/OCR/01_Text_detection/data2_parksumwoo/labels.txt", 'w', encoding="utf8") as f:
             for i in range(string_count):
                 file_name = str(i) + "." + args.extension
                 f.write("{} {}\n".format(file_name, strings[i]))
