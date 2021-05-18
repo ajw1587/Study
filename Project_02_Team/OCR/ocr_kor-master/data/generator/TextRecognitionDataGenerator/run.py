@@ -31,7 +31,7 @@ def parse_arguments():
         type=str,
         nargs="?",
         help="The output directory",
-        default = 'F:/Team Project/OCR/01_Text_detection/data2_parksumwoo/'
+        default = 'F:/Team_Project/OCR/01_Text_detection/data2_parksumwoo/'
         # default="out/"
     )
     parser.add_argument(
