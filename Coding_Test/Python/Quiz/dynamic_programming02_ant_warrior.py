@@ -15,4 +15,4 @@ dp[1] = max(array[0], array[1])
 for i in range(n):
   dp[i] = max(dp[i - 1], dp[i - 2] + array[i])
 
-print(d[-1])
+print(dp[-1])
