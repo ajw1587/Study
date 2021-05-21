@@ -20,7 +20,7 @@ graph = [[INF] * (n + 1) for _ in range(n + 1)]
 
 # 자기 자신에게 가는 비용은 0으로 초기화
 for i in range(n + 1):
-  for j in rnage(n + 1):
+  for j in range(n + 1):
     if i == j:
       graph[i][j] = 0
 
