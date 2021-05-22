@@ -30,7 +30,7 @@ for _ in range(m):
   graph[x][y] = 1
   graph[y][x] = 1
 
-# 거쳐갈 노드 X와 최종 목적지 노드 K 입력받기
+# 거쳐갈 노드 k와 최종 목적지 노드 x 입력받기
 x, k = map(int, input().split())
 
 # 점화식에 따라 플로이드 워셜 알고리즘을 수행
