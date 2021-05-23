@@ -108,3 +108,5 @@ def test(S = 7, B = 2, C = 20):
     print('1234')
 
 t = test()
+print(type(t))
+print(t)
