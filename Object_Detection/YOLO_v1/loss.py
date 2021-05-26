@@ -19,9 +19,9 @@ class YoloLoss(nn.Module):
         self.mse = nn.MSELoss(reduction="sum")
 
         """
-        S is split size of image (in paper 7),
-        B is number of boxes (in paper 2),
-        C is number of classes (in paper and VOC dataset is 20),
+        S is split size of image (in paper 7),                      그리드 SxS
+        B is number of boxes (in paper 2),                          앵커박스 개수                       
+        C is number of classes (in paper and VOC dataset is 20),    클래스 개수
         """
         self.S = S
         self.B = B
