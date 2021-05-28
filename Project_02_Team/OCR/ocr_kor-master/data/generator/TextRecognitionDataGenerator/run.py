@@ -361,6 +361,7 @@ def main():
             [args.fit] * string_count
         )
     ), total=args.count):
+        pass
     p.terminate()
 
     if args.name_format == 2:

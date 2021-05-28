@@ -32,6 +32,7 @@ class CNNBlock(nn.Module):
         self.conv = nn.Conv2d(in_channels, out_channels, bias = False, **kwargs)
         self.batchnorm = nn.BatchNorm2d(out_channels)
         self.leakyrelu = nn.LeakyReLU(0.1)
+        print('Conv2D: ', "'out':", out_channels, "'in':", in_channels, kwargs)
 
     def forward(self, x):
         return self.leakyrelu(self.batchnorm(self.conv(x)))
@@ -56,12 +57,17 @@ class Yolov1(nn.Module):
             if type(x) == tuple:
                 layers += [
                     CNNBlock(
-                    in_channels, out_channels = x[1], kernel_size = x[0], stride = x[2], padding = x[3],
+                    in_channels,
+                    out_channels = x[1],
+                    kernel_size = x[0],
+                    stride = x[2],
+                    padding = x[3]
                     )
                 ]
                 in_channels = x[1]
 
             elif type(x) == str:
+                print('MaxPool2d kernel_size:', 2, 'stride:', 2)
                 layers += [nn.MaxPool2d(kernel_size = 2, stride = 2)]
 
             elif type(x) == list:
@@ -94,6 +100,12 @@ class Yolov1(nn.Module):
 
     def _create_fcs(self, split_size, num_boxes, num_classes):
         S, B, C = split_size, num_boxes, num_classes
+        print(
+        'Flatten()\n',
+        'Linear(1024 * S * S, 496)\n',
+        'Dropout(0.5)\n',
+        'LeakyReLU(0.1)\n',
+        'Linear(496, S * S * (C + B * 5)')
         return nn.Sequential(
             nn.Flatten(),
             nn.Linear(1024 * S * S, 496),
@@ -105,10 +117,10 @@ class Yolov1(nn.Module):
 def test(S = 7, B = 2, C = 20):
     model = Yolov1(split_size = S, num_boxes = B, num_classes = C)
     x = torch.randn((2, 3, 448, 448))
-    print('1234')
-    print(model(x).shape)
-    print('1234')
+    # print('1234')
+    # print(model(x).shape)
+    # print('1234')
 
 t = test()
-print(type(t))
-print(t)
+# print(type(t))
+# print(t)
