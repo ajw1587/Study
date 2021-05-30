@@ -16,13 +16,13 @@ import random
 import numpy as np
 import shutil
 
-base_path = 'F:/Team Project/OCR/01_Text_detection/mask_data/DataSet/'
-print(len(os.listdir('F:/Team Project/OCR/01_Text_detection/mask_data/DataSet/annotations/')))
-print(len(os.listdir('F:/Team Project/OCR/01_Text_detection/mask_data/DataSet/images/')))
-images_path = 'F:/Team Project/OCR/01_Text_detection/mask_data/DataSet/images/'
-test_images_path = 'F:/Team Project/OCR/01_Text_detection/mask_data/DataSet/test_images/'
-annotations_path = 'F:/Team Project/OCR/01_Text_detection/mask_data/DataSet/annotations/'
-test_annotations_path = 'F:/Team Project/OCR/01_Text_detection/mask_data/DataSet/test_annotations/'
+base_path = 'F:/Team_Project/OCR/01_Text_detection/mask_data/DataSet/'
+print(len(os.listdir('F:/Team_Project/OCR/01_Text_detection/mask_data/DataSet/annotations/')))
+print(len(os.listdir('F:/Team_Project/OCR/01_Text_detection/mask_data/DataSet/images/')))
+images_path = 'F:/Team_Project/OCR/01_Text_detection/mask_data/DataSet/images/'
+test_images_path = 'F:/Team_Project/OCR/01_Text_detection/mask_data/DataSet/test_images/'
+annotations_path = 'F:/Team_Project/OCR/01_Text_detection/mask_data/DataSet/annotations/'
+test_annotations_path = 'F:/Team_Project/OCR/01_Text_detection/mask_data/DataSet/test_annotations/'
 
 # random.seed(1234)
 # idx = random.sample(range(853), 170)
