@@ -1,3 +1,6 @@
+# https://herbwood.tistory.com/20
+# mask rcnn
+
 import numpy as np
 import cv2 as cv
 
