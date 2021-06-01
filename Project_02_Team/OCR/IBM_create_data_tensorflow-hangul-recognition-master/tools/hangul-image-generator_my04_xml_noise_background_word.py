@@ -250,10 +250,6 @@ def generate_hangul_images(label_file, fonts_dir, output_dir):
             font2 = ImageFont.truetype(font, text_size2)
             font3 = ImageFont.truetype(font, text_size3)
             drawing = ImageDraw.Draw(image)
-            # w, h = drawing.textsize(character, font=font)
-            # w1, h1 = drawing.textsize(character, font = font1)
-            # w2, h2 = drawing.textsize(character, font = font2)
-            # w3, h3 = drawing.textsize(character, font = font3)
 
             # drawing 1
             drawing.text(
