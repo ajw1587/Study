@@ -20,12 +20,12 @@ SCRIPT_PATH = os.path.dirname(os.path.abspath(__file__))
 
 # Default data paths.
 # '../labels/2350-common-hangul.txt'
-DEFAULT_LABEL_FILE = os.path.join(SCRIPT_PATH, 'C:/Study/Project_02_Team/OCR/IBM_create_data_tensorflow-hangul-recognition-master/labels/2350-common-hangul-3.txt')
+DEFAULT_LABEL_FILE = os.path.join(SCRIPT_PATH, 'C:/Study/Project_02_Team/OCR/IBM_create_data_tensorflow-hangul-recognition-master/labels/5888-common-hangul.txt')
 DEFAULT_FONTS_DIR = os.path.join(SCRIPT_PATH, 'C:/Study/Project_02_Team/OCR/IBM_create_data_tensorflow-hangul-recognition-master/fonts')
-DEFAULT_OUTPUT_DIR = os.path.join(SCRIPT_PATH, 'F:/Team Project/OCR/01_Text_detection/data') # 'F:/Team Project/OCR/02_Image_to_Text_model/test_data')
+DEFAULT_OUTPUT_DIR = os.path.join(SCRIPT_PATH, 'F:/Team_Project/OCR/01_Text_detection/data') # 'F:/Team Project/OCR/02_Image_to_Text_model/test_data')
 
-TRAIN_ANNOTATION_PATH = 'F:/Team Project/OCR/01_Text_detection/data/train_annotation/' # 'F:/Team Project/OCR/02_Image_to_Text_model/test_data/train_annotation/'
-TEST_ANNOTATION_PATH = 'F:/Team Project/OCR/01_Text_detection/data/test_annotation/' # 'F:/Team Project/OCR/02_Image_to_Text_model/test_data/test_annotation/'
+TRAIN_ANNOTATION_PATH = 'F:/Team_Project/OCR/01_Text_detection/data/train_annotation/' # 'F:/Team Project/OCR/02_Image_to_Text_model/test_data/train_annotation/'
+TEST_ANNOTATION_PATH = 'F:/Team_Project/OCR/01_Text_detection/data/test_annotation/' # 'F:/Team Project/OCR/02_Image_to_Text_model/test_data/test_annotation/'
 # C:/Users/Admin/Desktop/image-data
 # Number of random distortion images to generate per font and character.
 DISTORTION_COUNT = 1
@@ -121,7 +121,8 @@ def generate_image_noise(img):
 
     return img
 
-def generate_annotation_xml(filename, path, width, height, depth, text_size1, text_size2, text_size3, name, x1, y1, x2, y2, x3, y3):
+def generate_annotation_xml(filename, path, width, height, depth, text_size1, text_size2,\
+                            text_size3, name, x1, y1, x2, y2, x3, y3, word_len):
     root = Element('annotation')
     SubElement(root, 'folder').text = 'images'
 
@@ -143,14 +144,10 @@ def generate_annotation_xml(filename, path, width, height, depth, text_size1, te
     SubElement(object, 'difficult').text = '0'
 
     bnd = SubElement(object, 'bndbox')
-    # SubElement(bnd, 'xmin').text = str(x1 - text_size1/2)
-    # SubElement(bnd, 'ymin').text = str(y1 - text_size1/2)
-    # SubElement(bnd, 'xmax').text = str(x1 + text_size1/2)
-    # SubElement(bnd, 'ymax').text = str(y1 + text_size1/2)
     SubElement(bnd, 'xmin').text = str(x1)
     SubElement(bnd, 'ymin').text = str(y1)
-    SubElement(bnd, 'xmax').text = str(x1 + text_size1)
-    SubElement(bnd, 'ymax').text = str(y1 + text_size1)
+    SubElement(bnd, 'xmax').text = str(x1 + text_size1*word_len)
+    SubElement(bnd, 'ymax').text = str(y1 + text_size1*word_len)
 
     # object 2
     object = SubElement(root, 'object')
@@ -161,14 +158,10 @@ def generate_annotation_xml(filename, path, width, height, depth, text_size1, te
     SubElement(object, 'difficult').text = '0'
 
     bnd = SubElement(object, 'bndbox')
-    # SubElement(bnd, 'xmin').text = str(x2 - text_size2/2)
-    # SubElement(bnd, 'ymin').text = str(y2 - text_size2/2)
-    # SubElement(bnd, 'xmax').text = str(x2 + text_size2/2)
-    # SubElement(bnd, 'ymax').text = str(y2 + text_size2/2)
     SubElement(bnd, 'xmin').text = str(x2)
     SubElement(bnd, 'ymin').text = str(y2)
-    SubElement(bnd, 'xmax').text = str(x2 + text_size2)
-    SubElement(bnd, 'ymax').text = str(y2 + text_size2)
+    SubElement(bnd, 'xmax').text = str(x2 + text_size2*word_len)
+    SubElement(bnd, 'ymax').text = str(y2 + text_size2*word_len)
 
     # object 3
     object = SubElement(root, 'object')
@@ -179,14 +172,10 @@ def generate_annotation_xml(filename, path, width, height, depth, text_size1, te
     SubElement(object, 'difficult').text = '0'
 
     bnd = SubElement(object, 'bndbox')
-    # SubElement(bnd, 'xmin').text = str(x3 - text_size3/2)
-    # SubElement(bnd, 'ymin').text = str(y3 - text_size3/2)
-    # SubElement(bnd, 'xmax').text = str(x3 + text_size3/2)
-    # SubElement(bnd, 'ymax').text = str(y3 + text_size3/2)
     SubElement(bnd, 'xmin').text = str(x3)
     SubElement(bnd, 'ymin').text = str(y3)
-    SubElement(bnd, 'xmax').text = str(x3 + text_size3)
-    SubElement(bnd, 'ymax').text = str(y3 + text_size3)
+    SubElement(bnd, 'xmax').text = str(x3 + text_size3*word_len)
+    SubElement(bnd, 'ymax').text = str(y3 + text_size3*word_len)
 
     tree = ElementTree(root)
     tree.write(path + filename + '.xml')
@@ -241,8 +230,10 @@ def generate_hangul_images(label_file, fonts_dir, output_dir):
         for font in fonts:
             
             # 위치 생성
+            # print(len(character))
+            word_len = len(character)
             x1, y1, x2, y2, x3, y3, text_size1, text_size2, text_size3 = generate_hangul_location(0, 500, text_size)
-
+            # print(character)
             test_total_count += 1
             image = Image.new('RGB', (IMAGE_WIDTH, IMAGE_HEIGHT), color=(255, 255, 255)) # 'L' -> 'RGB'
             # font = ImageFont.truetype(font, text_size)
@@ -281,7 +272,7 @@ def generate_hangul_images(label_file, fonts_dir, output_dir):
 
             annotation_name1 = 'hangul_{}'.format(test_total_count)
             generate_annotation_xml(annotation_name1, TEST_ANNOTATION_PATH, IMAGE_WIDTH, IMAGE_HEIGHT, DEPTH,
-                                    text_size1, text_size2, text_size3, character, x1, y1, x2, y2, x3, y3)
+                                    text_size1, text_size2, text_size3, character, x1, y1, x2, y2, x3, y3, word_len)
 
             # label_list.append(character)
             # path_list.append(file_path)
@@ -338,7 +329,7 @@ def generate_hangul_images(label_file, fonts_dir, output_dir):
                 noise_image.save(file_path, 'PNG')
                 annotation_name2 = 'hangul_{}'.format(train_total_count)
                 generate_annotation_xml(annotation_name2, TRAIN_ANNOTATION_PATH, IMAGE_WIDTH, IMAGE_HEIGHT, DEPTH,
-                                        text_size1, text_size2, text_size3, character, x1, y1, x2, y2, x3, y3)
+                                        text_size1, text_size2, text_size3, character, x1, y1, x2, y2, x3, y3, word_len)
 
                 # label_list.append(character)
                 # path_list.append(file_path)
