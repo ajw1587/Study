@@ -20,11 +20,17 @@ tree = parse('F:/Team_Project/OCR/01_Text_detection/data/train_annotation/hangul
 root = tree.getroot()
 
 object_tag = root.findall('object')
-print(object_tag)
-print(len(object_tag))
-print(object_tag[0].find('bndbox').findtext('xmin'))
-print(object_tag[0].find('bndbox').find('xmin').text)
+# print(object_tag)
+# print(len(object_tag))
+# print(object_tag[0].find('bndbox').findtext('xmin'))
+# print(object_tag[0].find('bndbox').find('xmin').text)
 
 x1_min = object_tag[0].find('bndbox').findtext('xmin')
 x1_max = object_tag[0].find('bndbox').findtext('xmax')
 y1_min = object_tag[0].find('bndbox').findtext('ymin')
+y1_max = object_tag[0].find('bndbox').findtext('ymax')
+
+print(x1_min)
+print(x1_max)
+print(y1_min)
+print(y1_max)
